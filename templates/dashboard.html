@@ -1,7 +1,7 @@
+<!-- templates/dashboard.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,8 +20,8 @@
         <p id="expenseMsg"></p>
 
         <div class="actions">
-            <button onclick="window.location='/download_csv'">Download CSV</button>
-            <button onclick="window.location='/download_pdf'">Download PDF</button>
+            <button onclick="window.location='/download_csv'">CSV Report</button>
+            <button onclick="window.location='/download_pdf'">PDF Report</button>
             <button onclick="predict()">Predict Future</button>
         </div>
 
@@ -35,7 +35,7 @@
         <div class="ai-section">
             <h3>Ask AI Assistant</h3>
             <form id="askForm">
-                <input type="text" name="question" placeholder="Ask something about your spending..." required>
+                <input type="text" name="question" placeholder="Ask a question..." required>
                 <button type="submit">Ask</button>
             </form>
             <div id="response"></div>
@@ -52,7 +52,7 @@
             if (window.catChart) catChart.destroy();
             if (window.trendChart) trendChart.destroy();
 
-            const ctx1 = document.getElementById("categoryChart").getContext("2d");
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
             window.catChart = new Chart(ctx1, {
                 type: 'pie',
                 data: {
@@ -64,7 +64,7 @@
                 }
             });
 
-            const ctx2 = document.getElementById("trendChart").getContext("2d");
+            const ctx2 = document.getElementById('trendChart').getContext('2d');
             window.trendChart = new Chart(ctx2, {
                 type: 'line',
                 data: {
@@ -82,7 +82,10 @@
         document.getElementById("expenseForm").onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const res = await fetch("/add_expense", { method: "POST", body: formData });
+            const res = await fetch("/add_expense", {
+                method: "POST",
+                body: formData
+            });
             const result = await res.json();
             document.getElementById("expenseMsg").innerText = result.message;
             e.target.reset();
@@ -93,7 +96,10 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             document.getElementById("response").innerText = "Thinking...";
-            const res = await fetch("/ask", { method: "POST", body: formData });
+            const res = await fetch("/ask", {
+                method: "POST",
+                body: formData
+            });
             const result = await res.json();
             document.getElementById("response").innerText = result.answer;
             e.target.reset();
@@ -110,4 +116,3 @@
     </script>
 </body>
 </html>
-
