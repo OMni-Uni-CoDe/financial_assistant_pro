@@ -3,7 +3,7 @@ Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 gunicorn==23.0.0
 python-dotenv==1.0.1
-pandas==2.2.2
+pandas==2.1.4
 numpy==1.26.4
 openai==1.40.2
 fpdf==1.7.2
