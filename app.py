@@ -3,6 +3,12 @@ import os
 import flask as _flask
 from markupsafe import Markup as _Markup
 _flask.Markup = _Markup
+import werkzeug.urls as wz_urls
+
+if not hasattr(wz_urls, "url_encode"):
+    from urllib.parse import urlencode
+    wz_urls.url_encode = urlencode
+
 os.environ["WTF_CSRF_CHECK_DEFAULT"] = "false"
 os.environ["RECAPTCHA_PUBLIC_KEY"] = ""
 os.environ["RECAPTCHA_PRIVATE_KEY"] = ""    
@@ -41,12 +47,14 @@ from sklearn.linear_model import LinearRegression
 # ---------- App / Config ----------
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-fallback-secret")
+
 db_url = os.environ.get("DATABASE_URL")
+
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///local.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 
 # Mail settings for email confirmation
 app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "")

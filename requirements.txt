@@ -10,7 +10,6 @@ fpdf==1.7.2
 scikit-learn==1.5.2
 Werkzeug==3.0.3
 Flask-WTF==1.2.1
-Flask-Migrate==4.0.4
 Flask-Mail==0.9.1
 Flask-Limiter==2.9.0
 alembic==1.13.2
