@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <a href="/logout" class="logout">Logout</a>
+    <h2>Welcome, {{ username }}</h2>
+
+    <div class="top-row">
+        <div class="left">
+            <h3>Add Expense</h3>
+            <form id="expenseForm">
+                {{ csrf_token() }}
+                <input type="text" name="category" placeholder="Category" required>
+                <input type="number" step="0.01" name="amount" placeholder="Amount" required>
+                <button type="submit">Add</button>
+            </form>
+            <p id="expenseMsg"></p>
+
+            <div class="actions">
+                <button id="csvBtn">CSV Report</button>
+                <button id="pdfBtn">PDF Report</button>
+                <button id="predictBtn">Predict Future</button>
+            </div>
+            <p id="prediction"></p>
+        </div>
+
+        <div class="right">
+            <div class="ai-card">
+                <h4>AI Assistant</h4>
+                <form id="askForm">
+                    {{ csrf_token() }}
+                    <input type="text" name="question" placeholder="Ask about your spending..." required>
+                    <button type="submit">Ask</button>
+                </form>
+                <div id="response"></div>
+                <div id="confidence"></div>
+            </div>
+
+            <div class="history-card">
+                <h4>Recent Activity</h4>
+                <div id="history"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts">
+        <canvas id="categoryChart"></canvas>
+        <canvas id="trendChart"></canvas>
+    </div>
+</div>
+
+<script>
+    async function loadCharts() {
+        const res = await fetch('/get_data');
+        const data = await res.json();
+        if (!data.categories.length) {
+            document.getElementById('categoryChart').style.display = 'none';
+            return;
+        }
+        // destroy previous charts if present
+        if (window.catChart) window.catChart.destroy();
+        if (window.trendChart) window.trendChart.destroy();
+
+        const ctx1 = document.getElementById('categoryChart').getContext('2d');
+        window.catChart = new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: data.categories,
+                datasets: [{ data: data.totals, backgroundColor: ['#3B82F6', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#06B6D4'] }]
+            },
+            options: { plugins: { tooltip: { enabled: true } } }
+        });
+
+        const ctx2 = document.getElementById('trendChart').getContext('2d');
+        window.trendChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [{ label: 'Spending', data: data.daily_totals, tension: 0.2 }]
+            }
+        });
+    }
+
+    document.getElementById("expenseForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const res = await fetch("/add_expense", { method: "POST", body: formData });
+        const result = await res.json();
+        document.getElementById("expenseMsg").innerText = result.message || 'Added';
+        e.target.reset();
+        loadCharts();
+        loadHistory();
+    };
+
+    document.getElementById("askForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        document.getElementById("response").innerText = "Thinking...";
+        const res = await fetch("/ask", { method: "POST", body: formData });
+        const result = await res.json();
+        document.getElementById("response").innerText = result.answer || '';
+        document.getElementById("confidence").innerText = result.confidence ? 'Confidence: ' + result.confidence : '';
+        e.target.reset();
+    };
+
+    document.getElementById('csvBtn').addEventListener('click', () => { window.location = '/download_csv'; });
+    document.getElementById('pdfBtn').addEventListener('click', () => { window.location = '/download_pdf'; });
+    document.getElementById('predictBtn').addEventListener('click', async () => {
+        document.getElementById('prediction').innerText = 'Calculating...';
+        const res = await fetch('/predict_future');
+        const r = await res.json();
+        document.getElementById('prediction').innerText = r.prediction;
+    });
+
+    async function loadHistory() {
+        const res = await fetch('/history');
+        const j = await res.json();
+        const h = document.getElementById('history');
+        h.innerHTML = '';
+        j.history.forEach(it => {
+            const el = document.createElement('div');
+            el.innerText = `${it.date} — ${it.category}: $${it.amount}`;
+            h.appendChild(el);
+        });
+    }
+
+    loadCharts();
+    loadHistory();
+</script>
+{% endblock %}

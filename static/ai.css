@@ -1,0 +1,26 @@
+.ai-box {
+    background: #161616;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 30px;
+    text-align: left;
+    color: #eee;
+}
+
+#message {
+    width: 100%;
+    height: 80px;
+    background: #222;
+    border: 1px solid #444;
+    color: #eee;
+}
+
+#history {
+    height: 200px;
+    overflow-y: auto;
+    background: #111;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    color: #ccc;
+}

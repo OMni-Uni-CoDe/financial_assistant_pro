@@ -1,0 +1,109 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #0b0b0b;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    width: 1100px;
+    margin: 28px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    color: #e6eef8;
+}
+
+.login-container {
+    width: 360px;
+    margin: 80px auto;
+    background: #070707;
+    padding: 18px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    color: #dbeafe;
+}
+
+input, button {
+    padding: 10px;
+    margin: 8px 0;
+    width: 92%;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    color: #e6eef8;
+}
+
+button {
+    background: linear-gradient(90deg,#0ea5e9,#6366f1);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+    button:hover {
+        filter: brightness(1.05);
+    }
+
+.logout {
+    float: right;
+    text-decoration: none;
+    color: #9ad0ff;
+    font-size: 14px;
+}
+
+.container h2, .login-container h2 {
+    margin-top: 0;
+    color: #fff;
+}
+
+.top-row {
+    display: flex;
+    gap: 20px;
+}
+
+.left {
+    flex: 1;
+}
+
+.right {
+    width: 360px;
+}
+
+.ai-card, .history-card {
+    background: rgba(255,255,255,0.02);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.chart {
+    margin-top: 18px;
+}
+
+canvas {
+    background: transparent;
+}
+
+.actions button {
+    margin-right: 8px;
+}
+
+#response {
+    white-space: pre-wrap;
+    margin-top: 10px;
+    color: #dbeafe;
+}
+
+#history div {
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.03);
+    color: #cfe8ff;
+}
+
+.logout {
+    color: #a5f3fc;
+}

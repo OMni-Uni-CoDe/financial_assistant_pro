@@ -1,0 +1,45 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+    body { background: black; margin:0; height:100vh; overflow:hidden; }
+    .bg {
+        position: absolute; inset:0; background-image: url('{{ bg }}'); background-size:cover; background-position:center;
+        filter: blur(2px) brightness(0.6);
+    }
+    .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .card {
+        max-width:800px; color:white; text-align:center; background: rgba(0,0,0,0.45); padding:30px; border-radius:12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+    .quote { font-size:22px; line-height:1.4; margin-bottom:12px; }
+    .author { font-size:16px; opacity:0.85; }
+    .skip { margin-top:14px; background:transparent; color:#fff; border:1px solid #fff; padding:8px 14px; border-radius:6px; cursor:pointer; }
+</style>
+<div class="bg" aria-hidden="true"></div>
+<div class="overlay">
+    <div class="card">
+        <div class="quote">“{{ quote.text }}”</div>
+        <div class="author">— {{ quote.author }}</div>
+        <button class="skip" id="skipBtn">Skip to dashboard</button>
+        <div style="margin-top:10px; font-size:12px; opacity:0.85">Loading dashboard in <span id="count">5</span>s...</div>
+    </div>
+</div>
+
+<script>
+    // simple auto-redirect after 5s, with skip
+    let t = 5;
+    const c = document.getElementById('count');
+    const interval = setInterval(() => {
+        t -= 1;
+        c.innerText = t;
+        if (t <= 0) {
+            clearInterval(interval);
+            window.location = '/dashboard';
+        }
+    }, 1000);
+    document.getElementById('skipBtn').addEventListener('click', () => {
+        clearInterval(interval);
+        window.location = '/dashboard';
+    });
+</script>
+{% endblock %}
