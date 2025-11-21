@@ -32,7 +32,6 @@ flask_wtf.recaptcha.fields = None
 flask_wtf.recaptcha.widgets = None
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
-from flask_migrate import Migrate
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -69,7 +68,7 @@ CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))
 
 # ---------- Extensions ----------
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+
 csrf = CSRFProtect(app)
 mail = Mail(app)
 login_manager = LoginManager(app)
