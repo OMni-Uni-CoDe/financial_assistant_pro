@@ -14,4 +14,5 @@ Flask-Migrate==4.0.4
 Flask-Mail==0.9.1
 Flask-Limiter==2.9.0
 alembic==1.13.2
-psycopg2-binary==2.9.9
+psycopg[binary]==3.1.18
+

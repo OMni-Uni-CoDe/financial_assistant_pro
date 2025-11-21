@@ -42,7 +42,7 @@ from sklearn.linear_model import LinearRegression
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-fallback-secret")
 # IMPORTANT: Render Postgres uses DATABASE_URL
-app.config["SQLALCHEMY_DATABASE_URI"] = (os.environ.get("DATABASE_URL") or "sqlite:///local.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Mail settings for email confirmation
