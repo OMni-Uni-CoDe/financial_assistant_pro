@@ -1,5 +1,9 @@
 ﻿# app.py
 import os
+os.environ["WTF_CSRF_CHECK_DEFAULT"] = "false"
+os.environ["RECAPTCHA_PUBLIC_KEY"] = ""
+os.environ["RECAPTCHA_PRIVATE_KEY"] = ""
+
 import re
 import io
 from datetime import datetime, timedelta
@@ -12,7 +16,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_wtf import CSRFProtect
+from flask_wtf import FlaskForm
+from flask_wtf.csrf import CSRFProtect
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_migrate import Migrate
