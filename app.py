@@ -1,8 +1,11 @@
 ﻿# app.py
 import os
+import flask as _flask
+from markupsafe import Markup as _Markup
+_flask.Markup = _Markup
 os.environ["WTF_CSRF_CHECK_DEFAULT"] = "false"
 os.environ["RECAPTCHA_PUBLIC_KEY"] = ""
-os.environ["RECAPTCHA_PRIVATE_KEY"] = ""
+os.environ["RECAPTCHA_PRIVATE_KEY"] = ""    
 
 import re
 import io
@@ -16,8 +19,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_wtf import FlaskForm
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf import FlaskForm, CSRFProtect
+import flask_wtf.recaptcha
+flask_wtf.recaptcha.Recaptcha = None
+flask_wtf.recaptcha.fields = None
+flask_wtf.recaptcha.widgets = None
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_migrate import Migrate
