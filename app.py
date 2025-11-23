@@ -57,6 +57,8 @@ CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))
 
 # ---------- Extensions ----------
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 csrf = CSRFProtect(app)
 app.config["WTF_CSRF_ENABLED"] = False
