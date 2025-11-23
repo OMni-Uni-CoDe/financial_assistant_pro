@@ -1,20 +1,8 @@
 ﻿# app.py
 import os
-import flask as _flask
-from markupsafe import Markup as _Markup
-_flask.Markup = _Markup
-import werkzeug.urls as wz_urls
-
-if not hasattr(wz_urls, "url_encode"):
-    from urllib.parse import urlencode
-    wz_urls.url_encode = urlencode
-
-os.environ["WTF_CSRF_CHECK_DEFAULT"] = "false"
-os.environ["RECAPTCHA_PUBLIC_KEY"] = ""
-os.environ["RECAPTCHA_PRIVATE_KEY"] = ""    
-
 import re
 import io
+from markupsafe import Markup
 from datetime import datetime, timedelta
 from functools import wraps
 from markupsafe import Markup
@@ -26,10 +14,6 @@ from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm, CSRFProtect
-import flask_wtf.recaptcha
-flask_wtf.recaptcha.Recaptcha = None
-flask_wtf.recaptcha.fields = None
-flask_wtf.recaptcha.widgets = None
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_mail import Mail, Message
@@ -44,7 +28,12 @@ from sklearn.linear_model import LinearRegression
 
 
 # ---------- App / Config ----------
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="static",
+    template_folder="templates"
+)
+
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-fallback-secret")
 
 db_url = os.environ.get("DATABASE_URL")
@@ -70,6 +59,7 @@ CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))
 db = SQLAlchemy(app)
 
 csrf = CSRFProtect(app)
+app.config["WTF_CSRF_ENABLED"] = False
 mail = Mail(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -242,22 +232,49 @@ def resend_confirmation():
     flash("Confirmation email resent.", "info")
     return redirect(url_for("unconfirmed"))
 
+@app.route("/history")
+@login_required
+def history():
+    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).limit(10).all()
+    return jsonify({
+        "history": [
+            {"date": str(e.date), "category": e.category, "amount": e.amount}
+            for e in expenses
+        ]
+    })
+
 # ---------- Splash (quote) ----------
 @app.route("/splash")
 @login_required
 def splash():
-    # random local list; can be replaced with remote API
-    quotes = [
-        "An investment in knowledge pays the best interest. — Benjamin Franklin",
-        "Money is a terrible master but an excellent servant. — P.T. Barnum",
-        "Beware of little expenses; a small leak will sink a great ship. — Benjamin Franklin",
-        "Do not save what is left after spending; spend what is left after saving. — Warren Buffett",
-        "A budget tells us what we can't afford, but it doesn't keep us from buying it. — William Feather"
-    ]
     import random
+
+    background_folder = os.path.join(app.static_folder, "backgrounds")
+
+    # Get all image files inside backgrounds folder
+    files = [
+        f for f in os.listdir(background_folder)
+        if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+    ]
+
+    # Fallback bg if folder empty
+    if not files:
+        bg_path = url_for("static", filename="backgrounds/default.jpg")
+    else:
+        picked = random.choice(files)
+        bg_path = url_for("static", filename=f"backgrounds/{picked}")
+
+    quotes = [
+        {"text": "An investment in knowledge pays the best interest."},
+        {"text": "Money is a terrible master but an excellent servant."},
+        {"text": "Beware of little expenses; a small leak will sink a great ship."},
+        {"text": "Spend what is left after saving — not the other way around."}
+    ]
+
     quote = random.choice(quotes)
-    # pick a dark overlay to ensure readability (front-end handles it)
-    return render_template("splash.html", quote=quote, delay_ms=5000)
+
+    return render_template("splash.html", quote=quote, bg=bg_path)
+
 
 # ---------- Dashboard ----------
 @app.route("/")
