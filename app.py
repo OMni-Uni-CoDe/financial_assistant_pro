@@ -249,32 +249,39 @@ def history():
 def splash():
     import random
 
-    background_folder = os.path.join(app.static_folder, "backgrounds")
+    # folder path in static
+    bg_folder = os.path.join(app.static_folder, "backgrounds")
 
-    # Get all image files inside backgrounds folder
+    # read all JPG/JPEG/PNG files
     files = [
-        f for f in os.listdir(background_folder)
-        if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+        f for f in os.listdir(bg_folder)
+        if f.lower().endswith((".jpg", ".jpeg", ".png"))
     ]
 
-    # Fallback bg if folder empty
     if not files:
-        bg_path = url_for("static", filename="backgrounds/default.jpg")
+        # fallback color or image
+        bg_url = url_for("static", filename="backgrounds/default.jpg")
     else:
-        picked = random.choice(files)
-        bg_path = url_for("static", filename=f"backgrounds/{picked}")
+        chosen = random.choice(files)
+        bg_url = url_for("static", filename=f"backgrounds/{chosen}")
 
+    # random motivational quotes
     quotes = [
-        {"text": "An investment in knowledge pays the best interest."},
-        {"text": "Money is a terrible master but an excellent servant."},
-        {"text": "Beware of little expenses; a small leak will sink a great ship."},
-        {"text": "Spend what is left after saving — not the other way around."}
+        {"text": "An investment in knowledge pays the best interest. — Benjamin Franklin"},
+        {"text": "Money is a terrible master but an excellent servant. — P.T. Barnum"},
+        {"text": "Do not save what is left after spending; spend what is left after saving. — Warren Buffett"},
+        {"text": "Beware of little expenses; a small leak will sink a great ship. — Benjamin Franklin"},
+        {"text": "A budget tells us what we can't afford, but it doesn't keep us from buying it. — William Feather"}
     ]
 
     quote = random.choice(quotes)
 
-    return render_template("splash.html", quote=quote, bg=bg_path)
-
+    return render_template(
+        "splash.html",
+        quote=quote,
+        delay_ms=5000,
+        bg=bg_url
+    )
 
 # ---------- Dashboard ----------
 @app.route("/")
