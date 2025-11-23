@@ -3,7 +3,7 @@
 <div class="login-container">
     <h2>Create Account</h2>
     <form id="signupForm" method="POST">
-        {{ csrf_token() }}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="text" id="username" name="username" placeholder="Username (letters+numbers)" required><br>
         <small id="userHelp"></small><br>
         <input type="email" id="email" name="email" placeholder="Email (optional)"><br>
@@ -15,6 +15,7 @@
     <p>Already have an account? <a href="/login">Login</a></p>
 </div>
 
+
 <script>
     const userInput = document.getElementById('username');
     const userHelp = document.getElementById('userHelp');
@@ -22,17 +23,23 @@
     const pwMeter = document.getElementById('pwMeter');
     const pwHelp = document.getElementById('pwHelp');
 
+
     let checkTimeout;
     userInput.addEventListener('input', () => {
         clearTimeout(checkTimeout);
         const val = userInput.value.trim();
         if (!val) { userHelp.innerText = ''; return; }
         checkTimeout = setTimeout(async () => {
-            const res = await fetch('/check_username?username=' + encodeURIComponent(val));
-            const data = await res.json();
-            userHelp.innerText = data.available ? '✓ Username available' : '✖ Username taken';
+            try {
+                const res = await fetch('/check_username?username=' + encodeURIComponent(val));
+                const data = await res.json();
+                userHelp.innerText = data.available ? '✓ Username available' : '✖ Username taken';
+            } catch (e) {
+                userHelp.innerText = '';
+            }
         }, 400);
     });
+
 
     pwInput.addEventListener('input', () => {
         const v = pwInput.value;
@@ -45,6 +52,7 @@
         pwMeter.value = Math.min(4, score);
         pwHelp.innerText = score >= 4 ? 'Strong password' : 'Weak password';
     });
+
 
     document.getElementById('signupForm').addEventListener('submit', (e) => {
         if (pwMeter.value < 4) {
