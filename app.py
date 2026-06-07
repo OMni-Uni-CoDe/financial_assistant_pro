@@ -399,6 +399,15 @@ def predict_future():
     predicted = model.predict(next_day)[0]
     return jsonify({"prediction": f"Estimated spending tomorrow: ₹{predicted:.2f}"})
 
+#-----new add-----
+@app.route("/init_db")
+def init_db():
+    try:
+        with app.app_context():
+            db.create_all()
+        return "Database initialized successfully!"
+    except Exception as e:
+        return str(e), 500
 # ---------- Utility: health ----------
 @app.route("/health")
 def health():
