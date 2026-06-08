@@ -19,7 +19,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import pandas as pd
 import numpy as np
-import openai
+from openai import OpenAI
 from fpdf import FPDF
 from sklearn.linear_model import LinearRegression
 
@@ -63,7 +63,9 @@ login_manager.login_view = "login"
 limiter = Limiter(app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 # OpenAI
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
 
 # ---------- Models ----------
 class User(db.Model, UserMixin):
@@ -347,47 +349,115 @@ def download_csv():
 @login_required
 def download_pdf():
     expenses = Expense.query.filter_by(user_id=current_user.id).all()
-    df = pd.DataFrame([{"Date": e.date, "Category": e.category, "Amount": e.amount} for e in expenses])
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 8, "Expense Report", ln=True, align="C")
-    pdf.ln(4)
-    for _, row in df.iterrows():
-        line = f"{row['Date']} - {row['Category']}: ₹{row['Amount']:.2f}"
-        pdf.multi_cell(0, 7, line)
-    # export as bytes safely
-    pdf_bytes = pdf.output(dest="S").encode("latin-1")
-    return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True, download_name="expenses.pdf")
 
+    pdf.cell(0, 10, "Expense Report", ln=True, align="C")
+    pdf.ln(5)
+
+    total = 0
+
+    for e in expenses:
+        total += e.amount
+        pdf.cell(
+            0,
+            8,
+            f"{e.date} - {e.category}: Rs. {e.amount:.2f}",
+            ln=True
+        )
+
+    pdf.ln(5)
+    pdf.cell(0, 10, f"Total: Rs. {total:.2f}", ln=True)
+
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name="expenses.pdf"
+    )
 # ---------- AI assistant ----------
 @app.route("/ask", methods=["POST"])
 @login_required
 @limiter.limit("40 per hour")
 def ask():
     question = request.form.get("question", "").strip()
+
     if not question:
         return jsonify({"answer": "Ask a valid question."})
-    expenses = Expense.query.filter_by(user_id=current_user.id).all()
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
     if not expenses:
-        return jsonify({"answer": "No expenses found to analyze."})
-    df = pd.DataFrame([{"date": e.date, "category": e.category, "amount": e.amount} for e in expenses])
-    summary = df.groupby("category")["amount"].sum().to_dict()
+        return jsonify({
+            "answer": "No expenses found to analyze."
+        })
+
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    summary = (
+        df.groupby("category")["amount"]
+        .sum()
+        .to_dict()
+    )
+
     total_spent = df["amount"].sum()
-    prompt = f"You are a financial assistant. Total spent: ₹{total_spent:.2f}. Categories: {summary}. Question: {question}"
-    if not openai.api_key:
-        return jsonify({"answer": "OpenAI key is not configured."})
+
+    prompt = f"""
+User spending summary:
+
+Total spent: Rs. {total_spent:.2f}
+
+Category totals:
+{summary}
+
+User question:
+{question}
+
+Give a short practical financial answer.
+"""
+
     try:
-        resp = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "system", "content": "You are a helpful financial assistant."},
-                      {"role": "user", "content": prompt}],
-            max_tokens=300
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content":
+                    "You are a helpful personal finance assistant."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=250
         )
-        answer = resp.choices[0].message["content"]
+
+        answer = response.choices[0].message.content
+
+        return jsonify({
+            "answer": answer
+        })
+
     except Exception as e:
-        answer = "AI service error."
-    return jsonify({"answer": answer})
+
+        return jsonify({
+            "answer": f"AI service error: {str(e)}"
+        })
 
 # ---------- Prediction ----------
 @app.route("/predict_future")

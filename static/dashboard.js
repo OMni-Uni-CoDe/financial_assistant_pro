@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             history.innerHTML = "";
 
-            data.forEach(item => {
+            data.history.forEach(item => {
 
                 history.innerHTML += `
                     <div>
