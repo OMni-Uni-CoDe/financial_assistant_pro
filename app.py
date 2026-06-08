@@ -56,7 +56,7 @@ CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))
 # ---------- Extensions ----------
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
-app.config["WTF_CSRF_ENABLED"] = False
+app.config["WTF_CSRF_ENABLED"] = True
 mail = Mail(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -430,35 +430,37 @@ Give a short practical financial answer.
 """
 
     try:
+     response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a helpful personal finance assistant."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        max_tokens=250
+    )
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content":
-                    "You are a helpful personal finance assistant."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            max_tokens=250
-        )
+    answer = response.choices[0].message.content
 
-        answer = response.choices[0].message.content
+    return jsonify({
+        "answer": answer
+    })
 
-        return jsonify({
-            "answer": answer
-        })
+except Exception:
+    highest = max(summary, key=summary.get)
 
-    except Exception as e:
-
-        return jsonify({
-            "answer": f"AI service error: {str(e)}"
-        })
-
+    return jsonify({
+        "answer":
+        f"Total spending: Rs. {total_spent:.2f}. "
+        f"Highest category: {highest} "
+        f"(Rs. {summary[highest]:.2f})."
+    })
+    })
 # ---------- Prediction ----------
 @app.route("/predict_future")
 @login_required

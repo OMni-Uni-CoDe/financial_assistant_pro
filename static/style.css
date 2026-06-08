@@ -7,103 +7,133 @@ body {
 }
 
 .container {
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-    width: 1100px;
-    margin: 28px auto;
+    max-width: 1200px;
+    width: 95%;
+    margin: 25px auto;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-    color: #e6eef8;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
 }
 
 .login-container {
     width: 360px;
+    max-width: 90%;
     margin: 80px auto;
     background: #070707;
-    padding: 18px;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-    color: #dbeafe;
+    padding: 20px;
+    border-radius: 10px;
 }
 
-input, button {
-    padding: 10px;
-    margin: 8px 0;
-    width: 92%;
+input,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
     box-sizing: border-box;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.02);
-    color: #e6eef8;
+    border-radius: 8px;
+}
+
+input {
+    background: #111;
+    color: white;
+    border: 1px solid #333;
 }
 
 button {
-    background: linear-gradient(90deg,#0ea5e9,#6366f1);
-    color: white;
     border: none;
+    color: white;
     cursor: pointer;
+    background: linear-gradient(90deg,#0ea5e9,#6366f1);
 }
 
     button:hover {
-        filter: brightness(1.05);
+        opacity: .95;
     }
 
 .logout {
     float: right;
-    text-decoration: none;
     color: #9ad0ff;
-    font-size: 14px;
-}
-
-.container h2, .login-container h2 {
-    margin-top: 0;
-    color: #fff;
+    text-decoration: none;
 }
 
 .top-row {
     display: flex;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .left {
-    flex: 1;
+    flex: 2;
+    min-width: 320px;
 }
 
 .right {
-    width: 360px;
+    flex: 1;
+    min-width: 320px;
 }
 
-.ai-card, .history-card {
-    background: rgba(255,255,255,0.02);
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 12px;
+.ai-card,
+.history-card {
+    background: rgba(255,255,255,.03);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
 }
 
-.chart {
-    margin-top: 18px;
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+    .actions button {
+        flex: 1;
+        min-width: 140px;
+    }
+
+#history {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+    #history div {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+#response {
+    margin-top: 15px;
+    white-space: pre-wrap;
+}
+
+.charts {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 canvas {
-    background: transparent;
+    background: rgba(255,255,255,.03);
+    border-radius: 10px;
+    padding: 10px;
+    width: 100% !important;
+    height: 350px !important;
 }
 
-.actions button {
-    margin-right: 8px;
-}
+@media (max-width: 900px) {
+    .charts {
+        grid-template-columns: 1fr;
+    }
 
-#response {
-    white-space: pre-wrap;
-    margin-top: 10px;
-    color: #dbeafe;
-}
+    .top-row {
+        flex-direction: column;
+    }
 
-#history div {
-    padding: 6px 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.03);
-    color: #cfe8ff;
-}
-
-.logout {
-    color: #a5f3fc;
+    .left,
+    .right {
+        width: 100%;
+    }
 }

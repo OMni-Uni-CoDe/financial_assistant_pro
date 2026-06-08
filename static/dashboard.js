@@ -130,9 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 new Chart(canvas, {
                     type: "pie",
                     data: {
-                        labels: data.labels,
+                        labels: data.categories,
                         datasets: [{
-                            data: data.values
+                            data: data.totals
                         }]
                     }
                 });
