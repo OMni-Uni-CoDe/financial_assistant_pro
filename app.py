@@ -57,7 +57,6 @@ CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))
 
 # ---------- Extensions ----------
 db = SQLAlchemy(app)
-
 csrf = CSRFProtect(app)
 app.config["WTF_CSRF_ENABLED"] = False
 mail = Mail(app)
@@ -86,6 +85,15 @@ class Expense(db.Model):
     date = db.Column(db.Date, default=datetime.utcnow)
     category = db.Column(db.String(120))
     amount = db.Column(db.Float)
+
+@app.route("/init_db")
+def init_db():
+    try:
+        with app.app_context():
+            db.create_all()
+        return "Database initialized successfully!"
+    except Exception as e:
+        return str(e), 500
 
 
 # ---------- Helpers ----------
