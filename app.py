@@ -5,8 +5,6 @@ import io
 from markupsafe import Markup
 from datetime import datetime, timedelta
 from functools import wraps
-from markupsafe import Markup
-
 from flask import (Flask, render_template, request, redirect, url_for,
                    jsonify, send_file, flash, abort)
 from flask_sqlalchemy import SQLAlchemy
@@ -414,8 +412,8 @@ def health():
 
 # ---------- Run ----------
 if __name__ == "__main__":
-    # create tables locally if not present (development)
-    if app.config["SQLALCHEMY_DATABASE_URI"]:
-        with app.app_context():
-            db.create_all()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=(os.environ.get("FLASK_DEBUG") == "1"))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=(os.environ.get("FLASK_DEBUG") == "1")
+    )
