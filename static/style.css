@@ -258,7 +258,7 @@ html {
 .menu-toggle {
     display: none;
     position: fixed;
-    top: 15px;
+    top: 20px;
     left: 15px;
     z-index: 1200;
     width: 50px;
@@ -280,9 +280,9 @@ html {
 
     .sidebar {
         position: fixed;
-        left: -260px;
+        left: -280px;
         top: 0;
-        width: 240px;
+        width: 280px;
         height: 100vh;
         z-index: 1500;
         transition: left 0.3s ease;
@@ -316,7 +316,7 @@ html {
 @media (max-width: 768px) {
 
     .main-content {
-        padding-top: 90px;
+        padding-top: 95px;
         padding-left: 15px;
         padding-right: 15px;
     }
@@ -327,5 +327,9 @@ html {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    canvas {
+        height: 280px !important;
     }
 }
