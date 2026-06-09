@@ -196,3 +196,87 @@ canvas {
     }
 
 }
+/* ===== Sidebar Layout ===== */
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    background: rgba(255,255,255,.04);
+    border-right: 1px solid rgba(255,255,255,.08);
+    padding: 25px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-header h2 {
+    margin-top: 0;
+    color: #9ad0ff;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+    .sidebar-nav a {
+        text-decoration: none;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        transition: .2s;
+    }
+
+        .sidebar-nav a:hover {
+            background: rgba(255,255,255,.08);
+        }
+
+.main-content {
+    flex: 1;
+    padding: 25px;
+}
+
+.section-card {
+    margin-top: 25px;
+    background: rgba(255,255,255,.03);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 900px) {
+
+    ```
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    ```
+}
