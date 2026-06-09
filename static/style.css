@@ -257,7 +257,7 @@ html {
 
 @media (max-width: 900px) {
 
-    ```
+    
     .layout {
         flex-direction: column;
     }
@@ -278,5 +278,5 @@ html {
         padding: 15px;
     }
 
-    ```
+    
 }
