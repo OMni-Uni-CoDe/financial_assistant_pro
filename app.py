@@ -12,6 +12,7 @@ from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm, CSRFProtect
+from flask_wtf.csrf import exempt
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_mail import Mail, Message
@@ -324,6 +325,7 @@ def add_expense():
     return jsonify({"message": "Expense added successfully."})
 
 @app.route("/delete_expense/<int:expense_id>", methods=["POST"])
+@exempt
 @login_required
 def delete_expense(expense_id):
 
