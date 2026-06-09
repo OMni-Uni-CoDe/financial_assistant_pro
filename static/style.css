@@ -287,14 +287,12 @@ html {
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 2000;
+    z-index: 1200;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
     font-size: 24px;
-    background: #111;
-    color: white;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
+
 }
 
 .sidebar-overlay {

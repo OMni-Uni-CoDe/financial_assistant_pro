@@ -122,13 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
             data.history.forEach(item => {
 
                 history.innerHTML += `
-        < div >
-        ${item.date}
-                    —
-                    ${item.category}
-                    ₹${item.amount}
-                </div >
-        `;
+                    <div>
+                        ${item.date} — ${item.category} ₹${item.amount}
+                    </div>
+                `;
             });
 
         } catch (err) {
@@ -146,14 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const res = await fetch("/get_data");
             const data = await res.json();
-
-            // =====================
-            // Summary Cards
-            // =====================
-
-            const totalSpent =
-                data.totals.reduce((a, b) => a + b, 0);
-
+            const totalSpent = data.totals.reduce((a, b) => a + b, 0);
             const totalCategories =
                 data.categories.length;
 
@@ -181,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     : 0;
 
             document.getElementById("totalSpent").innerText =
-                `₹${totalSpent.toFixed(2)} `;
+                `₹${totalSpent.toFixed(2)}`;
 
             document.getElementById("totalCategories").innerText =
                 totalCategories;
@@ -190,16 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 topCategory;
 
             document.getElementById("averageSpend").innerText =
-                `₹${averageSpend.toFixed(2)} `;
+                `₹${averageSpend.toFixed(2)}`;
 
-            // =====================
-            // Pie Chart
-            // =====================
-
-            const pieCanvas =
-                document.getElementById("categoryChart");
+            const pieCanvas = document.getElementById("categoryChart");
 
             if (window.categoryChartInstance) {
+
                 window.categoryChartInstance.destroy();
             }
 
@@ -214,12 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
-            // =====================
-            // Trend Chart
-            // =====================
-
-            const trendCanvas =
-                document.getElementById("trendChart");
+            const trendCanvas = document.getElementById("trendChart");
 
             if (window.trendChartInstance) {
                 window.trendChartInstance.destroy();
@@ -282,6 +263,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadHistory();
     loadCharts();
-
-
 });
