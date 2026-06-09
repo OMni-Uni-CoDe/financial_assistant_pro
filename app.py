@@ -246,8 +246,13 @@ def history():
     expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).limit(10).all()
     return jsonify({
         "history": [
-            {"date": str(e.date), "category": e.category, "amount": e.amount}
-            for e in expenses
+        {
+            "id": e.id,
+            "date": str(e.date),
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
         ]
     })
 
@@ -317,6 +322,29 @@ def add_expense():
     db.session.add(entry)
     db.session.commit()
     return jsonify({"message": "Expense added successfully."})
+
+@app.route("/delete_expense/<int:expense_id>", methods=["POST"])
+@login_required
+def delete_expense(expense_id):
+
+    expense = Expense.query.filter_by(
+        id=expense_id,
+        user_id=current_user.id
+    ).first()
+
+    if not expense:
+        return jsonify({
+            "success": False,
+            "message": "Expense not found."
+        }), 404
+
+    db.session.delete(expense)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "Expense deleted successfully."
+    })
 
 @app.route("/get_data")
 @login_required

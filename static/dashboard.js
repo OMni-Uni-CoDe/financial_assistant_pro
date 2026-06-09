@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-
     const expenseForm = document.getElementById("expenseForm");
     const askForm = document.getElementById("askForm");
 
@@ -13,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
 
     if (expenseForm) {
+
         expenseForm.addEventListener("submit", async (e) => {
 
             e.preventDefault();
@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadHistory();
             loadCharts();
         });
+
     }
 
     // =========================
@@ -41,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
 
     if (askForm) {
+
         askForm.addEventListener("submit", async (e) => {
 
             e.preventDefault();
@@ -58,7 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             responseBox.innerText =
                 data.answer || "No response.";
+
         });
+
     }
 
     // =========================
@@ -68,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const predictBtn = document.getElementById("predictBtn");
 
     if (predictBtn) {
+
         predictBtn.addEventListener("click", async () => {
 
             const res = await fetch("/predict_future");
@@ -75,7 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             prediction.innerText =
                 data.prediction || "No prediction available.";
+
         });
+
     }
 
     // =========================
@@ -85,9 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const csvBtn = document.getElementById("csvBtn");
 
     if (csvBtn) {
+
         csvBtn.addEventListener("click", () => {
             window.location.href = "/download_csv";
         });
+
     }
 
     // =========================
@@ -97,9 +106,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const pdfBtn = document.getElementById("pdfBtn");
 
     if (pdfBtn) {
+
         pdfBtn.addEventListener("click", () => {
             window.location.href = "/download_pdf";
         });
+
+    }
+
+    // =========================
+    // Delete Expense
+    // =========================
+
+    async function deleteExpense(id) {
+
+        if (!confirm("Delete this expense?")) {
+            return;
+        }
+
+        try {
+
+            const res = await fetch(`/delete_expense/${id}`, {
+                method: "POST"
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+
+                loadHistory();
+                loadCharts();
+
+            } else {
+
+                alert(data.message);
+
+            }
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
     }
 
     // =========================
@@ -113,7 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/history");
             const data = await res.json();
 
-            const history = document.getElementById("history");
+            const history =
+                document.getElementById("history");
 
             if (!history) return;
 
@@ -121,20 +170,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
             data.history.forEach(item => {
 
-                history.innerHTML += `
-                    <div>
+                const row = document.createElement("div");
+
+                row.style.display = "flex";
+                row.style.justifyContent = "space-between";
+                row.style.alignItems = "center";
+
+                row.innerHTML = `
+                    <span>
                         ${item.date} — ${item.category} ₹${item.amount}
-                    </div>
+                    </span>
+                    <button
+                        class="delete-btn"
+                        data-id="${item.id}">
+                        🗑
+                    </button>
                 `;
+
+                history.appendChild(row);
+
             });
 
+            document
+                .querySelectorAll(".delete-btn")
+                .forEach(btn => {
+
+                    btn.addEventListener("click", () => {
+
+                        deleteExpense(
+                            btn.dataset.id
+                        );
+
+                    });
+
+                });
+
         } catch (err) {
+
             console.error(err);
+
         }
+
     }
 
     // =========================
-    // Charts + Summary Cards
+    // Charts
     // =========================
 
     async function loadCharts() {
@@ -143,7 +223,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const res = await fetch("/get_data");
             const data = await res.json();
-            const totalSpent = data.totals.reduce((a, b) => a + b, 0);
+
+            const totalSpent =
+                data.totals.reduce((a, b) => a + b, 0);
+
             const totalCategories =
                 data.categories.length;
 
@@ -182,10 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("averageSpend").innerText =
                 `₹${averageSpend.toFixed(2)}`;
 
-            const pieCanvas = document.getElementById("categoryChart");
+            const pieCanvas =
+                document.getElementById("categoryChart");
 
             if (window.categoryChartInstance) {
-
                 window.categoryChartInstance.destroy();
             }
 
@@ -200,7 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
-            const trendCanvas = document.getElementById("trendChart");
+            const trendCanvas =
+                document.getElementById("trendChart");
 
             if (window.trendChartInstance) {
                 window.trendChartInstance.destroy();
@@ -224,38 +308,39 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(err);
 
         }
+
     }
 
     // =========================
     // Mobile Sidebar
     // =========================
 
-    const menuToggle = document.getElementById("menuToggle");
-    const sidebar = document.querySelector(".sidebar");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const menuToggle =
+        document.getElementById("menuToggle");
 
-    if (menuToggle && sidebar && sidebarOverlay) {
+    const sidebar =
+        document.querySelector(".sidebar");
+
+    const sidebarOverlay =
+        document.getElementById("sidebarOverlay");
+
+    if (
+        menuToggle &&
+        sidebar &&
+        sidebarOverlay
+    ) {
 
         menuToggle.addEventListener("click", () => {
+
             sidebar.classList.toggle("open");
             sidebarOverlay.classList.toggle("show");
+
         });
 
         sidebarOverlay.addEventListener("click", () => {
+
             sidebar.classList.remove("open");
             sidebarOverlay.classList.remove("show");
-        });
-
-        document.querySelectorAll(".sidebar-nav a").forEach(link => {
-
-            link.addEventListener("click", () => {
-
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove("open");
-                    sidebarOverlay.classList.remove("show");
-                }
-
-            });
 
         });
 
@@ -263,4 +348,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadHistory();
     loadCharts();
+
 });
