@@ -57,6 +57,43 @@ button {
     text-decoration: none;
 }
 
+/* ===== Dashboard Summary Cards ===== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 20px 0 25px 0;
+}
+
+.stat-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    transition: transform .2s ease;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-card h4 {
+        margin: 0;
+        color: #9ad0ff;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .stat-card p {
+        margin: 12px 0 0;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+/* ===== Main Layout ===== */
+
 .top-row {
     display: flex;
     gap: 20px;
@@ -108,6 +145,8 @@ button {
     white-space: pre-wrap;
 }
 
+/* ===== Charts ===== */
+
 .charts {
     margin-top: 25px;
     display: grid;
@@ -123,7 +162,14 @@ canvas {
     height: 350px !important;
 }
 
+/* ===== Mobile ===== */
+
 @media (max-width: 900px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .charts {
         grid-template-columns: 1fr;
     }
@@ -136,4 +182,17 @@ canvas {
     .right {
         width: 100%;
     }
+
+}
+
+@media (max-width: 500px) {
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card p {
+        font-size: 20px;
+    }
+
 }
