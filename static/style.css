@@ -150,7 +150,7 @@ button {
 .charts {
     margin-top: 25px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 20px;
 }
 
@@ -159,7 +159,7 @@ canvas {
     border-radius: 10px;
     padding: 10px;
     width: 100% !important;
-    height: 350px !important;
+    height: 420px !important;
 }
 
 /* ===== Mobile ===== */
@@ -279,4 +279,66 @@ html {
     }
 
     
+}
+/* ===== Mobile Sidebar ===== */
+
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 2000;
+    font-size: 24px;
+    background: #111;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        width: 240px;
+        height: 100vh;
+        z-index: 1500;
+        transition: left 0.3s ease;
+    }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.6);
+        opacity: 0;
+        visibility: hidden;
+        z-index: 1400;
+        transition: .3s;
+    }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100%;
+    }
 }

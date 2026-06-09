@@ -122,10 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
             data.history.forEach(item => {
 
                 history.innerHTML += `
-            <div>
-                  ${item.date} — ${item.category} ₹${item.amount}
-            </div>
-            `;
+        < div >
+        ${item.date}
+                    —
+                    ${item.category}
+                    ₹${item.amount}
+                </div >
+        `;
             });
 
         } catch (err) {
@@ -178,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     : 0;
 
             document.getElementById("totalSpent").innerText =
-                `₹${totalSpent.toFixed(2)}`;
+                `₹${totalSpent.toFixed(2)} `;
 
             document.getElementById("totalCategories").innerText =
                 totalCategories;
@@ -187,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 topCategory;
 
             document.getElementById("averageSpend").innerText =
-                `₹${averageSpend.toFixed(2)}`;
+                `₹${averageSpend.toFixed(2)} `;
 
             // =====================
             // Pie Chart
@@ -240,6 +243,41 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(err);
 
         }
+    }
+
+    // =========================
+    // Mobile Sidebar
+    // =========================
+
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+    if (menuToggle && sidebar && sidebarOverlay) {
+
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("open");
+            sidebarOverlay.classList.toggle("show");
+        });
+
+        sidebarOverlay.addEventListener("click", () => {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("show");
+        });
+
+        document.querySelectorAll(".sidebar-nav a").forEach(link => {
+
+            link.addEventListener("click", () => {
+
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove("open");
+                    sidebarOverlay.classList.remove("show");
+                }
+
+            });
+
+        });
+
     }
 
     loadHistory();
