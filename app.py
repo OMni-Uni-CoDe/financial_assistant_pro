@@ -474,7 +474,8 @@ def predict_future():
     model.fit(df[["day_index"]], df["amount"])
     next_day = np.array([[df["day_index"].max() + 1]])
     predicted = model.predict(next_day)[0]
-    return jsonify({"prediction": f"Estimated spending tomorrow: ₹{predicted:.2f}"})
+    return jsonify({"prediction": f"Estimated spending tomorrow: Rs. {predicted:.2f}"
+})
 
 # ---------- Utility: health ----------
 @app.route("/health")
