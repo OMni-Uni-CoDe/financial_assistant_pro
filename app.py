@@ -430,37 +430,36 @@ Give a short practical financial answer.
 """
 
     try:
-     response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a helpful personal finance assistant."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_tokens=250
-    )
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful personal finance assistant."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=250
+        )
 
-    answer = response.choices[0].message.content
+        answer = response.choices[0].message.content
 
-    return jsonify({
-        "answer": answer
-    })
+        return jsonify({
+            "answer": answer
+        })
 
-except Exception:
-    highest = max(summary, key=summary.get)
+    except Exception:
+        highest = max(summary, key=summary.get)
 
-    return jsonify({
-        "answer":
-        f"Total spending: Rs. {total_spent:.2f}. "
-        f"Highest category: {highest} "
-        f"(Rs. {summary[highest]:.2f})."
-    })
-    })
+        return jsonify({
+            "answer":
+            f"Total spending: Rs. {total_spent:.2f}. "
+            f"Highest category: {highest} "
+            f"(Rs. {summary[highest]:.2f})."
+        })
 # ---------- Prediction ----------
 @app.route("/predict_future")
 @login_required
