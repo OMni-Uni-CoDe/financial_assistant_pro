@@ -624,6 +624,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // AI Recommendations
+    // =========================
+
+    async function loadRecommendations() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_recommendations"
+                );
+
+            const data =
+                await response.json();
+
+            const container =
+                document.getElementById(
+                    "recommendationsContainer"
+                );
+
+            container.innerHTML = "";
+
+            data.recommendations.forEach(
+                recommendation => {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+                    item.className =
+                        "recommendation-item";
+
+                    item.innerHTML =
+                        `🤖 ${recommendation}`;
+
+                    container.appendChild(
+                        item
+                    );
+
+                }
+            );
+
+        }
+
+        catch (err) {
+
+            console.error(
+                err
+            );
+
+        }
+
+    }
+
+    // =========================
     // Mobile Sidebar
     // =========================
 
@@ -685,4 +741,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadBudget();
     loadInsights();
     loadForecast();
+    loadRecommendations();
 });
