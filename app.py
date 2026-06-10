@@ -76,6 +76,9 @@ class User(db.Model, UserMixin):
     confirmed = db.Column(db.Boolean, default=False)
     confirm_token = db.Column(db.String(255), nullable=True)
     confirm_sent_at = db.Column(db.DateTime, nullable=True)
+
+    budget = db.Column(db.Float, default=0)
+
     expenses = db.relationship("Expense", backref="user", lazy=True)
 
 
@@ -93,6 +96,25 @@ def init_db():
             db.create_all()
         return "Database initialized successfully!"
     except Exception as e:
+        return str(e), 500
+
+@app.route("/upgrade_budget")
+def upgrade_budget():
+
+    try:
+
+        with db.engine.connect() as conn:
+
+            conn.exec_driver_sql(
+                'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS budget FLOAT DEFAULT 0'
+            )
+
+            conn.commit()
+
+        return "Budget column added successfully."
+
+    except Exception as e:
+
         return str(e), 500
 
 
