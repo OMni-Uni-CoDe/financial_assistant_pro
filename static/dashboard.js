@@ -474,7 +474,10 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
     }
-    // Budget
+
+    // =============
+    // Load Budget
+    // =============
     async function loadBudget() {
 
         try {
@@ -532,6 +535,52 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
+
+    // ================
+    // Load Insights
+    // ================
+
+    async function loadInsights() {
+
+        try {
+
+            const response =
+                await fetch("/get_insights");
+
+            const data =
+                await response.json();
+
+            const container =
+                document.getElementById(
+                    "insightsContainer"
+                );
+
+            container.innerHTML = "";
+
+            data.insights.forEach(insight => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "insight-item";
+
+                item.innerHTML =
+                    `💡 ${insight}`;
+
+                container.appendChild(item);
+
+            });
+
+        }
+
+        catch (err) {
 
             console.error(err);
 
@@ -599,4 +648,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHistory();
     loadCharts();
     loadBudget();
+    loadInsights();
 });
