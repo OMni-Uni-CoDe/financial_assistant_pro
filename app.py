@@ -779,6 +779,128 @@ def get_recommendations():
         "recommendations": recommendations
     })
 
+# --------- Financial Health Score ---------
+@app.route("/get_health_score")
+@login_required
+def get_health_score():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "score": 100,
+            "rating": "Excellent",
+            "message": "No spending recorded yet."
+        })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    score = 0
+
+    # ==========================
+    # Budget Usage (40 pts)
+    # ==========================
+
+    budget = current_user.budget or 0
+
+    if budget > 0:
+
+        usage = (
+            total_spent / budget
+        ) * 100
+
+        if usage <= 50:
+            score += 40
+
+        elif usage <= 80:
+            score += 30
+
+        elif usage <= 100:
+            score += 15
+
+    else:
+        score += 20
+
+    # ==========================
+    # Forecast Risk (30 pts)
+    # ==========================
+
+    today = datetime.utcnow().date()
+
+    projected = (
+        total_spent /
+        max(today.day, 1)
+    ) * 30
+
+    if budget > 0:
+
+        if projected <= budget:
+            score += 30
+
+        elif projected <= budget * 1.1:
+            score += 15
+
+    else:
+        score += 15
+
+    # ==========================
+    # Spending Concentration
+    # ==========================
+
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    top_share = (
+        category_totals.iloc[0]
+        / total_spent
+    ) * 100
+
+    if top_share < 40:
+        score += 30
+
+    elif top_share < 60:
+        score += 20
+
+    else:
+        score += 10
+
+    # ==========================
+    # Rating
+    # ==========================
+
+    if score >= 85:
+        rating = "Excellent"
+
+    elif score >= 70:
+        rating = "Good"
+
+    elif score >= 50:
+        rating = "Fair"
+
+    else:
+        rating = "Needs Attention"
+
+    return jsonify({
+        "score": round(score),
+        "rating": rating,
+        "message":
+            f"Financial health is currently rated as {rating}."
+    })
+
 # --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
 @login_required
