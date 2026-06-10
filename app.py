@@ -930,6 +930,99 @@ def get_health_score():
             f"Financial health is currently rated as {rating}."
     })
 
+# --------- Savings Goal ---------
+
+@app.route("/set_goal", methods=["POST"])
+@login_required
+def set_goal():
+
+    goal_name = request.form.get(
+        "goal_name"
+    )
+
+    target_amount = float(
+        request.form.get(
+            "target_amount",
+            0
+        )
+    )
+
+    current_amount = float(
+        request.form.get(
+            "current_amount",
+            0
+        )
+    )
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not goal:
+
+        goal = SavingsGoal(
+            user_id=current_user.id
+        )
+
+        db.session.add(goal)
+
+    goal.goal_name = goal_name
+    goal.target_amount = target_amount
+    goal.current_amount = current_amount
+
+    db.session.commit()
+
+    return jsonify({
+        "message":
+        "Savings goal saved."
+    })
+
+
+@app.route("/get_goal")
+@login_required
+def get_goal():
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not goal:
+
+        return jsonify({
+            "goal_name": "",
+            "target_amount": 0,
+            "current_amount": 0,
+            "percentage": 0
+        })
+
+    percentage = 0
+
+    if goal.target_amount > 0:
+
+        percentage = round(
+            (
+                goal.current_amount /
+                goal.target_amount
+            ) * 100,
+            1
+        )
+
+    return jsonify({
+
+        "goal_name":
+            goal.goal_name,
+
+        "target_amount":
+            goal.target_amount,
+
+        "current_amount":
+            goal.current_amount,
+
+        "percentage":
+            percentage
+
+    })
+
 # --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
 @login_required
