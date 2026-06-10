@@ -381,6 +381,7 @@ def add_expense():
     db.session.commit()
     return jsonify({"message": "Expense added successfully."})
 
+# --------- Delete an expense ---------
 @app.route("/delete_expense/<int:expense_id>", methods=["POST"])
 @csrf.exempt
 @login_required
@@ -405,6 +406,7 @@ def delete_expense(expense_id):
         "message": "Expense deleted successfully."
     })
 
+# --------- Catagory for sorting expenses ---------
 @app.route("/get_data")
 @login_required
 def get_data():
@@ -478,6 +480,7 @@ def get_data():
         "daily_totals": list(daily.values())
     })
 
+# --------- Budget creation ---------
 @app.route("/get_budget")
 @login_required
 def get_budget():
@@ -507,6 +510,7 @@ def get_budget():
         "percentage": percentage
     })
 
+# --------- Expense insights ---------
 @app.route("/get_insights")
 @login_required
 def get_insights():
@@ -585,6 +589,63 @@ def get_insights():
         "insights": insights
     })
 
+# --------- End of month spending forecast ---------
+@app.route("/get_forecast")
+@login_required
+def get_forecast():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "forecast": "No spending data available."
+        })
+
+    total_spent = sum(
+        e.amount for e in expenses
+    )
+
+    today = datetime.utcnow().date()
+
+    days_passed = max(today.day, 1)
+
+    projected = (
+        total_spent / days_passed
+    ) * 30
+
+    message = (
+        f"Projected month-end spending: "
+        f"₹{projected:.2f}"
+    )
+
+    budget = current_user.budget or 0
+
+    if budget > 0:
+
+        difference = projected - budget
+
+        if difference > 0:
+
+            message += (
+                f"\n⚠ You may exceed your budget "
+                f"by ₹{difference:.2f}"
+            )
+
+        else:
+
+            message += (
+                f"\n✅ You are likely to remain "
+                f"within budget."
+            )
+
+    return jsonify({
+        "forecast": message
+    })
+
+# --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
 @login_required
 def set_budget():
