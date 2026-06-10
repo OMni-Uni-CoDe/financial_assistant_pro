@@ -645,7 +645,7 @@ def get_forecast():
         "forecast": message
     })
 
-# --------- Saving Recommendations ---------
+# --------- AI Recommendations ---------
 @app.route("/get_recommendations")
 @login_required
 def get_recommendations():
@@ -680,18 +680,13 @@ def get_recommendations():
 
     recommendations = []
 
-    # Top category analysis
+    # ==================================
+    # Recommendation 1:
+    # Saving Opportunity
+    # ==================================
 
     top_category = category_totals.index[0]
     top_amount = category_totals.iloc[0]
-
-    top_percentage = (
-        top_amount / total_spent
-    ) * 100
-
-    recommendations.append(
-        f"{top_category} consumes {top_percentage:.1f}% of your spending."
-    )
 
     annual_saving = (
         top_amount * 0.10 * 12
@@ -701,47 +696,84 @@ def get_recommendations():
         f"Reducing {top_category} expenses by 10% could save approximately ₹{annual_saving:.0f} annually."
     )
 
-    # Budget analysis
+    # ==================================
+    # Recommendation 2:
+    # Daily Budget Target
+    # ==================================
 
     if current_user.budget and current_user.budget > 0:
 
         budget = current_user.budget
 
-        usage = (
-            total_spent / budget
-        ) * 100
+        remaining_budget = (
+            budget - total_spent
+        )
 
-        if usage >= 80:
+        today = datetime.utcnow().date()
 
-            remaining_budget = (
-                budget - total_spent
-            )
+        days_remaining = max(
+            30 - today.day,
+            1
+        )
 
-            today = datetime.utcnow().date()
+        daily_limit = (
+            remaining_budget /
+            days_remaining
+        )
 
-            days_remaining = max(
-                30 - today.day,
-                1
-            )
+        recommendations.append(
+            f"To remain within budget, keep spending below approximately ₹{daily_limit:.0f} per day."
+        )
 
-            daily_limit = (
-                remaining_budget /
-                days_remaining
-            )
+    # ==================================
+    # Recommendation 3:
+    # Forecast Warning
+    # ==================================
+
+    today = datetime.utcnow().date()
+
+    days_passed = max(
+        today.day,
+        1
+    )
+
+    projected_spending = (
+        total_spent / days_passed
+    ) * 30
+
+    if current_user.budget and current_user.budget > 0:
+
+        excess = (
+            projected_spending -
+            current_user.budget
+        )
+
+        if excess > 0:
 
             recommendations.append(
-                f"To stay within budget, limit spending to approximately ₹{daily_limit:.0f} per day."
+                f"At your current pace, you may exceed your budget by approximately ₹{excess:.0f} this month."
             )
 
-    # Average expense
+    # ==================================
+    # Recommendation 4:
+    # Spending Concentration
+    # ==================================
 
-    average_expense = (
-        df["amount"].mean()
-    )
+    if len(category_totals) >= 2:
 
-    recommendations.append(
-        f"Your average transaction amount is ₹{average_expense:.2f}."
-    )
+        top_two_total = (
+            category_totals.iloc[0]
+            + category_totals.iloc[1]
+        )
+
+        top_two_percent = (
+            top_two_total /
+            total_spent
+        ) * 100
+
+        recommendations.append(
+            f"The top two categories account for {top_two_percent:.1f}% of your spending. Review recurring expenses for possible savings."
+        )
 
     return jsonify({
         "recommendations": recommendations
