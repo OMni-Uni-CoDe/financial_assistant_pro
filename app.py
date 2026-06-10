@@ -77,7 +77,6 @@ class User(db.Model, UserMixin):
     confirm_token = db.Column(db.String(255), nullable=True)
     confirm_sent_at = db.Column(db.DateTime, nullable=True)
     expenses = db.relationship("Expense", backref="user", lazy=True)
-    budget = db.Column(db.Float, default=0)
 
 
 class Expense(db.Model):
@@ -507,13 +506,6 @@ def predict_future():
     return jsonify({"prediction": f"Estimated spending tomorrow: Rs. {predicted:.2f}"
 })
 
-@app.route("/db_check")
-def db_check():
-    try:
-        user = User.query.first()
-        return str(User.__table__.columns.keys())
-    except Exception as e:
-        return str(e)
 # ---------- Utility: health ----------
 @app.route("/health")
 def health():
