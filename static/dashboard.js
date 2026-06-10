@@ -7,6 +7,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const prediction = document.getElementById("prediction");
     const responseBox = document.getElementById("response");
 
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const periodFilter =
+        document.getElementById("periodFilter");
+
+    // =========================
+    // Current Filters
+    // =========================
+
+    function getFilters() {
+
+        return {
+            category:
+                categoryFilter?.value || "all",
+
+            period:
+                periodFilter?.value || "all"
+        };
+
+    }
+
     // =========================
     // Add Expense
     // =========================
@@ -33,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             loadHistory();
             loadCharts();
+
         });
 
     }
@@ -69,17 +92,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Prediction
     // =========================
 
-    const predictBtn = document.getElementById("predictBtn");
+    const predictBtn =
+        document.getElementById("predictBtn");
 
     if (predictBtn) {
 
         predictBtn.addEventListener("click", async () => {
 
-            const res = await fetch("/predict_future");
-            const data = await res.json();
+            const res =
+                await fetch("/predict_future");
+
+            const data =
+                await res.json();
 
             prediction.innerText =
-                data.prediction || "No prediction available.";
+                data.prediction ||
+                "No prediction available.";
 
         });
 
@@ -89,12 +117,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // CSV
     // =========================
 
-    const csvBtn = document.getElementById("csvBtn");
+    const csvBtn =
+        document.getElementById("csvBtn");
 
     if (csvBtn) {
 
         csvBtn.addEventListener("click", () => {
-            window.location.href = "/download_csv";
+
+            window.location.href =
+                "/download_csv";
+
         });
 
     }
@@ -103,12 +135,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // PDF
     // =========================
 
-    const pdfBtn = document.getElementById("pdfBtn");
+    const pdfBtn =
+        document.getElementById("pdfBtn");
 
     if (pdfBtn) {
 
         pdfBtn.addEventListener("click", () => {
-            window.location.href = "/download_pdf";
+
+            window.location.href =
+                "/download_pdf";
+
         });
 
     }
@@ -125,11 +161,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            const res = await fetch(`/delete_expense/${id}`, {
-                method: "POST"
-            });
+            const res =
+                await fetch(
+                    `/delete_expense/${id}`,
+                    {
+                        method: "POST"
+                    }
+                );
 
-            const data = await res.json();
+            const data =
+                await res.json();
 
             if (data.success) {
 
@@ -158,8 +199,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            const res = await fetch("/history");
-            const data = await res.json();
+            const filters =
+                getFilters();
+
+            const res =
+                await fetch(
+                    `/history?category=${filters.category}&period=${filters.period}`
+                );
+
+            const data =
+                await res.json();
 
             const history =
                 document.getElementById("history");
@@ -170,22 +219,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
             data.history.forEach(item => {
 
-                const row = document.createElement("div");
+                const row =
+                    document.createElement("div");
 
                 row.style.display = "flex";
                 row.style.justifyContent = "space-between";
                 row.style.alignItems = "center";
 
                 row.innerHTML = `
-                    <span>
-                        ${item.date} — ${item.category} ₹${item.amount}
-                    </span>
-                    <button
-                        class="delete-btn"
-                        data-id="${item.id}">
-                        🗑
-                    </button>
-                `;
+                <span>
+                    ${item.date} — ${item.category} ₹${item.amount}
+                </span>
+
+                <button
+                    class="delete-btn"
+                    data-id="${item.id}">
+                    🗑
+                </button>
+            `;
 
                 history.appendChild(row);
 
@@ -195,13 +246,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 .querySelectorAll(".delete-btn")
                 .forEach(btn => {
 
-                    btn.addEventListener("click", () => {
-
-                        deleteExpense(
+                    btn.addEventListener(
+                        "click",
+                        () => deleteExpense(
                             btn.dataset.id
-                        );
-
-                    });
+                        )
+                    );
 
                 });
 
@@ -214,18 +264,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // Charts
+    // Charts + Stats
     // =========================
 
     async function loadCharts() {
 
         try {
 
-            const res = await fetch("/get_data");
-            const data = await res.json();
+            const filters =
+                getFilters();
+
+            const res =
+                await fetch(
+                    `/get_data?category=${filters.category}&period=${filters.period}`
+                );
+
+            const data =
+                await res.json();
 
             const totalSpent =
-                data.totals.reduce((a, b) => a + b, 0);
+                data.totals.reduce(
+                    (a, b) => a + b,
+                    0
+                );
 
             const totalCategories =
                 data.categories.length;
@@ -236,72 +297,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 let maxIndex = 0;
 
-                data.totals.forEach((value, index) => {
+                data.totals.forEach(
+                    (value, index) => {
 
-                    if (value > data.totals[maxIndex]) {
-                        maxIndex = index;
+                        if (
+                            value >
+                            data.totals[maxIndex]
+                        ) {
+                            maxIndex = index;
+                        }
+
                     }
-
-                });
+                );
 
                 topCategory =
                     data.categories[maxIndex];
+
             }
 
             const averageSpend =
                 totalCategories > 0
-                    ? totalSpent / totalCategories
+                    ? totalSpent /
+                    totalCategories
                     : 0;
 
-            document.getElementById("totalSpent").innerText =
+            document.getElementById(
+                "totalSpent"
+            ).innerText =
                 `₹${totalSpent.toFixed(2)}`;
 
-            document.getElementById("totalCategories").innerText =
+            document.getElementById(
+                "totalCategories"
+            ).innerText =
                 totalCategories;
 
-            document.getElementById("topCategory").innerText =
+            document.getElementById(
+                "topCategory"
+            ).innerText =
                 topCategory;
 
-            document.getElementById("averageSpend").innerText =
+            document.getElementById(
+                "averageSpend"
+            ).innerText =
                 `₹${averageSpend.toFixed(2)}`;
 
             const pieCanvas =
-                document.getElementById("categoryChart");
+                document.getElementById(
+                    "categoryChart"
+                );
 
-            if (window.categoryChartInstance) {
-                window.categoryChartInstance.destroy();
+            if (
+                window.categoryChartInstance
+            ) {
+                window.categoryChartInstance
+                    .destroy();
             }
 
             window.categoryChartInstance =
-                new Chart(pieCanvas, {
-                    type: "pie",
-                    data: {
-                        labels: data.categories,
-                        datasets: [{
-                            data: data.totals
-                        }]
+                new Chart(
+                    pieCanvas,
+                    {
+                        type: "pie",
+                        data: {
+                            labels:
+                                data.categories,
+                            datasets: [{
+                                data:
+                                    data.totals
+                            }]
+                        }
                     }
-                });
+                );
 
             const trendCanvas =
-                document.getElementById("trendChart");
+                document.getElementById(
+                    "trendChart"
+                );
 
-            if (window.trendChartInstance) {
-                window.trendChartInstance.destroy();
+            if (
+                window.trendChartInstance
+            ) {
+                window.trendChartInstance
+                    .destroy();
             }
 
             window.trendChartInstance =
-                new Chart(trendCanvas, {
-                    type: "line",
-                    data: {
-                        labels: data.dates,
-                        datasets: [{
-                            label: "Daily Spending",
-                            data: data.daily_totals,
-                            tension: 0.3
-                        }]
+                new Chart(
+                    trendCanvas,
+                    {
+                        type: "line",
+                        data: {
+                            labels:
+                                data.dates,
+                            datasets: [{
+                                label:
+                                    "Daily Spending",
+                                data:
+                                    data.daily_totals,
+                                tension: 0.3
+                            }]
+                        }
                     }
-                });
+                );
 
         } catch (err) {
 
@@ -312,17 +409,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // Filter Events
+    // =========================
+
+    if (categoryFilter) {
+
+        categoryFilter.addEventListener(
+            "change",
+            () => {
+
+                loadHistory();
+                loadCharts();
+
+            }
+        );
+
+    }
+
+    if (periodFilter) {
+
+        periodFilter.addEventListener(
+            "change",
+            () => {
+
+                loadHistory();
+                loadCharts();
+
+            }
+        );
+
+    }
+
+    // =========================
     // Mobile Sidebar
     // =========================
 
     const menuToggle =
-        document.getElementById("menuToggle");
+        document.getElementById(
+            "menuToggle"
+        );
 
     const sidebar =
-        document.querySelector(".sidebar");
+        document.querySelector(
+            ".sidebar"
+        );
 
     const sidebarOverlay =
-        document.getElementById("sidebarOverlay");
+        document.getElementById(
+            "sidebarOverlay"
+        );
 
     if (
         menuToggle &&
@@ -330,19 +465,35 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebarOverlay
     ) {
 
-        menuToggle.addEventListener("click", () => {
+        menuToggle.addEventListener(
+            "click",
+            () => {
 
-            sidebar.classList.toggle("open");
-            sidebarOverlay.classList.toggle("show");
+                sidebar.classList.toggle(
+                    "open"
+                );
 
-        });
+                sidebarOverlay.classList.toggle(
+                    "show"
+                );
 
-        sidebarOverlay.addEventListener("click", () => {
+            }
+        );
 
-            sidebar.classList.remove("open");
-            sidebarOverlay.classList.remove("show");
+        sidebarOverlay.addEventListener(
+            "click",
+            () => {
 
-        });
+                sidebar.classList.remove(
+                    "open"
+                );
+
+                sidebarOverlay.classList.remove(
+                    "show"
+                );
+
+            }
+        );
 
     }
 

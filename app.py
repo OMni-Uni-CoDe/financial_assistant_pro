@@ -243,16 +243,52 @@ def resend_confirmation():
 @app.route("/history")
 @login_required
 def history():
-    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.desc()).limit(10).all()
+
+    category = request.args.get("category", "all")
+    period = request.args.get("period", "all")
+
+    query = Expense.query.filter_by(
+        user_id=current_user.id
+    )
+
+    today = datetime.utcnow().date()
+
+    if period == "7days":
+        query = query.filter(
+            Expense.date >= today - timedelta(days=7)
+        )
+
+    elif period == "30days":
+        query = query.filter(
+            Expense.date >= today - timedelta(days=30)
+        )
+
+    elif period == "month":
+        query = query.filter(
+            Expense.date >= today.replace(day=1)
+        )
+
+    if category != "all":
+        query = query.filter(
+            Expense.category == category
+        )
+
+    expenses = (
+        query
+        .order_by(Expense.date.desc())
+        .limit(20)
+        .all()
+    )
+
     return jsonify({
         "history": [
-        {
-            "id": e.id,
-            "date": str(e.date),
-            "category": e.category,
-            "amount": e.amount
-        }
-        for e in expenses
+            {
+                "id": e.id,
+                "date": str(e.date),
+                "category": e.category,
+                "amount": e.amount
+            }
+            for e in expenses
         ]
     })
 
@@ -350,12 +386,69 @@ def delete_expense(expense_id):
 @app.route("/get_data")
 @login_required
 def get_data():
-    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.date.asc()).all()
+
+    category = request.args.get("category", "all")
+    period = request.args.get("period", "all")
+
+    query = Expense.query.filter_by(
+        user_id=current_user.id
+    )
+
+    today = datetime.utcnow().date()
+
+    if period == "7days":
+        query = query.filter(
+            Expense.date >= today - timedelta(days=7)
+        )
+
+    elif period == "30days":
+        query = query.filter(
+            Expense.date >= today - timedelta(days=30)
+        )
+
+    elif period == "month":
+        query = query.filter(
+            Expense.date >= today.replace(day=1)
+        )
+
+    if category != "all":
+        query = query.filter(
+            Expense.category == category
+        )
+
+    expenses = query.order_by(
+        Expense.date.asc()
+    ).all()
+
     if not expenses:
-        return jsonify({"categories": [], "totals": [], "dates": [], "daily_totals": []})
-    df = pd.DataFrame([{"date": e.date, "category": e.category, "amount": e.amount} for e in expenses])
-    category_totals = df.groupby("category")["amount"].sum().to_dict()
-    daily = df.groupby("date")["amount"].sum().to_dict()
+        return jsonify({
+            "categories": [],
+            "totals": [],
+            "dates": [],
+            "daily_totals": []
+        })
+
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .to_dict()
+    )
+
+    daily = (
+        df.groupby("date")["amount"]
+        .sum()
+        .to_dict()
+    )
+
     return jsonify({
         "categories": list(category_totals.keys()),
         "totals": list(category_totals.values()),

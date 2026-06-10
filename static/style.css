@@ -10,6 +10,19 @@ html {
     scroll-behavior: smooth;
 }
 
+/*Expense Categories Dropdown*/
+
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    background: #111;
+    color: white;
+    border: 1px solid #333;
+}
+
 /* Layout */
 
 .layout {
