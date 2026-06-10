@@ -588,6 +588,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    // ================
+    // Load Forecast
+    // ================
+
+    async function loadForecast() {
+
+        try {
+
+            const response =
+                await fetch("/get_forecast");
+
+            const data =
+                await response.json();
+
+            const container =
+                document.getElementById(
+                    "forecastContainer"
+                );
+
+            container.innerHTML =
+                data.forecast.replace(
+                    /\n/g,
+                    "<br>"
+                );
+
+        }
+
+        catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
+
     // =========================
     // Mobile Sidebar
     // =========================
@@ -649,4 +684,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadCharts();
     loadBudget();
     loadInsights();
+    loadForecast();
 });

@@ -293,3 +293,14 @@ canvas {
     background: rgba(255,255,255,.04);
     border-left: 4px solid #0ea5e9;
 }
+
+/* ===== Forecast ===== */
+
+#forecastContainer {
+    font-size: 16px;
+    line-height: 1.8;
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+}
+
