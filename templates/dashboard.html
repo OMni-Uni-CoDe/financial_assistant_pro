@@ -59,6 +59,10 @@
 
                     <form id="budgetForm">
 
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
                         <input type="number"
                                id="budgetInput"
                                name="budget"
