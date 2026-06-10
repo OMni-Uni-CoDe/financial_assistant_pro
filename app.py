@@ -507,6 +507,83 @@ def get_budget():
         "percentage": percentage
     })
 
+@app.route("/get_insights")
+@login_required
+def get_insights():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "insights": [
+                "No expenses available yet."
+            ]
+        })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    insights = []
+
+    top_category = category_totals.index[0]
+
+    top_amount = category_totals.iloc[0]
+
+    percentage = (
+        top_amount / total_spent
+    ) * 100
+
+    insights.append(
+        f"{top_category} accounts for {percentage:.1f}% of your spending."
+    )
+
+    insights.append(
+        f"Your largest expense category is {top_category}."
+    )
+
+    if current_user.budget and current_user.budget > 0:
+
+        usage = (
+            total_spent / current_user.budget
+        ) * 100
+
+        insights.append(
+            f"You have used {usage:.1f}% of your budget."
+        )
+
+        if usage >= 80:
+
+            insights.append(
+                "You are approaching your budget limit."
+            )
+
+    average_expense = (
+        df["amount"].mean()
+    )
+
+    insights.append(
+        f"Average expense amount is ₹{average_expense:.2f}."
+    )
+
+    return jsonify({
+        "insights": insights
+    })
 
 @app.route("/set_budget", methods=["POST"])
 @login_required
