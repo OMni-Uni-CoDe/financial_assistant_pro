@@ -695,15 +695,65 @@ document.addEventListener("DOMContentLoaded", () => {
             const data =
                 await response.json();
 
-            document.getElementById(
-                "healthScore"
-            ).innerText =
+            const scoreElement =
+                document.getElementById(
+                    "healthScore"
+                );
+
+            const ratingElement =
+                document.getElementById(
+                    "healthRating"
+                );
+
+            scoreElement.innerText =
                 `${data.score}/100`;
 
-            document.getElementById(
-                "healthRating"
-            ).innerText =
+            ratingElement.innerText =
                 data.rating;
+
+            // ======================
+            // Dynamic Colors
+            // ======================
+
+            if (data.score >= 85) {
+
+                scoreElement.style.color =
+                    "#22c55e";
+
+                ratingElement.innerText =
+                    "🟢 Excellent";
+
+            }
+
+            else if (data.score >= 70) {
+
+                scoreElement.style.color =
+                    "#3b82f6";
+
+                ratingElement.innerText =
+                    "🔵 Good";
+
+            }
+
+            else if (data.score >= 50) {
+
+                scoreElement.style.color =
+                    "#facc15";
+
+                ratingElement.innerText =
+                    "🟡 Fair";
+
+            }
+
+            else {
+
+                scoreElement.style.color =
+                    "#ef4444";
+
+                ratingElement.innerText =
+                    "🔴 Needs Attention";
+
+            }
 
         }
 
