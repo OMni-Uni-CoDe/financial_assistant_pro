@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const expenseMsg = document.getElementById("expenseMsg");
     const prediction = document.getElementById("prediction");
     const responseBox = document.getElementById("response");
+    const budgetForm =
+        document.getElementById("budgetForm");
 
     const categoryFilter =
         document.getElementById("categoryFilter");
@@ -57,6 +59,38 @@ document.addEventListener("DOMContentLoaded", () => {
             loadCharts();
 
         });
+
+    }
+
+    if (budgetForm) {
+
+        budgetForm.addEventListener(
+            "submit",
+            async (e) => {
+
+                e.preventDefault();
+
+                const formData =
+                    new FormData(budgetForm);
+
+                const res =
+                    await fetch(
+                        "/set_budget",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                const data =
+                    await res.json();
+
+                alert(data.message);
+
+                loadBudget();
+
+            }
+        );
 
     }
 
@@ -340,6 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "averageSpend"
             ).innerText =
                 `₹${averageSpend.toFixed(2)}`;
+            loadBudget();
 
             const pieCanvas =
                 document.getElementById(
@@ -439,6 +474,70 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
     }
+    // Budget
+    async function loadBudget() {
+
+        try {
+
+            const res =
+                await fetch("/get_budget");
+
+            const data =
+                await res.json();
+
+            document.getElementById(
+                "budgetAmount"
+            ).innerText =
+                `₹${data.budget.toFixed(2)}`;
+
+            document.getElementById(
+                "remainingBudget"
+            ).innerText =
+                `₹${data.remaining.toFixed(2)}`;
+
+            document.getElementById(
+                "budgetPercentage"
+            ).innerText =
+                `${data.percentage}%`;
+
+            const fill =
+                document.getElementById(
+                    "budgetFill"
+                );
+
+            fill.style.width =
+                `${Math.min(data.percentage, 100)}%`;
+
+            const alertBox =
+                document.getElementById(
+                    "budgetAlert"
+                );
+
+            if (data.percentage >= 100) {
+
+                alertBox.innerText =
+                    "🚨 Budget exceeded!";
+
+            } else if (
+                data.percentage >= 80
+            ) {
+
+                alertBox.innerText =
+                    "⚠ Approaching budget limit";
+
+            } else {
+
+                alertBox.innerText = "";
+
+            }
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
 
     // =========================
     // Mobile Sidebar
@@ -499,5 +598,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadHistory();
     loadCharts();
-
+    loadBudget();
 });
