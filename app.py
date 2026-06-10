@@ -645,6 +645,108 @@ def get_forecast():
         "forecast": message
     })
 
+# --------- Saving Recommendations ---------
+@app.route("/get_recommendations")
+@login_required
+def get_recommendations():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "recommendations": [
+                "Add some expenses to receive recommendations."
+            ]
+        })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    recommendations = []
+
+    # Top category analysis
+
+    top_category = category_totals.index[0]
+    top_amount = category_totals.iloc[0]
+
+    top_percentage = (
+        top_amount / total_spent
+    ) * 100
+
+    recommendations.append(
+        f"{top_category} consumes {top_percentage:.1f}% of your spending."
+    )
+
+    annual_saving = (
+        top_amount * 0.10 * 12
+    )
+
+    recommendations.append(
+        f"Reducing {top_category} expenses by 10% could save approximately ₹{annual_saving:.0f} annually."
+    )
+
+    # Budget analysis
+
+    if current_user.budget and current_user.budget > 0:
+
+        budget = current_user.budget
+
+        usage = (
+            total_spent / budget
+        ) * 100
+
+        if usage >= 80:
+
+            remaining_budget = (
+                budget - total_spent
+            )
+
+            today = datetime.utcnow().date()
+
+            days_remaining = max(
+                30 - today.day,
+                1
+            )
+
+            daily_limit = (
+                remaining_budget /
+                days_remaining
+            )
+
+            recommendations.append(
+                f"To stay within budget, limit spending to approximately ₹{daily_limit:.0f} per day."
+            )
+
+    # Average expense
+
+    average_expense = (
+        df["amount"].mean()
+    )
+
+    recommendations.append(
+        f"Your average transaction amount is ₹{average_expense:.2f}."
+    )
+
+    return jsonify({
+        "recommendations": recommendations
+    })
+
 # --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
 @login_required
