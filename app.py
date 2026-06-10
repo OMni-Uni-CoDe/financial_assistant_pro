@@ -478,6 +478,62 @@ def get_data():
         "daily_totals": list(daily.values())
     })
 
+@app.route("/get_budget")
+@login_required
+def get_budget():
+
+    total_spent = db.session.query(
+        db.func.sum(Expense.amount)
+    ).filter_by(
+        user_id=current_user.id
+    ).scalar() or 0
+
+    budget = current_user.budget or 0
+
+    remaining = budget - total_spent
+
+    percentage = 0
+
+    if budget > 0:
+        percentage = min(
+            round((total_spent / budget) * 100, 2),
+            100
+        )
+
+    return jsonify({
+        "budget": budget,
+        "spent": total_spent,
+        "remaining": remaining,
+        "percentage": percentage
+    })
+
+
+@app.route("/set_budget", methods=["POST"])
+@login_required
+def set_budget():
+
+    try:
+
+        amount = float(
+            request.form.get("budget", 0)
+        )
+
+        current_user.budget = amount
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Budget updated."
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 400
+
 # ---------- CSV / PDF export ----------
 @app.route("/download_csv")
 @login_required
