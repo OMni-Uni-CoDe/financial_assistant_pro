@@ -328,3 +328,14 @@ canvas {
     color: #9ad0ff;
 }
 
+/* ===== Savings Goal ===== */
+
+#goalInfo {
+    margin-top: 15px;
+}
+
+#goalPercentage {
+    font-weight: bold;
+    color: #22c55e;
+}
+

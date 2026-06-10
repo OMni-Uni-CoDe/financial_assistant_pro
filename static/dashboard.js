@@ -769,6 +769,94 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // Savings Goal
+    // =========================
+
+    async function saveGoal() {
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "goal_name",
+            document.getElementById(
+                "goalName"
+            ).value
+        );
+
+        formData.append(
+            "target_amount",
+            document.getElementById(
+                "goalTarget"
+            ).value
+        );
+
+        formData.append(
+            "current_amount",
+            document.getElementById(
+                "goalCurrent"
+            ).value
+        );
+
+        const response =
+            await fetch(
+                "/set_goal",
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken":
+                            csrfToken
+                    },
+                    body: formData
+                }
+            );
+
+        const data =
+            await response.json();
+
+        alert(data.message);
+
+        loadGoal();
+    }
+
+
+    async function loadGoal() {
+
+        const response =
+            await fetch(
+                "/get_goal"
+            );
+
+        const data =
+            await response.json();
+
+        document.getElementById(
+            "goalDisplayName"
+        ).innerText =
+            data.goal_name || "-";
+
+        document.getElementById(
+            "goalCurrentDisplay"
+        ).innerText =
+            data.current_amount;
+
+        document.getElementById(
+            "goalTargetDisplay"
+        ).innerText =
+            data.target_amount;
+
+        document.getElementById(
+            "goalPercentage"
+        ).innerText =
+            `${data.percentage}%`;
+
+        document.getElementById(
+            "goalProgressBar"
+        ).style.width =
+            `${Math.min(data.percentage, 100)}%`;
+    }
+
+    // =========================
     // Mobile Sidebar
     // =========================
 
@@ -832,4 +920,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadForecast();
     loadRecommendations();
     loadHealthScore();
+    loadGoal();
 });

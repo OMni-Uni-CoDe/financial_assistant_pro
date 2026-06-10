@@ -116,6 +116,70 @@
                     </div>
 
                 </div>
+
+                <!-- Savings Goal -->
+
+                <div class="section-card">
+
+                    <h3>Savings Goal</h3>
+
+                    <input type="text"
+                           id="goalName"
+                           placeholder="Goal Name">
+
+                    <input type="number"
+                           id="goalTarget"
+                           placeholder="Target Amount">
+
+                    <input type="number"
+                           id="goalCurrent"
+                           placeholder="Current Savings">
+
+                    <button onclick="saveGoal()">
+                        Save Goal
+                    </button>
+
+                    <div id="goalInfo">
+
+                        <p>
+                            Goal:
+                            <strong id="goalDisplayName">
+                                -
+                            </strong>
+                        </p>
+
+                        <p>
+                            Saved:
+                            ₹<span id="goalCurrentDisplay">
+                                0
+                            </span>
+
+                            /
+
+                            ₹<span id="goalTargetDisplay">
+                                0
+                            </span>
+                        </p>
+
+                        <p>
+                            Progress:
+                            <span id="goalPercentage">
+                                0%
+                            </span>
+                        </p>
+
+                        <div class="progress-bar">
+
+                            <div id="goalProgressBar"
+                                 class="progress-fill"
+                                 style="width:0%"></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
                 <h3>Add Expense</h3>
 
                 <form id="expenseForm">
