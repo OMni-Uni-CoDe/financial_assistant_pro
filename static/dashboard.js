@@ -680,6 +680,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // Financial Health Score
+    // =========================
+
+    async function loadHealthScore() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_health_score"
+                );
+
+            const data =
+                await response.json();
+
+            document.getElementById(
+                "healthScore"
+            ).innerText =
+                `${data.score}/100`;
+
+            document.getElementById(
+                "healthRating"
+            ).innerText =
+                data.rating;
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Health score error:",
+                err
+            );
+
+        }
+
+    }
+
+    // =========================
     // Mobile Sidebar
     // =========================
 
@@ -742,4 +781,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInsights();
     loadForecast();
     loadRecommendations();
+    loadHealthScore();
 });

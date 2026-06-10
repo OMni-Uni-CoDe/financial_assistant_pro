@@ -86,7 +86,7 @@ select {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-bottom: 25px;
 }
@@ -312,5 +312,19 @@ canvas {
     border-radius: 10px;
     background: rgba(255,255,255,.04);
     border-left: 4px solid #10b981;
+}
+
+/* ===== Health Score ===== */
+
+#healthScore {
+    font-size: 30px;
+    font-weight: bold;
+    color: #22c55e;
+}
+
+#healthRating {
+    display: block;
+    margin-top: 8px;
+    color: #9ad0ff;
 }
 
