@@ -808,6 +808,107 @@ def get_recommendations():
         "recommendations": recommendations
     })
 
+# --------- Monthly Comparison ---------
+@app.route("/get_monthly_comparison")
+@login_required
+def get_monthly_comparison():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "comparison":
+            "Not enough data available."
+        })
+
+    today = datetime.utcnow().date()
+
+    current_month = today.month
+    current_year = today.year
+
+    if current_month == 1:
+
+        previous_month = 12
+        previous_year = current_year - 1
+
+    else:
+
+        previous_month = current_month - 1
+        previous_year = current_year
+
+    current_total = sum(
+
+        e.amount
+
+        for e in expenses
+
+        if e.date.month == current_month
+        and e.date.year == current_year
+
+    )
+
+    previous_total = sum(
+
+        e.amount
+
+        for e in expenses
+
+        if e.date.month == previous_month
+        and e.date.year == previous_year
+
+    )
+
+    if previous_total == 0:
+
+        return jsonify({
+            "comparison":
+            "No previous month data available."
+        })
+
+    percentage_change = (
+        (
+            current_total -
+            previous_total
+        )
+        / previous_total
+    ) * 100
+
+    if percentage_change > 0:
+
+        trend = (
+            f"↑ {percentage_change:.1f}% "
+            f"higher than last month"
+        )
+
+    elif percentage_change < 0:
+
+        trend = (
+            f"↓ {abs(percentage_change):.1f}% "
+            f"lower than last month"
+        )
+
+    else:
+
+        trend = (
+            "No change from last month"
+        )
+
+    return jsonify({
+
+        "current_month":
+            round(current_total, 2),
+
+        "previous_month":
+            round(previous_total, 2),
+
+        "trend":
+            trend
+
+    })
+
 # --------- Financial Health Score ---------
 @app.route("/get_health_score")
 @login_required
