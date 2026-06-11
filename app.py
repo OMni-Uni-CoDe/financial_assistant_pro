@@ -5,6 +5,7 @@ import io
 from markupsafe import Markup
 from datetime import datetime, timedelta
 from functools import wraps
+from flask import make_response
 from flask import (Flask, render_template, request, redirect, url_for,
                    jsonify, send_file, flash, abort, Response)
 from flask_sqlalchemy import SQLAlchemy
@@ -2243,6 +2244,26 @@ def download_pdf():
             )
 
             pdf.ln(5)
+
+    # ==========================
+    # OUTPUT PDF
+    # ==========================
+
+    pdf_output = pdf.output(dest="S")
+
+    response = make_response(
+        bytes(pdf_output, "latin-1")
+    )
+
+    response.headers[
+        "Content-Disposition"
+    ] = "attachment; filename=finance_pro_report.pdf"
+
+    response.headers[
+        "Content-Type"
+    ] = "application/pdf"
+
+    return response
 
 # ---------- AI assistant ----------
 @app.route("/ask", methods=["POST"])
