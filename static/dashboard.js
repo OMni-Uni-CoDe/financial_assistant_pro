@@ -870,6 +870,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "goalProgressBar"
         ).style.width =
             `${Math.min(data.percentage, 100)}%`;
+
+        document.getElementById(
+            "goalMilestone"
+        ).innerText =
+            data.milestone || "";
     };
 
     // =========================

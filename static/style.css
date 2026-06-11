@@ -339,3 +339,14 @@ canvas {
     color: #22c55e;
 }
 
+/* ==========================
+   Savings Goal Milestones
+========================== */
+
+.goal-milestone {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #22c55e;
+}
+

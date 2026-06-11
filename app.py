@@ -1008,21 +1008,42 @@ def get_goal():
             1
         )
 
-    return jsonify({
+        milestone = ""
 
-        "goal_name":
-            goal.goal_name,
+        if percentage >= 100:
 
-        "target_amount":
-            goal.target_amount,
+            milestone = "🏆 Goal Achieved!"
 
-        "current_amount":
-            goal.current_amount,
+        elif percentage >= 75:
 
-        "percentage":
-            percentage
+            milestone = "🎉 Almost There!"
 
-    })
+        elif percentage >= 50:
+
+            milestone = "🎉 Halfway There!"
+
+        elif percentage >= 25:
+
+            milestone = "🎉 25% Complete!"
+
+        return jsonify({
+
+            "goal_name":
+                goal.goal_name,
+
+            "target_amount":
+                goal.target_amount,
+
+            "current_amount":
+                goal.current_amount,
+
+            "percentage":
+                percentage,
+
+            "milestone":
+                milestone
+
+})
 
 # --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
