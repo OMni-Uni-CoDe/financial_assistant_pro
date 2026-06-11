@@ -1,5 +1,202 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    const categoryMap = {
+
+        "Housing": [
+            "Rent",
+            "Mortgage",
+            "Maintenance",
+            "Furniture",
+            "Home Decor",
+            "Property Tax",
+            "Security",
+            "Household Supplies"
+        ],
+
+        "Food & Dining": [
+            "Groceries",
+            "Restaurant",
+            "Cafe",
+            "Snacks",
+            "Food Delivery",
+            "Bakery",
+            "Fast Food",
+            "Dining Out"
+        ],
+
+        "Transportation": [
+            "Fuel",
+            "Public Transport",
+            "Taxi",
+            "Ride Sharing",
+            "Vehicle Maintenance",
+            "Parking",
+            "Tolls",
+            "Vehicle Insurance"
+        ],
+
+        "Utilities": [
+            "Electricity",
+            "Water",
+            "Gas",
+            "Internet",
+            "Mobile Recharge",
+            "Cable TV",
+            "Cloud Storage"
+        ],
+
+        "Healthcare": [
+            "Doctor",
+            "Medicine",
+            "Hospital",
+            "Dental",
+            "Vision",
+            "Health Insurance",
+            "Gym",
+            "Fitness",
+            "Mental Health"
+        ],
+
+        "Education": [
+            "School Fees",
+            "College Fees",
+            "Books",
+            "Courses",
+            "Certifications",
+            "Exam Fees",
+            "Stationery"
+        ],
+
+        "Shopping": [
+            "Clothing",
+            "Shoes",
+            "Accessories",
+            "Electronics",
+            "Gadgets",
+            "Home Appliances",
+            "Beauty Products"
+        ],
+
+        "Entertainment": [
+            "Movies",
+            "Games",
+            "Streaming",
+            "Music",
+            "Events",
+            "Sports",
+            "Hobbies"
+        ],
+
+        "Travel": [
+            "Flights",
+            "Hotels",
+            "Transport",
+            "Food",
+            "Tourism",
+            "Visa",
+            "Travel Insurance"
+        ],
+
+        "Finance": [
+            "EMI",
+            "Loan Payment",
+            "Credit Card",
+            "Bank Charges",
+            "Taxes",
+            "Investment",
+            "Trading"
+        ],
+
+        "Savings": [
+            "Emergency Fund",
+            "Retirement",
+            "Goal Contribution",
+            "Fixed Deposit",
+            "Mutual Fund",
+            "Stocks"
+        ],
+
+        "Family": [
+            "Children",
+            "Parents",
+            "Spouse",
+            "Family Events",
+            "Gifts"
+        ],
+
+        "Pets": [
+            "Pet Food",
+            "Veterinary",
+            "Pet Accessories",
+            "Pet Insurance"
+        ],
+
+        "Work": [
+            "Office Supplies",
+            "Software",
+            "Business Travel",
+            "Freelancing",
+            "Professional Services"
+        ],
+
+        "Subscriptions": [
+            "Netflix",
+            "Spotify",
+            "YouTube Premium",
+            "ChatGPT",
+            "Software Subscription",
+            "Membership"
+        ],
+
+        "Miscellaneous": [
+            "Charity",
+            "Donations",
+            "Unexpected Expenses",
+            "Other"
+        ]
+
+    };
+
+    function updateSubcategories() {
+
+        const category =
+            document.getElementById(
+                "category"
+            )?.value;
+
+        const subcategorySelect =
+            document.getElementById(
+                "subcategory"
+            );
+
+        if (
+            !category ||
+            !subcategorySelect
+        ) {
+            return;
+        }
+
+        subcategorySelect.innerHTML = "";
+
+        categoryMap[category]
+            .forEach(item => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value = item;
+                option.textContent = item;
+
+                subcategorySelect.appendChild(
+                    option
+                );
+
+            });
+
+    }
+
     const expenseForm = document.getElementById("expenseForm");
     const askForm = document.getElementById("askForm");
 
@@ -994,6 +1191,15 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
     }
+
+    updateSubcategories();
+
+    document
+        .getElementById("category")
+        ?.addEventListener(
+            "change",
+            updateSubcategories
+        );
 
     loadHistory();
     loadCharts();
