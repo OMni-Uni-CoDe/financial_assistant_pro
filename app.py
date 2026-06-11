@@ -83,11 +83,34 @@ class User(db.Model, UserMixin):
 
 
 class Expense(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    date = db.Column(db.Date, default=datetime.utcnow)
-    category = db.Column(db.String(120))
-    amount = db.Column(db.Float)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    date = db.Column(
+        db.Date,
+        default=datetime.utcnow
+    )
+
+    category = db.Column(
+        db.String(120)
+    )
+
+    subcategory = db.Column(
+        db.String(120),
+        default=""
+    )
+
+    amount = db.Column(
+        db.Float
+    )
 
 
 class SavingsGoal(db.Model):
@@ -127,6 +150,7 @@ def init_db():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/upgrade_budget")
 def upgrade_budget():
 
@@ -141,6 +165,29 @@ def upgrade_budget():
             conn.commit()
 
         return "Budget column added successfully."
+
+    except Exception as e:
+
+        return str(e), 500
+
+
+@app.route("/upgrade_subcategory")
+def upgrade_subcategory():
+
+    try:
+
+        with db.engine.connect() as conn:
+
+            conn.exec_driver_sql(
+                """
+                ALTER TABLE expense
+                ADD COLUMN IF NOT EXISTS subcategory VARCHAR(120)
+                """
+            )
+
+            conn.commit()
+
+        return "Subcategory column added successfully."
 
     except Exception as e:
 
@@ -401,11 +448,21 @@ def dashboard():
 @limiter.limit("60 per hour")
 def add_expense():
     category = request.form.get("category", "Other")
+    subcategory = request.form.get(
+    "subcategory",
+    ""
+)
     try:
         amount = float(request.form.get("amount", 0))
     except ValueError:
         return jsonify({"message": "Invalid amount."}), 400
-    entry = Expense(user_id=current_user.id, category=category, amount=amount, date=datetime.utcnow().date())
+    entry = Expense(
+            user_id=current_user.id,
+            category=category,
+            subcategory=subcategory,
+            amount=amount,
+            date=datetime.utcnow().date()
+    )
     db.session.add(entry)
     db.session.commit()
     return jsonify({"message": "Expense added successfully."})
