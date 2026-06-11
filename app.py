@@ -1914,37 +1914,336 @@ def download_csv():
 @app.route("/download_pdf")
 @login_required
 def download_pdf():
-    expenses = Expense.query.filter_by(user_id=current_user.id).all()
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        Expense.date.desc()
+    ).all()
+
+    if not expenses:
+        return jsonify({
+            "error": "No expenses found."
+        }), 404
 
     pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.cell(0, 10, "Expense Report", ln=True, align="C")
+    # ==========================
+    # PAGE 1
+    # ==========================
+
+    pdf.add_page()
+
+    pdf.set_font("Arial", "B", 18)
+    pdf.cell(
+        0,
+        10,
+        "FINANCE PRO",
+        ln=True,
+        align="C"
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.cell(
+        0,
+        8,
+        "Professional Financial Report",
+        ln=True,
+        align="C"
+    )
+
     pdf.ln(5)
 
-    total = 0
+    today = datetime.utcnow().date()
 
-    for e in expenses:
-        total += e.amount
+    pdf.cell(
+        0,
+        8,
+        f"Generated: {today.strftime('%d %B %Y')}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"User: {current_user.username}",
+        ln=True
+    )
+
+    pdf.ln(5)
+    
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    budget = current_user.budget or 0
+
+    remaining_budget = budget - total_spent
+
+    forecast = round(
+        (total_spent / max(today.day, 1)) * 30,
+        2
+    )
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.cell(
+        0,
+        10,
+        "FINANCIAL SUMMARY",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.cell(
+        0,
+        8,
+        f"Total Spending: ₹{total_spent:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Budget: ₹{budget:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Remaining Budget: ₹{remaining_budget:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Forecast: ₹{forecast:.2f}",
+        ln=True
+    )
+
+    pdf.ln(5)
+
+    # ==========================
+    # SAVINGS GOAL
+    # ==========================
+
+    goal = SavingsGoal.query.filter_by(
+    user_id=current_user.id
+    ).first()
+
+    if goal and goal.target_amount > 0:
+
+        progress = round(
+            (
+                goal.current_amount /
+                goal.target_amount
+            ) * 100,
+            1
+        )
+
+        pdf.set_font("Arial", "B", 14)
+
+        pdf.cell(
+            0,
+            10,
+            "SAVINGS GOAL",
+            ln=True
+        )
+
+        pdf.set_font("Arial", "", 12)
+
         pdf.cell(
             0,
             8,
-            f"{e.date} - {e.category} -> {e.subcategory}: Rs. {e.amount:.2f}",
+            f"Goal: {goal.goal_name}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Target Amount: ₹{goal.target_amount}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Current Savings: ₹{goal.current_amount}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Progress: {progress}%",
             ln=True
         )
 
     pdf.ln(5)
-    pdf.cell(0, 10, f"Total: Rs. {total:.2f}", ln=True)
 
-    pdf_bytes = pdf.output(dest="S").encode("latin-1")
+    # ==========================
+    # TOP CATEGORIES
+    # ==========================
 
-    return send_file(
-        io.BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name="expenses.pdf"
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
     )
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.cell(
+        0,
+        10,
+        "TOP CATEGORIES",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    for category, amount in category_totals.head(5).items():
+
+        percentage = (
+            amount /
+            total_spent
+        ) * 100
+
+        pdf.cell(
+            0,
+            8,
+            f"{category}: ₹{amount:.2f} ({percentage:.1f}%)",
+            ln=True
+        )
+
+    pdf.ln(5)
+
+    # ==========================
+    # TOP SUBCATEGORIES
+    # ==========================
+
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.cell(
+        0,
+        10,
+        "TOP SUBCATEGORIES",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    for (
+        category,
+        subcategory
+    ), amount in subcategory_totals.head(5).items():
+
+        percentage = (
+            amount /
+            total_spent
+        ) * 100
+
+        pdf.multi_cell(
+            0,
+            8,
+            f"{category} → {subcategory}: "
+            f"₹{amount:.2f} "
+            f"({percentage:.1f}%)"
+        )
+
+    pdf.ln(5)
+
+    # ==========================
+    # RECOMMENDATIONS
+    # ==========================
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.cell(
+        0,
+        10,
+        "RECOMMENDATIONS",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    if budget > 0:
+
+        if forecast > budget:
+
+            pdf.multi_cell(
+                0,
+                8,
+                f"⚠ Budget Risk: "
+                f"Projected overspend of "
+                f"₹{forecast-budget:.0f}"
+            )
+
+        else:
+
+            pdf.multi_cell(
+                0,
+                8,
+                f"✅ Budget Surplus: "
+                f"Projected ₹{budget-forecast:.0f} "
+                f"under budget."
+            )
+    if budget > total_spent:
+
+        remaining_days = max(
+            30 - today.day,
+            1
+        )
+
+        daily_limit = (
+            budget - total_spent
+        ) / remaining_days
+
+        pdf.multi_cell(
+            0,
+            8,
+            f"💡 Daily Spending Limit: "
+            f"₹{daily_limit:.0f}/day"
+        )
+
+        if goal and goal.target_amount > 0:
+
+            pdf.multi_cell(
+                0,
+                8,
+                "🎯 Saving an extra ₹1000/month "
+                "could accelerate goal completion."
+            )
+
+            pdf.ln(5)
+
 # ---------- AI assistant ----------
 @app.route("/ask", methods=["POST"])
 @login_required
