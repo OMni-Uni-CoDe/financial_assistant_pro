@@ -458,16 +458,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.style.alignItems = "center";
 
                 row.innerHTML = `
-                <span>
-                    ${item.date} — ${item.category} ₹${item.amount}
-                </span>
+                    <span>
 
-                <button
-                    class="delete-btn"
-                    data-id="${item.id}">
-                    🗑
-                </button>
-            `;
+                        <strong>
+                            ${item.category}
+                        </strong>
+
+                        ${item.subcategory
+                        ? `→ ${item.subcategory}`
+                        : ""}
+
+                        <br>
+
+                        ${item.date}
+
+                        <br>
+
+                        ₹${item.amount}
+
+                    </span>
+
+                    <button
+                        class="delete-btn"
+                        data-id="${item.id}">
+                        🗑
+                    </button>
+                `;
 
                 history.appendChild(row);
 

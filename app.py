@@ -381,11 +381,12 @@ def history():
     return jsonify({
         "history": [
             {
-                "id": e.id,
-                "date": str(e.date),
-                "category": e.category,
-                "amount": e.amount
-            }
+    "id": e.id,
+    "date": str(e.date),
+    "category": e.category,
+    "subcategory": e.subcategory,
+    "amount": e.amount
+}
             for e in expenses
         ]
     })
@@ -540,9 +541,10 @@ def get_data():
 
     df = pd.DataFrame([
         {
-            "date": e.date,
-            "category": e.category,
-            "amount": e.amount
+            "Date": e.date,
+            "Category": e.category,
+            "Subcategory": e.subcategory,
+            "Amount": e.amount
         }
         for e in expenses
     ])
@@ -1297,7 +1299,7 @@ def download_pdf():
         pdf.cell(
             0,
             8,
-            f"{e.date} - {e.category}: Rs. {e.amount:.2f}",
+            f"{e.date} - {e.category} -> {e.subcategory}: Rs. {e.amount:.2f}",
             ln=True
         )
 
