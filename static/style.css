@@ -360,3 +360,16 @@ canvas {
     color: #94a3b8;
 }
 
+/* =====================
+   Monthly Comparison
+===================== */
+
+#comparisonValue {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#comparisonTrend {
+    display: block;
+    margin-top: 6px;
+}

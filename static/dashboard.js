@@ -769,6 +769,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // Monthly Comparison
+    // =========================
+
+    window.loadMonthlyComparison =
+        async function () {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/get_monthly_comparison"
+                    );
+
+                const data =
+                    await response.json();
+
+                if (data.comparison) {
+
+                    document.getElementById(
+                        "comparisonValue"
+                    ).innerText =
+                        "--";
+
+                    document.getElementById(
+                        "comparisonTrend"
+                    ).innerText =
+                        data.comparison;
+
+                    return;
+
+                }
+
+                document.getElementById(
+                    "comparisonValue"
+                ).innerText =
+                    `₹${data.current_month}`;
+
+                document.getElementById(
+                    "comparisonTrend"
+                ).innerText =
+                    data.trend;
+
+            }
+
+            catch (err) {
+
+                console.error(
+                    "Comparison error:",
+                    err
+                );
+
+            }
+
+        };
+
+    // =========================
     // Savings Goal
     // =========================
 
@@ -947,4 +1003,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadRecommendations();
     loadHealthScore();
     loadGoal();
+    loadMonthlyComparison();
 });
