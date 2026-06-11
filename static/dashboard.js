@@ -879,21 +879,28 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = "";
 
             data.recommendations.forEach(
-                recommendation => {
+                rec => {
 
-                    const item =
+                    const card =
                         document.createElement(
                             "div"
                         );
 
-                    item.className =
+                    card.className =
                         "recommendation-item";
 
-                    item.innerHTML =
-                        `🤖 ${recommendation}`;
+                    card.innerHTML = `
+                    <strong>
+                        ${rec.title}
+                    </strong>
+
+                    <br><br>
+
+                    ${rec.message}
+                `;
 
                     container.appendChild(
-                        item
+                        card
                     );
 
                 }
@@ -904,6 +911,7 @@ document.addEventListener("DOMContentLoaded", () => {
         catch (err) {
 
             console.error(
+                "Recommendations error:",
                 err
             );
 

@@ -898,13 +898,18 @@ def get_recommendations():
 
         return jsonify({
             "recommendations": [
-                "Add some expenses to receive recommendations."
+                {
+                    "title": "ℹ No Data",
+                    "message":
+                        "Add expenses to receive recommendations."
+                }
             ]
         })
 
     df = pd.DataFrame([
         {
             "category": e.category,
+            "subcategory": e.subcategory,
             "amount": e.amount
         }
         for e in expenses
@@ -912,44 +917,76 @@ def get_recommendations():
 
     total_spent = df["amount"].sum()
 
-    category_totals = (
-        df.groupby("category")["amount"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-
     recommendations = []
 
-    # ==================================
-    # Recommendation 1:
-    # Saving Opportunity
-    # ==================================
+    today = datetime.utcnow().date()
 
-    top_category = category_totals.index[0]
-    top_amount = category_totals.iloc[0]
-
-    annual_saving = (
-        top_amount * 0.10 * 12
+    days_passed = max(
+        today.day,
+        1
     )
 
-    recommendations.append(
-        f"Reducing {top_category} expenses by 10% could save approximately ₹{annual_saving:.0f} annually."
+    projected_spending = (
+        total_spent /
+        days_passed
+    ) * 30
+
+    budget = current_user.budget or 0
+
+    # ==========================
+    # Top Expense
+    # ==========================
+
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
     )
 
-    # ==================================
-    # Recommendation 2:
-    # Daily Budget Target
-    # ==================================
+    top_entry = subcategory_totals.index[0]
 
-    if current_user.budget and current_user.budget > 0:
+    top_amount = (
+        subcategory_totals.iloc[0]
+    )
 
-        budget = current_user.budget
+    top_percent = (
+        top_amount /
+        total_spent
+    ) * 100
 
-        remaining_budget = (
-            budget - total_spent
+    # ==========================
+    # OVER BUDGET
+    # ==========================
+
+    if (
+        budget > 0 and
+        projected_spending > budget
+    ):
+
+        excess = (
+            projected_spending -
+            budget
         )
 
-        today = datetime.utcnow().date()
+        recommendations.append({
+
+            "title":
+                "⚠ Budget Risk",
+
+            "message":
+                f"Projected overspend: "
+                f"₹{excess:.0f}"
+
+        })
+
+        remaining_budget = (
+            budget -
+            total_spent
+        )
 
         days_remaining = max(
             30 - today.day,
@@ -961,62 +998,127 @@ def get_recommendations():
             days_remaining
         )
 
-        recommendations.append(
-            f"To remain within budget, keep spending below approximately ₹{daily_limit:.0f} per day."
+        recommendations.append({
+
+            "title":
+                "⚠ Daily Limit",
+
+            "message":
+                f"Keep spending below "
+                f"₹{daily_limit:.0f}/day"
+
+        })
+
+        recommendations.append({
+
+            "title":
+                "⚠ Expense Reduction",
+
+            "message":
+                f"{top_entry[0]} → "
+                f"{top_entry[1]} consumes "
+                f"{top_percent:.1f}% "
+                f"of spending"
+
+        })
+
+    # ==========================
+    # UNDER BUDGET
+    # ==========================
+
+    elif budget > 0:
+
+        surplus = (
+            budget -
+            projected_spending
         )
 
-    # ==================================
-    # Recommendation 3:
-    # Forecast Warning
-    # ==================================
+        recommendations.append({
 
-    today = datetime.utcnow().date()
+            "title":
+                "✅ Budget Surplus",
 
-    days_passed = max(
-        today.day,
-        1
-    )
+            "message":
+                f"Projected ₹{surplus:.0f} "
+                f"under budget"
 
-    projected_spending = (
-        total_spent / days_passed
-    ) * 30
+        })
 
-    if current_user.budget and current_user.budget > 0:
-
-        excess = (
-            projected_spending -
-            current_user.budget
+        days_remaining = max(
+            30 - today.day,
+            1
         )
 
-        if excess > 0:
-
-            recommendations.append(
-                f"At your current pace, you may exceed your budget by approximately ₹{excess:.0f} this month."
-            )
-
-    # ==================================
-    # Recommendation 4:
-    # Spending Concentration
-    # ==================================
-
-    if len(category_totals) >= 2:
-
-        top_two_total = (
-            category_totals.iloc[0]
-            + category_totals.iloc[1]
-        )
-
-        top_two_percent = (
-            top_two_total /
+        remaining_budget = (
+            budget -
             total_spent
-        ) * 100
-
-        recommendations.append(
-            f"The top two categories account for {top_two_percent:.1f}% of your spending. Review recurring expenses for possible savings."
         )
+
+        daily_limit = (
+            remaining_budget /
+            days_remaining
+        )
+
+        recommendations.append({
+
+            "title":
+                "✅ Safe Spending Limit",
+
+            "message":
+                f"You can spend "
+                f"₹{daily_limit:.0f}/day"
+
+        })
+
+    # ==========================
+    # Goal Acceleration
+    # ==========================
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if (
+        goal and
+        goal.target_amount > 0 and
+        budget > 0
+    ):
+
+        recommendations.append({
+
+            "title":
+                "🎯 Goal Acceleration",
+
+            "message":
+                "Adding ₹1000/month "
+                "to savings could "
+                "reduce completion time."
+
+        })
+
+    # ==========================
+    # Savings Opportunity
+    # ==========================
+
+    if (
+        budget > 0 and
+        projected_spending < budget
+    ):
+
+        recommendations.append({
+
+            "title":
+                "💡 Savings Opportunity",
+
+            "message":
+                "Current spending leaves "
+                "room for additional saving."
+
+        })
 
     return jsonify({
-        "recommendations": recommendations
+        "recommendations":
+            recommendations[:4]
     })
 
 # --------- Monthly Comparison ---------
