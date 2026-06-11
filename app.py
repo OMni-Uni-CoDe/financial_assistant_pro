@@ -675,14 +675,13 @@ def get_insights():
     if not expenses:
 
         return jsonify({
-            "insights": [
-                "No expenses available yet."
-            ]
+            "insights": []
         })
 
     df = pd.DataFrame([
         {
             "category": e.category,
+            "subcategory": e.subcategory,
             "amount": e.amount
         }
         for e in expenses
@@ -690,53 +689,141 @@ def get_insights():
 
     total_spent = df["amount"].sum()
 
-    category_totals = (
-        df.groupby("category")["amount"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-
     insights = []
 
-    top_category = category_totals.index[0]
+    # ==========================
+    # Spending Concentration
+    # ==========================
 
-    top_amount = category_totals.iloc[0]
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
 
-    percentage = (
-        top_amount / total_spent
+    top_entry = subcategory_totals.index[0]
+
+    top_amount = subcategory_totals.iloc[0]
+
+    top_percent = (
+        top_amount /
+        total_spent
     ) * 100
 
-    insights.append(
-        f"{top_category} accounts for {percentage:.1f}% of your spending."
-    )
+    insights.append({
 
-    insights.append(
-        f"Your largest expense category is {top_category}."
-    )
+        "title":
+            "📊 Spending Concentration",
 
-    if current_user.budget and current_user.budget > 0:
+        "message":
+            f"{top_percent:.1f}% of spending is in "
+            f"{top_entry[0]} → {top_entry[1]}"
+
+    })
+
+    # ==========================
+    # Budget Status
+    # ==========================
+
+    if (
+        current_user.budget and
+        current_user.budget > 0
+    ):
 
         usage = (
-            total_spent / current_user.budget
+            total_spent /
+            current_user.budget
         ) * 100
-
-        insights.append(
-            f"You have used {usage:.1f}% of your budget."
-        )
 
         if usage >= 80:
 
-            insights.append(
-                "You are approaching your budget limit."
+            message = (
+                f"⚠ {usage:.1f}% of monthly budget used."
             )
 
-    average_expense = (
-        df["amount"].mean()
+        else:
+
+            message = (
+                f"{usage:.1f}% of monthly budget used."
+            )
+
+        insights.append({
+
+            "title":
+                "📈 Budget Status",
+
+            "message":
+                message
+
+        })
+
+    # ==========================
+    # Daily Average
+    # ==========================
+
+    today = datetime.utcnow().date()
+
+    daily_average = (
+        total_spent /
+        max(today.day, 1)
     )
 
-    insights.append(
-        f"Average expense amount is ₹{average_expense:.2f}."
-    )
+    insights.append({
+
+        "title":
+            "💰 Daily Average",
+
+        "message":
+            f"₹{daily_average:.0f}/day"
+
+    })
+
+    # ==========================
+    # Largest Expense
+    # ==========================
+
+    insights.append({
+
+        "title":
+            "🏆 Largest Expense",
+
+        "message":
+            f"{top_entry[0]} → {top_entry[1]}"
+
+    })
+
+    # ==========================
+    # Savings Goal
+    # ==========================
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if goal and goal.target_amount > 0:
+
+        percentage = round(
+            (
+                goal.current_amount /
+                goal.target_amount
+            ) * 100,
+            1
+        )
+
+        insights.append({
+
+            "title":
+                "🎯 Savings Goal",
+
+            "message":
+                f"{goal.goal_name} is "
+                f"{percentage}% complete"
+
+        })
 
     return jsonify({
         "insights": insights

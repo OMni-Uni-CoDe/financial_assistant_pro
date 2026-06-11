@@ -765,7 +765,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
 
             const response =
-                await fetch("/get_insights");
+                await fetch(
+                    "/get_insights"
+                );
 
             const data =
                 await response.json();
@@ -777,26 +779,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
             container.innerHTML = "";
 
-            data.insights.forEach(insight => {
+            data.insights.forEach(
+                insight => {
 
-                const item =
-                    document.createElement("div");
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
 
-                item.className =
-                    "insight-item";
+                    card.className =
+                        "insight-item";
 
-                item.innerHTML =
-                    `💡 ${insight}`;
+                    card.innerHTML = `
+                    <strong>
+                        ${insight.title}
+                    </strong>
 
-                container.appendChild(item);
+                    <br><br>
 
-            });
+                    ${insight.message}
+                `;
+
+                    container.appendChild(
+                        card
+                    );
+
+                }
+            );
 
         }
 
         catch (err) {
 
-            console.error(err);
+            console.error(
+                "Insights error:",
+                err
+            );
 
         }
 
