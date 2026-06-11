@@ -6,7 +6,7 @@ from markupsafe import Markup
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import (Flask, render_template, request, redirect, url_for,
-                   jsonify, send_file, flash, abort)
+                   jsonify, send_file, flash, abort, Response)
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
@@ -22,6 +22,8 @@ import numpy as np
 from openai import OpenAI
 from fpdf import FPDF
 from sklearn.linear_model import LinearRegression
+import csv
+import io
 
 
 
@@ -1079,10 +1081,41 @@ def get_recommendations():
     ).first()
 
     if (
-        goal and
-        goal.target_amount > 0 and
-        budget > 0
-    ):
+    goal and
+    goal.target_amount > 0 and
+    budget > 0
+):
+
+        remaining_amount = (
+            goal.target_amount -
+            goal.current_amount
+        )
+
+        current_monthly_saving = (
+            budget * 0.20
+        )
+
+        improved_monthly_saving = (
+            current_monthly_saving +
+            1000
+        )
+
+    if current_monthly_saving > 0:
+
+        current_eta = (
+            remaining_amount /
+            current_monthly_saving
+        )
+
+        improved_eta = (
+            remaining_amount /
+            improved_monthly_saving
+        )
+
+        months_saved = (
+            current_eta -
+            improved_eta
+        )
 
         recommendations.append({
 
@@ -1090,9 +1123,12 @@ def get_recommendations():
                 "🎯 Goal Acceleration",
 
             "message":
-                "Adding ₹1000/month "
-                "to savings could "
-                "reduce completion time."
+                f"Current ETA: "
+                f"{current_eta:.1f} months. "
+                f"Saving an extra ₹1000/month "
+                f"could reduce it to "
+                f"{improved_eta:.1f} months "
+                f"({months_saved:.1f} months faster)."
 
         })
 
@@ -1540,12 +1576,231 @@ def set_budget():
 @app.route("/download_csv")
 @login_required
 def download_csv():
-    expenses = Expense.query.filter_by(user_id=current_user.id).all()
-    df = pd.DataFrame([{"Date": e.date, "Category": e.category, "Amount": e.amount} for e in expenses])
-    out = io.BytesIO()
-    df.to_csv(out, index=False)
-    out.seek(0)
-    return send_file(out, mimetype="text/csv", as_attachment=True, download_name="expenses.csv")
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        Expense.date.desc()
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "error": "No expenses found."
+        }), 404
+
+    # ==========================
+    # Expense Data
+    # ==========================
+
+    df = pd.DataFrame([
+        {
+            "Date": e.date,
+            "Category": e.category,
+            "Subcategory": e.subcategory,
+            "Amount": e.amount,
+            "Month": e.date.strftime("%B"),
+            "Year": e.date.year
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["Amount"].sum()
+
+    budget = current_user.budget or 0
+
+    remaining_budget = (
+        budget - total_spent
+    )
+
+    # ==========================
+    # Top Category
+    # ==========================
+
+    category_totals = (
+        df.groupby("Category")["Amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    top_category = (
+        category_totals.index[0]
+        if not category_totals.empty
+        else "-"
+    )
+
+    # ==========================
+    # Top Subcategory
+    # ==========================
+
+    subcategory_totals = (
+        df.groupby(
+            ["Category", "Subcategory"]
+        )["Amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    if not subcategory_totals.empty:
+
+        top_subcategory = (
+            f"{subcategory_totals.index[0][0]}"
+            f" → "
+            f"{subcategory_totals.index[0][1]}"
+        )
+
+    else:
+
+        top_subcategory = "-"
+
+    # ==========================
+    # Forecast
+    # ==========================
+
+    today = datetime.utcnow().date()
+
+    days_passed = max(
+        today.day,
+        1
+    )
+
+    forecast = round(
+        (
+            total_spent /
+            days_passed
+        ) * 30,
+        2
+    )
+
+    # ==========================
+    # Health Score
+    # ==========================
+
+    if budget > 0:
+
+        usage = (
+            total_spent /
+            budget
+        ) * 100
+
+        if usage <= 50:
+            health_score = 90
+
+        elif usage <= 80:
+            health_score = 70
+
+        else:
+            health_score = 50
+
+    else:
+
+        health_score = 0
+
+    # ==========================
+    # Goal Progress
+    # ==========================
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    goal_progress = "N/A"
+
+    if (
+        goal and
+        goal.target_amount > 0
+    ):
+
+        percentage = round(
+            (
+                goal.current_amount /
+                goal.target_amount
+            ) * 100,
+            1
+        )
+
+        goal_progress = (
+            f"{percentage}%"
+        )
+
+    # ==========================
+    # Budget Usage %
+    # ==========================
+
+    if budget > 0:
+
+        df["Budget Usage %"] = (
+            (
+                df["Amount"] /
+                budget
+            ) * 100
+        ).round(2)
+
+    else:
+
+        df["Budget Usage %"] = 0
+
+    # ==========================
+    # Build Report
+    # ==========================
+
+    report_rows = [
+
+        ["FINANCE PRO REPORT", ""],
+        ["Generated On", str(today)],
+        ["", ""],
+
+        ["Total Spending", round(total_spent, 2)],
+        ["Budget", budget],
+        ["Remaining Budget", round(remaining_budget, 2)],
+        ["Health Score", health_score],
+        ["Forecast", forecast],
+
+        ["Top Category", top_category],
+        ["Top Subcategory", top_subcategory],
+
+        ["Goal Progress", goal_progress],
+
+        ["", ""],
+        ["EXPENSE DETAILS", ""]
+    ]
+
+    output = io.StringIO()
+
+    writer = csv.writer(output)
+
+    for row in report_rows:
+
+        writer.writerow(row)
+
+    writer.writerow([])
+
+    writer.writerow(df.columns)
+
+    for row in df.values:
+
+        writer.writerow(row)
+
+    output.seek(0)
+
+    return Response(
+
+        output.getvalue(),
+
+        mimetype="text/csv",
+
+        headers={
+
+            "Content-Disposition":
+                "attachment; "
+                "filename=finance_pro_report.csv"
+
+        }
+    )
 
 @app.route("/download_pdf")
 @login_required
