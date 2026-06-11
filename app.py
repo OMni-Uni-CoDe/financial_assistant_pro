@@ -1645,6 +1645,7 @@ def download_csv():
         )
     )
 
+
     if not subcategory_totals.empty:
 
         top_subcategory = (
@@ -1750,24 +1751,132 @@ def download_csv():
 
     report_rows = [
 
-        ["FINANCE PRO REPORT", ""],
-        ["Generated On", str(today)],
+        ["FINANCE PRO PROFESSIONAL REPORT", ""],
+        ["Generated On", today.strftime("%d %B %Y")],
+        ["User", current_user.username],
+        ["Currency", "INR"],
         ["", ""],
+
+        ["REPORT SUMMARY", ""],
 
         ["Total Spending", round(total_spent, 2)],
         ["Budget", budget],
         ["Remaining Budget", round(remaining_budget, 2)],
-        ["Health Score", health_score],
-        ["Forecast", forecast],
+        ["Financial Health Score", f"{health_score}/100"],
 
         ["Top Category", top_category],
         ["Top Subcategory", top_subcategory],
 
-        ["Goal Progress", goal_progress],
+        ["Projected Month-End Spending", forecast],
+        ["Expense Count", len(df)],
 
-        ["", ""],
-        ["EXPENSE DETAILS", ""]
+        [
+            "Budget Status",
+            "Within Budget"
+            if forecast <= budget
+            else "Over Budget"
+        ],
+
+        ["", ""]
     ]
+
+    if goal:
+
+        report_rows.extend([
+
+            ["SAVINGS GOAL", ""],
+
+            ["Goal Name", goal.goal_name],
+            ["Target Amount", goal.target_amount],
+            ["Current Savings", goal.current_amount],
+            ["Progress", goal_progress],
+
+            ["", ""]
+    ])
+
+    report_rows.extend([
+
+        ["TOP CATEGORIES", ""],
+
+        ["Category", "Amount"]
+    ])
+
+    for category, amount in category_totals.head(5).items():
+
+        report_rows.append([
+            category,
+            round(amount, 2)
+    ])
+
+    report_rows.append(["", ""])
+
+    
+    
+    report_rows.extend([
+
+        ["TOP SUBCATEGORIES", ""],
+
+        ["Category → Subcategory", "Amount"]
+    ])
+
+    for (
+        category,
+        subcategory
+    ), amount in subcategory_totals.head(5).items():
+
+        report_rows.append([
+            f"{category} → {subcategory}",
+            round(amount, 2)
+        ])
+
+    report_rows.append(["", ""])
+
+    report_rows.extend([
+
+        ["RECOMMENDATIONS", ""]
+    ])
+
+    if forecast <= budget:
+
+        report_rows.append([
+
+            "Budget Opportunity",
+
+            f"Projected to finish ₹{round(budget-forecast,2)} under budget"
+
+    ])
+
+    else:
+
+        report_rows.append([
+    
+            "Budget Risk",
+
+            f"Projected to exceed budget by ₹{round(forecast-budget,2)}"
+
+    ])
+
+    if budget > 0:
+
+        remaining_days = max(
+            30 - today.day,
+            1
+        )
+
+        daily_limit = round(
+            (budget - total_spent)
+            / remaining_days,
+            2
+        )
+
+        report_rows.append([
+
+            "Daily Spending Limit",
+
+            f"₹{daily_limit}/day"
+
+        ])
+        report_rows.append(["", ""])
 
     output = io.StringIO()
 
