@@ -541,10 +541,10 @@ def get_data():
 
     df = pd.DataFrame([
         {
-            "Date": e.date,
-            "Category": e.category,
-            "Subcategory": e.subcategory,
-            "Amount": e.amount
+            "date": e.date,
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
         }
         for e in expenses
     ])
@@ -555,7 +555,7 @@ def get_data():
         .to_dict()
     )
 
-    daily = (
+    daily_totals = (
         df.groupby("date")["amount"]
         .sum()
         .to_dict()
@@ -564,8 +564,8 @@ def get_data():
     return jsonify({
         "categories": list(category_totals.keys()),
         "totals": list(category_totals.values()),
-        "dates": [str(d) for d in daily.keys()],
-        "daily_totals": list(daily.values())
+        "dates": [str(d) for d in daily_totals.keys()],
+        "daily_totals": list(daily_totals.values())
     })
 
 # --------- Budget creation ---------
