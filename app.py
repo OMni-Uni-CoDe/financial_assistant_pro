@@ -1153,7 +1153,9 @@ def get_goal():
             "goal_name": "",
             "target_amount": 0,
             "current_amount": 0,
-            "percentage": 0
+            "percentage": 0,
+            "milestone": "",
+            "eta": ""
         })
 
     percentage = 0
@@ -1168,11 +1170,7 @@ def get_goal():
             1
         )
 
-    # ==========================
-    # Goal Completion ETA
-    # ==========================
-
-    remaining_amount = (
+    remaining_amount =(
         goal.target_amount -
         goal.current_amount
     )
@@ -1183,7 +1181,9 @@ def get_goal():
         else 0
     )
 
-    eta = ""
+    # ==========================
+    # ETA
+    # ==========================
 
     if remaining_amount <= 0:
 
@@ -1198,49 +1198,62 @@ def get_goal():
         )
 
         eta = (
-        f"Estimated completion: "
-        f"{months_left} month(s)"
+            f"Estimated completion: "
+            f"{months_left} month(s)"
         )
+
+    else:
+
+        eta = (
+            "Set a budget to estimate "
+            "goal completion."
+        )
+
+    # ==========================
+    # Milestone
+    # ==========================
+
+    if percentage >= 100:
+
+        milestone = "🏆 Goal Achieved!"
+
+    elif percentage >= 75:
+
+        milestone = "🎉 Almost There!"
+
+    elif percentage >= 50:
+
+        milestone = "🎉 Halfway There!"
+
+    elif percentage >= 25:
+
+        milestone = "🎉 25% Complete!"
+
+    else:
 
         milestone = ""
 
-        if percentage >= 100:
+    return jsonify({
 
-            milestone = "🏆 Goal Achieved!"
+        "goal_name":
+            goal.goal_name,
 
-        elif percentage >= 75:
+        "target_amount":
+            goal.target_amount,
 
-            milestone = "🎉 Almost There!"
+        "current_amount":
+            goal.current_amount,
 
-        elif percentage >= 50:
+        "percentage":
+            percentage,
 
-            milestone = "🎉 Halfway There!"
+        "milestone":
+            milestone,
 
-        elif percentage >= 25:
+        "eta":
+            eta
 
-            milestone = "🎉 25% Complete!"
-
-        return jsonify({
-
-            "goal_name":
-                goal.goal_name,
-
-            "target_amount":
-                goal.target_amount,
-
-            "current_amount":
-                goal.current_amount,
-
-            "percentage":
-                percentage,
-
-            "milestone":
-                milestone,
-
-            "eta":
-                eta
-
-})
+    })
 
 # --------- Budget creation ---------
 @app.route("/set_budget", methods=["POST"])
