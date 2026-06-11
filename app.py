@@ -2010,28 +2010,28 @@ def download_pdf():
     pdf.cell(
         0,
         8,
-        f"Total Spending: ₹{total_spent:.2f}",
+        f"Total Spending: Rs. {total_spent:.2f}",
         ln=True
     )
 
     pdf.cell(
         0,
         8,
-        f"Budget: ₹{budget:.2f}",
+        f"Budget: Rs. {budget:.2f}",
         ln=True
     )
 
     pdf.cell(
         0,
         8,
-        f"Remaining Budget: ₹{remaining_budget:.2f}",
+        f"Remaining Budget: Rs. {remaining_budget:.2f}",
         ln=True
     )
 
     pdf.cell(
         0,
         8,
-        f"Forecast: ₹{forecast:.2f}",
+        f"Forecast: Rs. {forecast:.2f}",
         ln=True
     )
 
@@ -2076,14 +2076,14 @@ def download_pdf():
         pdf.cell(
             0,
             8,
-            f"Target Amount: ₹{goal.target_amount}",
+            f"Target Amount: Rs. {goal.target_amount}",
             ln=True
         )
 
         pdf.cell(
             0,
             8,
-            f"Current Savings: ₹{goal.current_amount}",
+            f"Current Savings: Rs. {goal.current_amount}",
             ln=True
         )
 
@@ -2129,7 +2129,7 @@ def download_pdf():
         pdf.cell(
             0,
             8,
-            f"{category}: ₹{amount:.2f} ({percentage:.1f}%)",
+            f"{category}: Rs. {amount:.2f} ({percentage:.1f}%)",
             ln=True
         )
 
@@ -2174,7 +2174,7 @@ def download_pdf():
             0,
             8,
             f"{category} → {subcategory}: "
-            f"₹{amount:.2f} "
+            f"Rs. {amount:.2f} "
             f"({percentage:.1f}%)"
         )
 
@@ -2204,7 +2204,7 @@ def download_pdf():
                 8,
                 f"⚠ Budget Risk: "
                 f"Projected overspend of "
-                f"₹{forecast-budget:.0f}"
+                f"Rs. {forecast-budget:.0f}"
             )
 
         else:
@@ -2213,7 +2213,7 @@ def download_pdf():
                 0,
                 8,
                 f"✅ Budget Surplus: "
-                f"Projected ₹{budget-forecast:.0f} "
+                f"Projected Rs. {budget-forecast:.0f} "
                 f"under budget."
             )
     if budget > total_spent:
@@ -2231,7 +2231,7 @@ def download_pdf():
             0,
             8,
             f"💡 Daily Spending Limit: "
-            f"₹{daily_limit:.0f}/day"
+            f"Rs. {daily_limit:.0f}/day"
         )
 
         if goal and goal.target_amount > 0:
@@ -2239,7 +2239,7 @@ def download_pdf():
             pdf.multi_cell(
                 0,
                 8,
-                "🎯 Saving an extra ₹1000/month "
+                "🎯 Saving an extra Rs. 1000/month "
                 "could accelerate goal completion."
             )
 
