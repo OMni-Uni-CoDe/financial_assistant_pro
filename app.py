@@ -933,6 +933,7 @@ def get_health_score():
 # --------- Savings Goal ---------
 
 @app.route("/set_goal", methods=["POST"])
+@csrf.exempt
 @login_required
 def set_goal():
 
