@@ -254,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             loadHistory();
             loadCharts();
+            loadTopSubcategory();
 
         });
 
@@ -982,6 +983,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // Top Subcategory Analytics
+    // =========================
+
+    async function loadTopSubcategory() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_top_subcategory"
+                );
+
+            const data =
+                await response.json();
+
+            document.getElementById(
+                "topSubcategory"
+            ).innerText =
+                data.subcategory;
+
+            document.getElementById(
+                "topSubcategoryInfo"
+            ).innerText =
+                `${data.category} • ₹${data.amount}
+(${data.percentage}% of spending)`;
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Top subcategory error:",
+                err
+            );
+
+        }
+
+    }
+
+    // =========================
     // Monthly Comparison
     // =========================
 
@@ -1224,6 +1265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadForecast();
     loadRecommendations();
     loadHealthScore();
+    loadTopSubcategory();
     loadGoal();
     loadMonthlyComparison();
 });

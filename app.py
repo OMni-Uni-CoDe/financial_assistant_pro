@@ -568,6 +568,71 @@ def get_data():
         "daily_totals": list(daily_totals.values())
     })
 
+@app.route("/get_top_subcategory")
+@login_required
+def get_top_subcategory():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "category": "-",
+            "subcategory": "-",
+            "amount": 0,
+            "percentage": 0
+        })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    top_entry = subcategory_totals.index[0]
+
+    top_amount = (
+        subcategory_totals.iloc[0]
+    )
+
+    percentage = (
+        top_amount /
+        total_spent
+    ) * 100
+
+    return jsonify({
+
+        "category":
+            top_entry[0],
+
+        "subcategory":
+            top_entry[1],
+
+        "amount":
+            round(top_amount, 2),
+
+        "percentage":
+            round(percentage, 1)
+
+    })
+
 # --------- Budget creation ---------
 @app.route("/get_budget")
 @login_required
