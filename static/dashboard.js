@@ -875,6 +875,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "goalMilestone"
         ).innerText =
             data.milestone || "";
+
+        document.getElementById(
+            "goalEta"
+        ).innerText =
+            data.eta || "";
     };
 
     // =========================

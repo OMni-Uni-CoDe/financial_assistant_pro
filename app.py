@@ -1008,6 +1008,40 @@ def get_goal():
             1
         )
 
+    # ==========================
+    # Goal Completion ETA
+    # ==========================
+
+    remaining_amount = (
+        goal.target_amount -
+        goal.current_amount
+    )
+
+    monthly_saving = (
+        current_user.budget * 0.20
+        if current_user.budget and current_user.budget > 0
+        else 0
+    )
+
+    eta = ""
+
+    if remaining_amount <= 0:
+
+        eta = "🏆 Goal already achieved!"
+
+    elif monthly_saving > 0:
+
+        months_left = round(
+            remaining_amount /
+            monthly_saving,
+            1
+        )
+
+        eta = (
+        f"Estimated completion: "
+        f"{months_left} month(s)"
+        )
+
         milestone = ""
 
         if percentage >= 100:
@@ -1041,7 +1075,10 @@ def get_goal():
                 percentage,
 
             "milestone":
-                milestone
+                milestone,
+
+            "eta":
+                eta
 
 })
 

@@ -350,3 +350,13 @@ canvas {
     color: #22c55e;
 }
 
+/* ======================
+   Goal Completion ETA
+====================== */
+
+.goal-eta {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
