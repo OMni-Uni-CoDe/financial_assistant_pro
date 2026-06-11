@@ -772,7 +772,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Savings Goal
     // =========================
 
-    async function saveGoal() {
+    window.saveGoal = async function () {
 
         const formData =
             new FormData();
@@ -817,10 +817,10 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(data.message);
 
         loadGoal();
-    }
+    };
 
 
-    async function loadGoal() {
+    window.loadGoal = async function () {
 
         const response =
             await fetch(
@@ -854,7 +854,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "goalProgressBar"
         ).style.width =
             `${Math.min(data.percentage, 100)}%`;
-    }
+    };
 
     // =========================
     // Mobile Sidebar
