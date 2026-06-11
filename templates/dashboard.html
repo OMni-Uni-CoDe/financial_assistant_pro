@@ -123,21 +123,30 @@
 
                     <h3>Savings Goal</h3>
 
-                    <input type="text"
-                           id="goalName"
-                           placeholder="Goal Name">
+                    <form id="goalForm">
 
-                    <input type="number"
-                           id="goalTarget"
-                           placeholder="Target Amount">
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
 
-                    <input type="number"
-                           id="goalCurrent"
-                           placeholder="Current Savings">
+                        <input type="text"
+                               id="goalName"
+                               placeholder="Goal Name">
 
-                    <button onclick="saveGoal()">
-                        Save Goal
-                    </button>
+                        <input type="number"
+                               id="goalTarget"
+                               placeholder="Target Amount">
+
+                        <input type="number"
+                               id="goalCurrent"
+                               placeholder="Current Savings">
+
+                        <button type="button"
+                                onclick="saveGoal()">
+                            Save Goal
+                        </button>
+
+                    </form>
 
                     <div id="goalInfo">
 
@@ -150,15 +159,9 @@
 
                         <p>
                             Saved:
-                            ₹<span id="goalCurrentDisplay">
-                                0
-                            </span>
-
+                            ₹<span id="goalCurrentDisplay">0</span>
                             /
-
-                            ₹<span id="goalTargetDisplay">
-                                0
-                            </span>
+                            ₹<span id="goalTargetDisplay">0</span>
                         </p>
 
                         <p>
@@ -168,10 +171,10 @@
                             </span>
                         </p>
 
-                        <div class="progress-bar">
+                        <div class="budget-bar">
 
                             <div id="goalProgressBar"
-                                 class="progress-fill"
+                                 class="budget-fill"
                                  style="width:0%"></div>
 
                         </div>

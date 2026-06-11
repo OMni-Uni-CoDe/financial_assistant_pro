@@ -774,49 +774,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.saveGoal = async function () {
 
-        const formData =
-            new FormData();
+        try {
 
-        formData.append(
-            "goal_name",
-            document.getElementById(
-                "goalName"
-            ).value
-        );
+            const formData = new FormData();
 
-        formData.append(
-            "target_amount",
-            document.getElementById(
-                "goalTarget"
-            ).value
-        );
-
-        formData.append(
-            "current_amount",
-            document.getElementById(
-                "goalCurrent"
-            ).value
-        );
-
-        const response =
-            await fetch(
-                "/set_goal",
-                {
-                    method: "POST",
-                    headers: {
-                        "X-CSRFToken":
-                            csrfToken
-                    },
-                    body: formData
-                }
+            formData.append(
+                "goal_name",
+                document.getElementById(
+                    "goalName"
+                ).value
             );
 
-        const data =
-            await response.json();
+            formData.append(
+                "target_amount",
+                document.getElementById(
+                    "goalTarget"
+                ).value
+            );
 
-        alert(data.message);
+            formData.append(
+                "current_amount",
+                document.getElementById(
+                    "goalCurrent"
+                ).value
+            );
 
-        loadGoal();
+            const response =
+                await fetch(
+                    "/set_goal",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            alert(
+                data.message ||
+                "Goal saved."
+            );
+
+            loadGoal();
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Goal save error:",
+                err
+            );
+
+            alert(
+                "Unable to save goal."
+            );
+
+        }
+
     };
 
 
