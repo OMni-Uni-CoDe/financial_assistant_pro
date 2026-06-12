@@ -688,6 +688,10 @@ def get_subcategory_breakdown():
 
     return jsonify(result)
 
+@app.route("/test_sub")
+def test_sub():
+    return "subcategory route deployed"
+
 # --------- Budget creation ---------
 @app.route("/get_budget")
 @login_required
