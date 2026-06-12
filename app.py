@@ -2241,27 +2241,38 @@ def download_pdf():
     )
 
     pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "TOP CATEGORIES", ln=True)
 
-    pdf.cell(
-        0,
-        10,
-        "TOP CATEGORIES",
-        ln=True
-    )
+    pdf.set_font("Arial", "B", 11)
 
-    pdf.set_font("Arial", "", 12)
+    pdf.cell(70, 8, "Category", 1)
+    pdf.cell(50, 8, "Amount", 1)
+    pdf.cell(30, 8, "%", 1, ln=True)
 
-    for category, amount in category_totals.head(5).items():
+    pdf.set_font("Arial", "", 11)
 
-        percentage = (
-            amount /
-            total_spent
-        ) * 100
+    for _, row in category_data.head(5).iterrows():
+
+        percent = (
+            row["amount"] / total_spent * 100
+            if total_spent > 0
+            else 0
+        )
+
+        pdf.cell(70, 8, str(row["category"]), 1)
 
         pdf.cell(
-            0,
+            50,
             8,
-            f"{category}: Rs. {amount:.2f} ({percentage:.1f}%)",
+            f"Rs. {row['amount']:.0f}",
+            1
+        )
+
+        pdf.cell(
+            30,
+            8,
+            f"{percent:.1f}",
+            1,
             ln=True
         )
 
