@@ -724,7 +724,7 @@ def get_insights():
 
         "message":
             f"{top_percent:.1f}% of spending is in "
-            f"{top_entry[0]} → {top_entry[1]}"
+            f"{top_entry[0]} -> {top_entry[1]}"
 
     })
 
@@ -795,7 +795,7 @@ def get_insights():
             "🏆 Largest Expense",
 
         "message":
-            f"{top_entry[0]} → {top_entry[1]}"
+            f"{top_entry[0]} -> {top_entry[1]}"
 
     })
 
@@ -1018,7 +1018,7 @@ def get_recommendations():
                 "⚠ Expense Reduction",
 
             "message":
-                f"{top_entry[0]} → "
+                f"{top_entry[0]} -> "
                 f"{top_entry[1]} consumes "
                 f"{top_percent:.1f}% "
                 f"of spending"
@@ -1651,7 +1651,7 @@ def download_csv():
 
         top_subcategory = (
             f"{subcategory_totals.index[0][0]}"
-            f" → "
+            f" -> "
             f"{subcategory_totals.index[0][1]}"
         )
 
@@ -1817,7 +1817,7 @@ def download_csv():
 
         ["TOP SUBCATEGORIES", ""],
 
-        ["Category → Subcategory", "Amount"]
+        ["Category -> Subcategory", "Amount"]
     ])
 
     for (
@@ -1826,7 +1826,7 @@ def download_csv():
     ), amount in subcategory_totals.head(5).items():
 
         report_rows.append([
-            f"{category} → {subcategory}",
+            f"{category} -> {subcategory}",
             round(amount, 2)
         ])
 
@@ -2173,7 +2173,7 @@ def download_pdf():
         pdf.multi_cell(
             0,
             8,
-            f"{category} → {subcategory}: "
+            f"{category} -> {subcategory}: "
             f"Rs. {amount:.2f} "
             f"({percentage:.1f}%)"
         )
