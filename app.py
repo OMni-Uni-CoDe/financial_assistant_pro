@@ -2048,7 +2048,25 @@ def download_pdf():
         ln=True
     )
 
-    health = calculate_health_score()
+    health = 100
+
+    if budget > 0:
+
+        spending_ratio = total_spent / budget
+
+    if spending_ratio > 1:
+
+        health -= 40
+
+    elif spending_ratio > 0.8:
+
+        health -= 20
+
+    if forecast > budget:
+
+        health -= 20
+
+    health = max(0, min(100, health))
 
     status = (
         "Excellent" if health >= 90 else
