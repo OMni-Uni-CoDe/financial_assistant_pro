@@ -2048,6 +2048,46 @@ def download_pdf():
         ln=True
     )
 
+    health = calculate_health_score()
+
+    status = (
+        "Excellent" if health >= 90 else
+        "Good" if health >= 75 else
+        "Average" if health >= 60 else
+        "Needs Improvement"
+    )
+
+    budget_status = (
+        "WITHIN BUDGET"
+        if forecast <= budget
+        else "OVER BUDGET"
+    )
+
+    pdf.ln(3)
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.cell(
+        0,
+        8,
+        f"Health Score: {health}/100",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Rating: {status}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Budget Status: {budget_status}",
+        ln=True
+    )
+
     pdf.set_font("Arial", "", 12)
 
     pdf.cell(
@@ -2137,7 +2177,38 @@ def download_pdf():
             ln=True
         )
 
-    pdf.ln(5)
+        monthly_saving = max(
+            current_user.budget * 0.20,
+            1
+        )
+
+        months_remaining = max(
+            0,
+            (goal.target_amount - goal.current_amount)
+            / monthly_saving
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Estimated Completion: {months_remaining:.1f} month(s)",
+            ln=True
+        )
+
+        pdf.ln(5)
+
+    pdf.add_page()
+
+    pdf.set_font("Arial", "B", 16)
+
+    pdf.cell(
+        0,
+        10,
+        "SPENDING ANALYTICS",
+        ln=True
+    )
+
+    pdf.ln(3)
 
     # ==========================
     # TOP CATEGORIES
@@ -2222,6 +2293,19 @@ def download_pdf():
         )
 
     pdf.ln(5)
+
+    pdf.add_page()
+
+    pdf.set_font("Arial", "B", 16)
+
+    pdf.cell(
+        0,
+        10,
+        "ACTION PLAN",
+        ln=True
+    )
+
+    pdf.ln(3)
 
     # ==========================
     # RECOMMENDATIONS
