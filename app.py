@@ -2054,17 +2054,18 @@ def download_pdf():
 
         spending_ratio = total_spent / budget
 
-    if spending_ratio > 1:
+        if spending_ratio > 1:
+            health -= 40
 
-        health -= 40
+        elif spending_ratio > 0.8:
+            health -= 20
 
-    elif spending_ratio > 0.8:
+        if forecast > budget:
+            health -= 20
 
-        health -= 20
+    else:
 
-    if forecast > budget:
-
-        health -= 20
+        health = 80
 
     health = max(0, min(100, health))
 
@@ -2215,7 +2216,8 @@ def download_pdf():
 
         pdf.ln(5)
 
-    pdf.add_page()
+    if pdf.get_y() > 220:
+        pdf.add_page()
 
     pdf.set_font("Arial", "B", 16)
 
@@ -2328,19 +2330,24 @@ def download_pdf():
 
     pdf.ln(5)
 
-    pdf.add_page()
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "KEY INSIGHTS", ln=True)
 
-    pdf.set_font("Arial", "B", 16)
+    pdf.set_font("Arial", "", 11)
 
-    pdf.cell(
+    pdf.multi_cell(
         0,
-        10,
-        "ACTION PLAN",
-        ln=True
+        7,
+        f"Highest spending category: {category_totals.index[0]}"
     )
 
-    pdf.ln(3)
-
+    pdf.multi_cell(
+        0,
+        7,
+        f"Budget utilization: {(total_spent/budget*100):.1f}%"
+        if budget > 0 else
+        "No budget set"
+    )
     # ==========================
     # RECOMMENDATIONS
     # ==========================
