@@ -1912,6 +1912,48 @@ def download_csv():
         }
     )
 
+def pdf_safe(text):
+
+    if text is None:
+        return ""
+
+    text = str(text)
+
+    replacements = {
+
+        "₹": "Rs.",
+        "→": "->",
+
+        "✅": "[OK]",
+        "⚠": "[WARNING]",
+
+        "🏆": "[TOP]",
+        "🎯": "[GOAL]",
+        "🎉": "[SUCCESS]",
+
+        "📊": "",
+        "📈": "",
+        "💰": "",
+        "💡": "",
+
+        "🟢": "",
+        "🔵": "",
+        "🟡": "",
+        "🔴": "",
+
+        "↑": "UP",
+        "↓": "DOWN",
+
+        "•": "-"
+
+    }
+
+    for old, new in replacements.items():
+
+        text = text.replace(old, new)
+
+    return text
+
 @app.route("/download_pdf")
 @login_required
 def download_pdf():
@@ -1937,6 +1979,7 @@ def download_pdf():
     pdf.add_page()
 
     pdf.set_font("Arial", "B", 18)
+
     pdf.cell(
         0,
         10,
@@ -2202,7 +2245,7 @@ def download_pdf():
             pdf.multi_cell(
                 0,
                 8,
-                f"⚠ Budget Risk: "
+                f"[WARNING] Budget Risk: "
                 f"Projected overspend of "
                 f"Rs. {forecast-budget:.0f}"
             )
@@ -2212,7 +2255,7 @@ def download_pdf():
             pdf.multi_cell(
                 0,
                 8,
-                f"✅ Budget Surplus: "
+                f"[OK] Budget Surplus: "
                 f"Projected Rs. {budget-forecast:.0f} "
                 f"under budget."
             )
@@ -2230,7 +2273,7 @@ def download_pdf():
         pdf.multi_cell(
             0,
             8,
-            f"💡 Daily Spending Limit: "
+            f"Daily Spending Limit: "
             f"Rs. {daily_limit:.0f}/day"
         )
 
@@ -2239,7 +2282,7 @@ def download_pdf():
             pdf.multi_cell(
                 0,
                 8,
-                "🎯 Saving an extra Rs. 1000/month "
+                "Saving an extra Rs. 1000/month "
                 "could accelerate goal completion."
             )
 
@@ -2251,9 +2294,10 @@ def download_pdf():
 
     pdf_output = pdf.output(dest="S")
 
-    response = make_response(
-        bytes(pdf_output, "latin-1")
-    )
+    if isinstance(pdf_output, str):
+        pdf_output = pdf_output.encode("latin-1")
+
+    response = make_response(pdf_output)
 
     response.headers[
         "Content-Disposition"
