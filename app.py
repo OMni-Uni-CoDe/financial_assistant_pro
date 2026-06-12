@@ -636,6 +636,58 @@ def get_top_subcategory():
 
     })
 
+@app.route("/get_subcategory_breakdown")
+@login_required
+def get_subcategory_breakdown():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    if not expenses:
+        return jsonify({})
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    grouped = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .reset_index()
+    )
+
+    result = {}
+
+    for category in grouped["category"].unique():
+
+        category_rows = grouped[
+            grouped["category"] == category
+        ]
+
+        result[category] = [
+
+            {
+                "subcategory": row["subcategory"],
+                "amount": round(
+                    row["amount"],
+                    2
+                )
+            }
+
+            for _, row in category_rows.iterrows()
+
+        ]
+
+    return jsonify(result)
+
 # --------- Budget creation ---------
 @app.route("/get_budget")
 @login_required
