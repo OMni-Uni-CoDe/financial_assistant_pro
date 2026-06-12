@@ -781,7 +781,7 @@ def get_insights():
             "💰 Daily Average",
 
         "message":
-            f"₹{daily_average:.0f}/day"
+            f"Rs. {daily_average:.0f}/day"
 
     })
 
@@ -861,7 +861,7 @@ def get_forecast():
 
     message = (
         f"Projected month-end spending: "
-        f"₹{projected:.2f}"
+        f"Rs. {projected:.2f}"
     )
 
     budget = current_user.budget or 0
@@ -874,7 +874,7 @@ def get_forecast():
 
             message += (
                 f"\n⚠ You may exceed your budget "
-                f"by ₹{difference:.2f}"
+                f"by Rs. {difference:.2f}"
             )
 
         else:
@@ -982,7 +982,7 @@ def get_recommendations():
 
             "message":
                 f"Projected overspend: "
-                f"₹{excess:.0f}"
+                f"Rs. {excess:.0f}"
 
         })
 
@@ -1008,7 +1008,7 @@ def get_recommendations():
 
             "message":
                 f"Keep spending below "
-                f"₹{daily_limit:.0f}/day"
+                f"Rs. {daily_limit:.0f}/day"
 
         })
 
@@ -1042,7 +1042,7 @@ def get_recommendations():
                 "✅ Budget Surplus",
 
             "message":
-                f"Projected ₹{surplus:.0f} "
+                f"Projected Rs. {surplus:.0f} "
                 f"under budget"
 
         })
@@ -1069,7 +1069,7 @@ def get_recommendations():
 
             "message":
                 f"You can spend "
-                f"₹{daily_limit:.0f}/day"
+                f"Rs. {daily_limit:.0f}/day"
 
         })
 
@@ -1126,7 +1126,7 @@ def get_recommendations():
             "message":
                 f"Current ETA: "
                 f"{current_eta:.1f} months. "
-                f"Saving an extra ₹1000/month "
+                f"Saving an extra Rs. 1000/month "
                 f"could reduce it to "
                 f"{improved_eta:.1f} months "
                 f"({months_saved:.1f} months faster)."
@@ -1843,7 +1843,7 @@ def download_csv():
 
             "Budget Opportunity",
 
-            f"Projected to finish ₹{round(budget-forecast,2)} under budget"
+            f"Projected to finish Rs. {round(budget-forecast,2)} under budget"
 
     ])
 
@@ -1853,7 +1853,7 @@ def download_csv():
     
             "Budget Risk",
 
-            f"Projected to exceed budget by ₹{round(forecast-budget,2)}"
+            f"Projected to exceed budget by Rs. {round(forecast-budget,2)}"
 
     ])
 
@@ -1874,7 +1874,7 @@ def download_csv():
 
             "Daily Spending Limit",
 
-            f"₹{daily_limit}/day"
+            f"Rs. {daily_limit}/day"
 
         ])
         report_rows.append(["", ""])
