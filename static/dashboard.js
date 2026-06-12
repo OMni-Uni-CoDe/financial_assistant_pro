@@ -255,6 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadHistory();
             loadCharts();
             loadTopSubcategory();
+            loadSubcategoryBreakdown();
 
         });
 
@@ -1033,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "topSubcategoryInfo"
             ).innerText =
                 `${data.category} • ₹${data.amount}
-(${data.percentage}% of spending)`;
+                (${data.percentage}% of spending)`;
 
         }
 
@@ -1041,6 +1042,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.error(
                 "Top subcategory error:",
+                err
+            );
+
+        }
+
+    }
+
+    async function loadSubcategoryBreakdown() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_subcategory_breakdown"
+                );
+
+            const data =
+                await response.json();
+
+            const container =
+                document.getElementById(
+                    "subcategoryBreakdownContainer"
+                );
+
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            for (const category in data) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "insight-item";
+
+                let html =
+                    `<strong>${category}</strong><br><br>`;
+
+                data[category].forEach(
+                    item => {
+
+                        html +=
+                            `${item.subcategory}
+                        ........ ₹${item.amount}<br>`;
+
+                    }
+                );
+
+                card.innerHTML = html;
+
+                container.appendChild(
+                    card
+                );
+
+            }
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Subcategory breakdown error:",
                 err
             );
 
@@ -1292,6 +1358,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadRecommendations();
     loadHealthScore();
     loadTopSubcategory();
+    loadSubcategoryBreakdown();
     loadGoal();
     loadMonthlyComparison();
 });
