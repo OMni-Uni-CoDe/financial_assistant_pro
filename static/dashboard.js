@@ -256,6 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadCharts();
             loadTopSubcategory();
             loadSubcategoryBreakdown();
+            loadSubcategoryCharts();
 
         });
 
@@ -1186,6 +1187,132 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    async function loadSubcategoryCharts() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_subcategory_breakdown"
+                );
+
+            const data =
+                await response.json();
+
+            const container =
+                document.getElementById(
+                    "subcategoryChartsContainer"
+                );
+
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            for (const category in data) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "subcategory-chart-card";
+
+                const title =
+                    document.createElement(
+                        "h4"
+                    );
+
+                title.innerText =
+                    category;
+
+                const canvas =
+                    document.createElement(
+                        "canvas"
+                    );
+
+                canvas.className =
+                    "subcategory-chart";
+
+                card.appendChild(
+                    title
+                );
+
+                card.appendChild(
+                    canvas
+                );
+
+                container.appendChild(
+                    card
+                );
+
+                new Chart(
+                    canvas,
+                    {
+                        type: "bar",
+
+                        data: {
+
+                            labels:
+                                data[category]
+                                    .map(
+                                        item =>
+                                            item.subcategory
+                                    ),
+
+                            datasets: [
+                                {
+
+                                    label:
+                                        "Amount",
+
+                                    data:
+                                        data[category]
+                                            .map(
+                                                item =>
+                                                    item.amount
+                                            )
+
+                                }
+                            ]
+
+                        },
+
+                        options: {
+
+                            responsive: true,
+
+                            plugins: {
+
+                                legend: {
+
+                                    display: false
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+
+        catch (err) {
+
+            console.error(
+                "Subcategory charts error:",
+                err
+            );
+
+        }
+
+    }
+
+
     // =========================
     // Monthly Comparison
     // =========================
@@ -1431,6 +1558,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHealthScore();
     loadTopSubcategory();
     loadSubcategoryBreakdown();
+    loadSubcategoryCharts();
     loadGoal();
     loadMonthlyComparison();
 });
