@@ -1049,6 +1049,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+
     async function loadSubcategoryBreakdown() {
 
         try {
@@ -1072,31 +1073,101 @@ document.addEventListener("DOMContentLoaded", () => {
 
             for (const category in data) {
 
-                const card =
+                const total =
+                    data[category]
+                        .reduce(
+                            (sum, item) =>
+                                sum + item.amount,
+                            0
+                        );
+
+                const wrapper =
                     document.createElement(
                         "div"
                     );
 
-                card.className =
-                    "insight-item";
+                wrapper.className =
+                    "drilldown-card";
 
-                let html =
-                    `<strong>${category}</strong><br><br>`;
+                const header =
+                    document.createElement(
+                        "div"
+                    );
+
+                header.className =
+                    "drilldown-header";
+
+                header.innerHTML =
+                    `
+                <span>
+                    ▶ ${category}
+                </span>
+
+                <span>
+                    ₹${total}
+                </span>
+                `;
+
+                const body =
+                    document.createElement(
+                        "div"
+                    );
+
+                body.className =
+                    "drilldown-body";
+
+                body.style.display =
+                    "none";
 
                 data[category].forEach(
                     item => {
 
-                        html +=
-                            `${item.subcategory}
-                        ........ ₹${item.amount}<br>`;
+                        body.innerHTML += `
+                        <div class="drilldown-row">
+                            <span>
+                                ${item.subcategory}
+                            </span>
+
+                            <span>
+                                ₹${item.amount}
+                            </span>
+                        </div>
+                    `;
 
                     }
                 );
 
-                card.innerHTML = html;
+                header.addEventListener(
+                    "click",
+                    () => {
+
+                        const open =
+                            body.style.display
+                            === "block";
+
+                        body.style.display =
+                            open
+                                ? "none"
+                                : "block";
+
+                        header.querySelector(
+                            "span"
+                        ).innerHTML =
+                            `${open ? "▶" : "▼"} ${category}`;
+
+                    }
+                );
+
+                wrapper.appendChild(
+                    header
+                );
+
+                wrapper.appendChild(
+                    body
+                );
 
                 container.appendChild(
-                    card
+                    wrapper
                 );
 
             }
@@ -1113,6 +1184,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     }
+
 
     // =========================
     // Monthly Comparison

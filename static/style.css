@@ -385,3 +385,37 @@ canvas {
     display: block;
     margin-top: 6px;
 }
+
+/* =========================
+   Category Drilldown
+========================= */
+
+.drilldown-card {
+    margin-top: 12px;
+    background: rgba(255,255,255,.04);
+    border-radius: 12px;
+    border-left: 4px solid #0ea5e9;
+    overflow: hidden;
+}
+
+.drilldown-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: #9ad0ff;
+}
+
+.drilldown-body {
+    padding: 0 15px 15px;
+}
+
+.drilldown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba( 255, 255, 255, 0.05 );
+}
+
