@@ -2251,20 +2251,25 @@ def download_pdf():
 
     pdf.set_font("Arial", "", 11)
 
-    for _, row in category_data.head(5).iterrows():
+    for category, amount in category_totals.head(5).items():
 
         percent = (
-            row["amount"] / total_spent * 100
+            amount / total_spent * 100
             if total_spent > 0
             else 0
         )
 
-        pdf.cell(70, 8, str(row["category"]), 1)
+        pdf.cell(
+            70,
+            8,
+            str(category),
+            1
+        )
 
         pdf.cell(
             50,
             8,
-            f"Rs. {row['amount']:.0f}",
+            f"Rs. {amount:.0f}",
             1
         )
 
