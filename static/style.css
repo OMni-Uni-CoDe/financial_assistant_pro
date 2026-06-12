@@ -419,23 +419,5 @@ canvas {
     border-bottom: 1px solid rgba( 255, 255, 255, 0.05 );
 }
 
-/* =========================
-   Subcategory Charts
-========================= */
 
-.subcategory-chart-card {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 12px;
-    background: rgba(255,255,255,.04);
-}
-
-    .subcategory-chart-card h4 {
-        margin-top: 0;
-        color: #9ad0ff;
-    }
-
-.subcategory-chart {
-    max-height: 250px;
-}
 

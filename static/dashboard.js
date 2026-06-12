@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadCharts();
             loadTopSubcategory();
             loadSubcategoryBreakdown();
-            loadSubcategoryCharts();
+
 
         });
 
@@ -1120,31 +1120,90 @@ document.addEventListener("DOMContentLoaded", () => {
                 body.style.display =
                     "none";
 
-                data[category].forEach(
-                    item => {
+                const canvas =
+                    document.createElement(
+                        "canvas"
+                    );
 
-                        body.innerHTML += `
-                        <div class="drilldown-row">
-                            <span>
-                                ${item.subcategory}
-                            </span>
+                canvas.height = 180;
 
-                            <span>
-                                ₹${item.amount}
-                            </span>
-                        </div>
+                body.appendChild(canvas);
+
+                const labels = [];
+                const values = [];
+
+                data[category].forEach(item => {
+
+                    labels.push(
+                        item.subcategory
+                    );
+
+                    values.push(
+                        item.amount
+                    );
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+                    row.className =
+                        "drilldown-row";
+
+                    row.innerHTML = `
+                        <span>
+                            ${item.subcategory}
+                        </span>
+
+                        <span>
+                            ₹${item.amount}
+                        </span>
                     `;
 
+                    body.appendChild(row);
+
+                });
+
+                new Chart(canvas, {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [{
+
+                            label: category,
+
+                            data: values
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        plugins: {
+
+                            legend: {
+                                display: false
+                            }
+
+                        }
+
                     }
-                );
+
+                });
 
                 header.addEventListener(
                     "click",
                     () => {
 
                         const open =
-                            body.style.display
-                            === "block";
+                            body.style.display === "block";
 
                         body.style.display =
                             open
@@ -1186,131 +1245,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-
-    async function loadSubcategoryCharts() {
-
-        try {
-
-            const response =
-                await fetch(
-                    "/get_subcategory_breakdown"
-                );
-
-            const data =
-                await response.json();
-
-            const container =
-                document.getElementById(
-                    "subcategoryChartsContainer"
-                );
-
-            if (!container) return;
-
-            container.innerHTML = "";
-
-            for (const category in data) {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "subcategory-chart-card";
-
-                const title =
-                    document.createElement(
-                        "h4"
-                    );
-
-                title.innerText =
-                    category;
-
-                const canvas =
-                    document.createElement(
-                        "canvas"
-                    );
-
-                canvas.className =
-                    "subcategory-chart";
-
-                card.appendChild(
-                    title
-                );
-
-                card.appendChild(
-                    canvas
-                );
-
-                container.appendChild(
-                    card
-                );
-
-                new Chart(
-                    canvas,
-                    {
-                        type: "bar",
-
-                        data: {
-
-                            labels:
-                                data[category]
-                                    .map(
-                                        item =>
-                                            item.subcategory
-                                    ),
-
-                            datasets: [
-                                {
-
-                                    label:
-                                        "Amount",
-
-                                    data:
-                                        data[category]
-                                            .map(
-                                                item =>
-                                                    item.amount
-                                            )
-
-                                }
-                            ]
-
-                        },
-
-                        options: {
-
-                            responsive: true,
-
-                            plugins: {
-
-                                legend: {
-
-                                    display: false
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-                );
-
-            }
-
-        }
-
-        catch (err) {
-
-            console.error(
-                "Subcategory charts error:",
-                err
-            );
-
-        }
-
-    }
 
 
     // =========================
@@ -1558,7 +1492,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHealthScore();
     loadTopSubcategory();
     loadSubcategoryBreakdown();
-    loadSubcategoryCharts();
     loadGoal();
     loadMonthlyComparison();
 });
