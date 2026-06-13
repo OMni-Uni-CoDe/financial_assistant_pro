@@ -18,6 +18,8 @@ from wtforms.validators import DataRequired
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import matplotlib.pyplot as plt
+import tempfile
 import pandas as pd
 import numpy as np
 from openai import OpenAI
@@ -2219,6 +2221,54 @@ def download_pdf():
 
     pdf.ln(5)
 
+    if pdf.get_y() > 180:
+        pdf.add_page()
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "CATEGORY DISTRIBUTION",
+        ln=True
+    )
+
+    pdf.image(
+        pie_file.name,
+        x=25,
+        w=120
+    )
+
+    pdf.ln(5)
+
+    if pdf.get_y() > 180:
+        pdf.add_page()
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "SPENDING TREND",
+        ln=True
+    )
+
+    pdf.image(
+        trend_file.name,
+        x=10,
+        w=180
+    )
+
+    pdf.ln(5)
+
     # ==========================
     # SAVINGS GOAL
     # ==========================
@@ -2321,6 +2371,74 @@ def download_pdf():
             ascending=False
         )
     )
+
+    # ==========================
+    # PIE CHART IMAGE
+    # ==========================
+
+    pie_file = tempfile.NamedTemporaryFile(
+        suffix=".png",
+        delete=False
+    )
+
+    plt.figure(figsize=(5, 5))
+
+    category_totals.head(5).plot(
+        kind="pie",
+        autopct="%1.1f%%"
+    )
+
+    plt.ylabel("")
+    plt.title("Top Spending Categories")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        pie_file.name,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+    # ==========================
+    # TREND CHART IMAGE
+    # ==========================
+
+    daily_spending = (
+        df.groupby("date")["amount"]
+        .sum()
+    )
+
+    trend_file = tempfile.NamedTemporaryFile(
+        suffix=".png",
+        delete=False
+    )
+
+    plt.figure(figsize=(6, 3))
+
+    plt.plot(
+        daily_spending.index.astype(str),
+        daily_spending.values,
+        marker="o"
+    )
+
+    plt.xticks(rotation=45)
+
+    plt.title("Daily Spending Trend")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        trend_file.name,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+
+
 
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "TOP CATEGORIES", ln=True)
@@ -2502,6 +2620,18 @@ def download_pdf():
 
     if isinstance(pdf_output, str):
         pdf_output = pdf_output.encode("latin-1")
+
+    
+    try:
+        os.remove(pie_file.name)
+    except:
+        pass
+
+    try:
+        os.remove(trend_file.name)
+    except:
+        pass
+
 
     response = make_response(pdf_output)
 
