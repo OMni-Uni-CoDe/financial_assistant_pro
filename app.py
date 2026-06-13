@@ -5,9 +5,8 @@ import io
 from markupsafe import Markup
 from datetime import datetime, timedelta
 from functools import wraps
-from flask import make_response
 from flask import (Flask, render_template, request, redirect, url_for,
-                   jsonify, send_file, flash, abort, Response)
+                   jsonify, send_file, flash, abort, Response, make_response)
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, UserMixin, current_user)
@@ -26,7 +25,6 @@ from openai import OpenAI
 from fpdf import FPDF
 from sklearn.linear_model import LinearRegression
 import csv
-import io
 
 
 
@@ -72,7 +70,9 @@ client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY")
 )
 
-# ---------- Models ----------
+# ==================================================
+# DATABASE MODELS
+# ==================================================
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -238,7 +238,9 @@ class DummyForm(FlaskForm):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# ---------- Routes: auth ----------
+# ==================================================
+# AUTHENTICATION ROUTES
+# ==================================================
 @app.route("/signup", methods=["GET", "POST"])
 @limiter.limit("10 per hour")
 def signup():
@@ -436,7 +438,9 @@ def splash():
         bg=bg_url
     )
 
-# ---------- Dashboard ----------
+# ==================================================
+# DASHBOARD ROUTES
+# ==================================================
 @app.route("/")
 @login_required
 def home_redirect():
@@ -448,7 +452,9 @@ def home_redirect():
 def dashboard():
     return render_template("dashboard.html", username=current_user.username)
 
-# ---------- Expense endpoints ----------
+# ==================================================
+# EXPENSE MANAGEMENT
+# ==================================================
 @app.route("/add_expense", methods=["POST"])
 @login_required
 @limiter.limit("60 per hour")
@@ -692,7 +698,9 @@ def get_subcategory_breakdown():
 
 
 
-# --------- Budget creation ---------
+# ==================================================
+# BUDGET MANAGEMENT
+# ==================================================
 @app.route("/get_budget")
 @login_required
 def get_budget():
@@ -722,7 +730,9 @@ def get_budget():
         "percentage": percentage
     })
 
-# --------- Expense insights ---------
+# ==================================================
+# ANALYTICS & INSIGHTS
+# ==================================================
 @app.route("/get_insights")
 @login_required
 def get_insights():
@@ -1437,7 +1447,9 @@ def get_health_score():
             f"Financial health is currently rated as {rating}."
     })
 
-# --------- Savings Goal ---------
+# ==================================================
+# SAVINGS GOALS
+# ==================================================
 
 @app.route("/set_goal", methods=["POST"])
 @csrf.exempt
@@ -1629,7 +1641,9 @@ def set_budget():
             "message": str(e)
         }), 400
 
-# ---------- CSV / PDF export ----------
+# ==================================================
+# REPORT EXPORTS
+# ==================================================
 @app.route("/download_csv")
 @login_required
 def download_csv():
