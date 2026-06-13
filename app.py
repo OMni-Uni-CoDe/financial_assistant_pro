@@ -2082,6 +2082,32 @@ def download_pdf():
         for e in expenses
     ])
 
+    # ==========================
+    # Top Categories
+    # ==========================
+
+    top_categories = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+        .head(5)
+    )
+
+    # ==========================
+    # Top Subcategories
+    # ==========================
+
+    top_subcategories = (
+        df.groupby("subcategory")["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+        .head(5)
+    )
+
     total_spent = df["amount"].sum()
 
     budget = current_user.budget or 0
@@ -2402,6 +2428,7 @@ def download_pdf():
         if budget > 0 else
         "No budget set"
     )
+
     # ==========================
     # RECOMMENDATIONS
     # ==========================
