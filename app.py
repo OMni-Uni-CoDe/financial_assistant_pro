@@ -2048,17 +2048,34 @@ def download_pdf():
 
     pdf.add_page()
 
-    pdf.set_font("Arial", "B", 18)
+    pdf.set_fill_color(30, 64, 175)
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        20
+    )
+
+    pdf.set_text_color(
+        255,
+        255,
+        255
+    )
 
     pdf.cell(
         0,
-        10,
+        15,
         "FINANCE PRO",
         ln=True,
-        align="C"
+        align="C",
+        fill=True
     )
 
-    pdf.set_font("Arial", "", 12)
+    pdf.set_font(
+        "Arial",
+        "",
+        12
+    )
 
     pdf.cell(
         0,
@@ -2066,6 +2083,12 @@ def download_pdf():
         "Professional Financial Report",
         ln=True,
         align="C"
+    )
+
+    pdf.set_text_color(
+        0,
+        0,
+        0
     )
 
     pdf.ln(5)
@@ -2136,12 +2159,19 @@ def download_pdf():
     )
 
     pdf.set_font("Arial", "B", 14)
+    
+    pdf.set_fill_color(
+        230,
+        230,
+        230
+    )
 
     pdf.cell(
         0,
         10,
         "FINANCIAL SUMMARY",
-        ln=True
+        ln=True,
+        fill=True
     )
 
     health = 100
@@ -2255,6 +2285,15 @@ def download_pdf():
 
         pdf.set_font("Arial", "B", 14)
 
+        pdf.line(
+            10,
+            pdf.get_y(),
+            200,
+            pdf.get_y()
+        )
+
+        pdf.ln(3)
+
         pdf.cell(
             0,
             10,
@@ -2316,6 +2355,15 @@ def download_pdf():
         pdf.add_page()
 
     pdf.set_font("Arial", "B", 16)
+
+    pdf.line(
+        10,
+        pdf.get_y(),
+        200,
+        pdf.get_y()
+    )
+
+    pdf.ln(3)
 
     pdf.cell(
         0,
@@ -2408,9 +2456,38 @@ def download_pdf():
 
     pdf.set_font("Arial", "B", 11)
 
-    pdf.cell(70, 8, "Category", 1)
-    pdf.cell(50, 8, "Amount", 1)
-    pdf.cell(30, 8, "%", 1, ln=True)
+    pdf.set_fill_color(
+    220,
+    220,
+    220
+    )
+
+    pdf.cell(
+        70,
+        8,
+        "Category",
+        1,
+        0,
+        fill=True
+    )
+
+    pdf.cell(
+        50,
+        8,
+        "Amount",
+        1,
+        0,
+        fill=True
+    )
+
+    pdf.cell(
+        30,
+        8,
+        "%",
+        1,
+        1,
+        fill=True
+    )
 
     pdf.set_font("Arial", "", 11)
 
@@ -2568,6 +2645,15 @@ def download_pdf():
     # ==========================
 
     pdf.set_font("Arial", "B", 14)
+
+    pdf.line(
+        10,
+        pdf.get_y(),
+        200,
+        pdf.get_y()
+    )
+
+    pdf.ln(3)
 
     pdf.cell(
         0,
