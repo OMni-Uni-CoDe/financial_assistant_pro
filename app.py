@@ -2219,55 +2219,7 @@ def download_pdf():
         ln=True
     )
 
-    pdf.ln(5)
-
-    if pdf.get_y() > 180:
-        pdf.add_page()
-
-    pdf.set_font(
-        "Arial",
-        "B",
-        14
-    )
-
-    pdf.cell(
-        0,
-        10,
-        "CATEGORY DISTRIBUTION",
-        ln=True
-    )
-
-    pdf.image(
-        pie_file.name,
-        x=25,
-        w=120
-    )
-
-    pdf.ln(5)
-
-    if pdf.get_y() > 180:
-        pdf.add_page()
-
-    pdf.set_font(
-        "Arial",
-        "B",
-        14
-    )
-
-    pdf.cell(
-        0,
-        10,
-        "SPENDING TREND",
-        ln=True
-    )
-
-    pdf.image(
-        trend_file.name,
-        x=10,
-        w=180
-    )
-
-    pdf.ln(5)
+    
 
     # ==========================
     # SAVINGS GOAL
@@ -2437,9 +2389,6 @@ def download_pdf():
     plt.close()
 
 
-
-
-
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "TOP CATEGORIES", ln=True)
 
@@ -2480,6 +2429,56 @@ def download_pdf():
             1,
             ln=True
         )
+
+    pdf.ln(5)
+
+    # ==========================
+    # CATEGORY DISTRIBUTION
+    # ==========================
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "CATEGORY DISTRIBUTION",
+        ln=True
+    )
+
+    pdf.image(
+        pie_file.name,
+        x=25,
+        w=120
+    )
+
+    pdf.ln(5)
+
+    # ==========================
+    # SPENDING TREND
+    # ==========================
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "SPENDING TREND",
+        ln=True
+    )
+
+    pdf.image(
+        trend_file.name,
+        x=10,
+        w=180
+    )
 
     pdf.ln(5)
 
