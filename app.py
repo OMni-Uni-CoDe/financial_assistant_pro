@@ -2436,6 +2436,9 @@ def download_pdf():
     # CATEGORY DISTRIBUTION
     # ==========================
 
+    if pdf.get_y() > 140:
+        pdf.add_page()
+
     pdf.set_font(
         "Arial",
         "B",
@@ -2451,8 +2454,8 @@ def download_pdf():
 
     pdf.image(
         pie_file.name,
-        x=25,
-        w=120
+        x=35,
+        w=90
     )
 
     pdf.ln(5)
@@ -2476,8 +2479,8 @@ def download_pdf():
 
     pdf.image(
         trend_file.name,
-        x=10,
-        w=180
+        x=20,
+        w=150
     )
 
     pdf.ln(5)
