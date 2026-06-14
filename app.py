@@ -146,6 +146,38 @@ class SavingsGoal(db.Model):
     )
 
 
+class FinancePDF(FPDF):
+
+    def footer(self):
+
+        self.set_y(-15)
+
+        self.set_font(
+            "Arial",
+            "I",
+            8
+        )
+
+        self.set_text_color(
+            120,
+            120,
+            120
+        )
+
+        self.cell(
+            0,
+            10,
+            f"Finance Pro Confidential | Page {self.page_no()}",
+            align="C"
+        )
+
+        self.set_text_color(
+            0,
+            0,
+            0
+        )
+
+
 @app.route("/init_db")
 def init_db():
     try:
@@ -1167,37 +1199,37 @@ def get_recommendations():
             1000
         )
 
-    if current_monthly_saving > 0:
+        if current_monthly_saving > 0:
 
-        current_eta = (
-            remaining_amount /
-            current_monthly_saving
-        )
+            current_eta = (
+                remaining_amount /
+                current_monthly_saving
+            )
 
-        improved_eta = (
-            remaining_amount /
-            improved_monthly_saving
-        )
+            improved_eta = (
+                remaining_amount /
+                improved_monthly_saving
+            )
 
-        months_saved = (
-            current_eta -
-            improved_eta
-        )
+            months_saved = (
+                current_eta -
+                improved_eta
+            )
 
-        recommendations.append({
+            recommendations.append({
 
-            "title":
-                "🎯 Goal Acceleration",
+                "title":
+                    "🎯 Goal Acceleration",
 
-            "message":
-                f"Current ETA: "
-                f"{current_eta:.1f} months. "
-                f"Saving an extra Rs. 1000/month "
-                f"could reduce it to "
-                f"{improved_eta:.1f} months "
-                f"({months_saved:.1f} months faster)."
+                "message":
+                    f"Current ETA: "
+                    f"{current_eta:.1f} months. "
+                    f"Saving an extra Rs. 1000/month "
+                    f"could reduce it to "
+                    f"{improved_eta:.1f} months "
+                    f"({months_saved:.1f} months faster)."
 
-        })
+            })
 
     # ==========================
     # Savings Opportunity
@@ -1982,48 +2014,6 @@ def download_csv():
         }
     )
 
-def pdf_safe(text):
-
-    if text is None:
-        return ""
-
-    text = str(text)
-
-    replacements = {
-
-        "₹": "Rs.",
-        "→": "->",
-
-        "✅": "[OK]",
-        "⚠": "[WARNING]",
-
-        "🏆": "[TOP]",
-        "🎯": "[GOAL]",
-        "🎉": "[SUCCESS]",
-
-        "📊": "",
-        "📈": "",
-        "💰": "",
-        "💡": "",
-
-        "🟢": "",
-        "🔵": "",
-        "🟡": "",
-        "🔴": "",
-
-        "↑": "UP",
-        "↓": "DOWN",
-
-        "•": "-"
-
-    }
-
-    for old, new in replacements.items():
-
-        text = text.replace(old, new)
-
-    return text
-
 @app.route("/download_pdf")
 @login_required
 def download_pdf():
@@ -2039,7 +2029,7 @@ def download_pdf():
             "error": "No expenses found."
         }), 404
 
-    pdf = FPDF()
+    pdf = FinancePDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
     # ==========================
@@ -2120,32 +2110,6 @@ def download_pdf():
         }
         for e in expenses
     ])
-
-    # ==========================
-    # Top Categories
-    # ==========================
-
-    top_categories = (
-        df.groupby("category")["amount"]
-        .sum()
-        .sort_values(
-            ascending=False
-        )
-        .head(5)
-    )
-
-    # ==========================
-    # Top Subcategories
-    # ==========================
-
-    top_subcategories = (
-        df.groupby("subcategory")["amount"]
-        .sum()
-        .sort_values(
-            ascending=False
-        )
-        .head(5)
-    )
 
     total_spent = df["amount"].sum()
 
@@ -2621,24 +2585,55 @@ def download_pdf():
 
     pdf.ln(5)
 
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "KEY INSIGHTS", ln=True)
+    pdf.set_fill_color(
+    245,
+    245,
+    245
+    )
 
-    pdf.set_font("Arial", "", 11)
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
 
-    pdf.multi_cell(
+    pdf.cell(
         0,
-        7,
-        f"Highest spending category: {category_totals.index[0]}"
+        10,
+        "KEY INSIGHTS",
+        border=1,
+        ln=True,
+        fill=True
+    )
+
+    pdf.set_font(
+        "Arial",
+        "",
+        11
     )
 
     pdf.multi_cell(
         0,
-        7,
-        f"Budget utilization: {(total_spent/budget*100):.1f}%"
-        if budget > 0 else
-        "No budget set"
+        8,
+        f"- Highest spending category: "
+        f"{category_totals.index[0]}",
+        border=1
     )
+
+    pdf.multi_cell(
+        0,
+        8,
+        (
+            f"- Budget utilization: "
+            f"{(total_spent/budget*100):.1f}%"
+        )
+        if budget > 0
+        else
+        "- No budget set",
+        border=1
+    )
+
+    pdf.ln(5)
 
     # ==========================
     # RECOMMENDATIONS
@@ -2655,11 +2650,19 @@ def download_pdf():
 
     pdf.ln(3)
 
+    pdf.set_fill_color(
+        245,
+        245,
+        245
+    )
+
     pdf.cell(
         0,
         10,
         "RECOMMENDATIONS",
-        ln=True
+        border=1,
+        ln=True,
+        fill=True
     )
 
     pdf.set_font("Arial", "", 12)
