@@ -2612,28 +2612,29 @@ def download_pdf():
         11
     )
 
-    pdf.multi_cell(
+    pdf.cell(
         0,
         8,
-        f"- Highest spending category: "
-        f"{category_totals.index[0]}",
-        border=1
+        f"- Highest spending category: {category_totals.index[0]}",
+        border=1,
+        ln=True
     )
 
-    pdf.multi_cell(
+    pdf.cell(
         0,
         8,
         (
-            f"- Budget utilization: "
-            f"{(total_spent/budget*100):.1f}%"
-        )
-        if budget > 0
-        else
-        "- No budget set",
-        border=1
+            f"- Budget utilization: {(total_spent/budget*100):.1f}%"
+            if budget > 0
+            else "- No budget set"
+        ),
+        border=1,
+        ln=True
     )
 
     pdf.ln(5)
+
+    pdf.set_x(pdf.l_margin)
 
     # ==========================
     # RECOMMENDATIONS
@@ -2671,7 +2672,7 @@ def download_pdf():
 
         if forecast > budget:
 
-            pdf.multi_cell(
+            pdf.cell(
                 0,
                 8,
                 f"[WARNING] Budget Risk: "
@@ -2681,7 +2682,7 @@ def download_pdf():
 
         else:
 
-            pdf.multi_cell(
+            pdf.cell(
                 0,
                 8,
                 f"[OK] Budget Surplus: "
@@ -2699,7 +2700,7 @@ def download_pdf():
             budget - total_spent
         ) / remaining_days
 
-        pdf.multi_cell(
+        pdf.cell(
             0,
             8,
             f"Daily Spending Limit: "
@@ -2708,7 +2709,7 @@ def download_pdf():
 
         if goal and goal.target_amount > 0:
 
-            pdf.multi_cell(
+            pdf.cell(
                 0,
                 8,
                 "Saving an extra Rs. 1000/month "
