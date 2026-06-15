@@ -178,59 +178,6 @@ class FinancePDF(FPDF):
         )
 
 
-@app.route("/init_db")
-def init_db():
-    try:
-        with app.app_context():
-            db.create_all()
-        return "Database initialized successfully!"
-    except Exception as e:
-        return str(e), 500
-
-
-@app.route("/upgrade_budget")
-def upgrade_budget():
-
-    try:
-
-        with db.engine.connect() as conn:
-
-            conn.exec_driver_sql(
-                'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS budget FLOAT DEFAULT 0'
-            )
-
-            conn.commit()
-
-        return "Budget column added successfully."
-
-    except Exception as e:
-
-        return str(e), 500
-
-
-@app.route("/upgrade_subcategory")
-def upgrade_subcategory():
-
-    try:
-
-        with db.engine.connect() as conn:
-
-            conn.exec_driver_sql(
-                """
-                ALTER TABLE expense
-                ADD COLUMN IF NOT EXISTS subcategory VARCHAR(120)
-                """
-            )
-
-            conn.commit()
-
-        return "Subcategory column added successfully."
-
-    except Exception as e:
-
-        return str(e), 500
-
-
 # ---------- Helpers ----------
 USERNAME_RE = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,}$")
 PASSWORD_RE = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$")
@@ -513,7 +460,6 @@ def add_expense():
 
 # --------- Delete an expense ---------
 @app.route("/delete_expense/<int:expense_id>", methods=["POST"])
-@csrf.exempt
 @login_required
 def delete_expense(expense_id):
 
@@ -1484,7 +1430,6 @@ def get_health_score():
 # ==================================================
 
 @app.route("/set_goal", methods=["POST"])
-@csrf.exempt
 @login_required
 def set_goal():
 
