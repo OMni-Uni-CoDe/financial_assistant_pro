@@ -2533,10 +2533,12 @@ def download_pdf():
     )
 
     pdf.image(
-        trend_file.name,
-        x=20,
-        w=150
+    trend_file.name,
+    x=20,
+    w=150
     )
+
+    pdf.set_x(pdf.l_margin)
 
     pdf.ln(5)
 
@@ -2554,6 +2556,9 @@ def download_pdf():
         )
     )
 
+    if pdf.get_y() > 220:
+       pdf.add_page()
+
     pdf.set_font("Arial", "B", 14)
 
     pdf.cell(
@@ -2565,6 +2570,8 @@ def download_pdf():
 
     pdf.set_font("Arial", "", 12)
 
+    pdf.set_x(pdf.l_margin)
+
     for (
         category,
         subcategory
@@ -2575,12 +2582,13 @@ def download_pdf():
             total_spent
         ) * 100
 
-        pdf.multi_cell(
+        pdf.cell(
             0,
             8,
             f"{category} -> {subcategory}: "
             f"Rs. {amount:.2f} "
-            f"({percentage:.1f}%)"
+            f"({percentage:.1f}%)",
+            ln=True
         )
 
     pdf.ln(5)
@@ -2612,10 +2620,16 @@ def download_pdf():
         11
     )
 
+    highest_category = (
+        category_totals.index[0]
+        if not category_totals.empty
+        else "N/A"
+    )
+
     pdf.cell(
         0,
         8,
-        f"- Highest spending category: {category_totals.index[0]}",
+        f"- Highest spending category: {highest_category}",
         border=1,
         ln=True
     )
@@ -2677,7 +2691,8 @@ def download_pdf():
                 8,
                 f"[WARNING] Budget Risk: "
                 f"Projected overspend of "
-                f"Rs. {forecast-budget:.0f}"
+                f"Rs. {forecast-budget:.0f}",
+                ln=True
             )
 
         else:
@@ -2687,7 +2702,8 @@ def download_pdf():
                 8,
                 f"[OK] Budget Surplus: "
                 f"Projected Rs. {budget-forecast:.0f} "
-                f"under budget."
+                f"under budget.",
+                ln=True
             )
     if budget > total_spent:
 
@@ -2704,7 +2720,8 @@ def download_pdf():
             0,
             8,
             f"Daily Spending Limit: "
-            f"Rs. {daily_limit:.0f}/day"
+            f"Rs. {daily_limit:.0f}/day",
+            ln=True
         )
 
         if goal and goal.target_amount > 0:
@@ -2713,7 +2730,8 @@ def download_pdf():
                 0,
                 8,
                 "Saving an extra Rs. 1000/month "
-                "could accelerate goal completion."
+                "could accelerate goal completion.",
+                ln=True
             )
 
             pdf.ln(5)
@@ -2722,7 +2740,12 @@ def download_pdf():
     # OUTPUT PDF
     # ==========================
 
-    pdf_output = pdf.output(dest="S")
+    try:
+        pdf_output = pdf.output(dest="S")
+    except Exception as e:
+        return jsonify({
+            "error": f"PDF generation failed: {str(e)}"
+        }), 500
 
     if isinstance(pdf_output, str):
         pdf_output = pdf_output.encode("latin-1")
