@@ -2742,13 +2742,16 @@ def download_pdf():
 
     try:
         pdf_output = pdf.output(dest="S")
+
+        if isinstance(pdf_output, str):
+            pdf_output = pdf_output.encode("latin-1")
+
+        pdf_output = bytes(pdf_output)
+
     except Exception as e:
         return jsonify({
             "error": f"PDF generation failed: {str(e)}"
         }), 500
-
-    if isinstance(pdf_output, str):
-        pdf_output = pdf_output.encode("latin-1")
 
     
     try:
