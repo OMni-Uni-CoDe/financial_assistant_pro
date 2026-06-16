@@ -474,6 +474,20 @@ def home_redirect():
 def dashboard():
     return render_template("dashboard.html", username=current_user.username)
 
+
+# ==================================================
+# EXPENSES ROUTES
+# ==================================================
+@app.route("/expenses")
+@login_required
+@confirmed_required
+def expenses_page():
+
+    return render_template(
+        "expenses.html",
+        username=current_user.username
+    )
+
 # ==================================================
 # EXPENSE MANAGEMENT
 # ==================================================
