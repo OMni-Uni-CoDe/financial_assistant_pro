@@ -475,6 +475,56 @@ def dashboard():
     return render_template("dashboard.html", username=current_user.username)
 
 
+@app.route("/expenses")
+@login_required
+@confirmed_required
+def expenses_page():
+    return render_template(
+        "expenses.html",
+        username=current_user.username
+    )
+
+
+@app.route("/goals")
+@login_required
+@confirmed_required
+def goals_page():
+    return render_template(
+        "goals.html",
+        username=current_user.username
+    )
+
+
+@app.route("/reports")
+@login_required
+@confirmed_required
+def reports_page():
+    return render_template(
+        "reports.html",
+        username=current_user.username
+    )
+
+
+@app.route("/assistant")
+@login_required
+@confirmed_required
+def assistant_page():
+    return render_template(
+        "assistant.html",
+        username=current_user.username
+    )
+
+
+@app.route("/settings")
+@login_required
+@confirmed_required
+def settings_page():
+    return render_template(
+        "settings.html",
+        username=current_user.username
+    )
+
+
 # ==================================================
 # EXPENSES ROUTES
 # ==================================================
