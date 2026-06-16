@@ -62,6 +62,22 @@
 
         <h3>Expense History</h3>
 
+        <div class="expense-filters">
+
+            <input type="text"
+                   id="expenseSearch"
+                   placeholder="Search expenses...">
+
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Housing">Housing</option>
+                <option value="Utilities">Utilities</option>
+            </select>
+
+        </div>
+
         <table>
 
             <thead>
@@ -74,7 +90,7 @@
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="expenseTableBody">
 
                 {% for expense in expenses %}
 
@@ -109,5 +125,61 @@
     </div>
 
 </div>
+
+<script>
+
+document
+.getElementById("expenseSearch")
+.addEventListener("input", filterExpenses);
+
+document
+.getElementById("categoryFilter")
+.addEventListener("change", filterExpenses);
+
+function filterExpenses() {
+
+    const search =
+        document
+        .getElementById("expenseSearch")
+        .value
+        .toLowerCase();
+
+    const category =
+        document
+        .getElementById("categoryFilter")
+        .value
+        .toLowerCase();
+
+    const rows =
+        document.querySelectorAll(
+            "#expenseTableBody tr"
+        );
+
+    rows.forEach(row => {
+
+        const text =
+            row.innerText.toLowerCase();
+
+        const categoryText =
+            row.children[1]
+            .innerText
+            .toLowerCase();
+
+        const matchesSearch =
+            text.includes(search);
+
+        const matchesCategory =
+            !category ||
+            categoryText === category;
+
+        row.style.display =
+            matchesSearch &&
+            matchesCategory
+            ? ""
+            : "none";
+    });
+}
+
+</script>
 
 {% endblock %}

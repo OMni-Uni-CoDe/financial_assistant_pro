@@ -419,4 +419,17 @@ canvas {
     border-bottom: 1px solid rgba( 255, 255, 255, 0.05 );
 }
 
+/* =========================
+   EXPENSE FILTER
+========================= */
 
+.expense-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+    .expense-filters input,
+    .expense-filters select {
+        flex: 1;
+    }
