@@ -474,6 +474,9 @@ def home_redirect():
 def dashboard():
     return render_template("dashboard.html", username=current_user.username)
 
+# ==================================================
+# EXPENSES ROUTES
+# ==================================================
 
 @app.route("/expenses")
 @login_required
@@ -484,6 +487,9 @@ def expenses_page():
         username=current_user.username
     )
 
+# ==================================================
+# GOALS ROUTES
+# ==================================================
 
 @app.route("/goals")
 @login_required
@@ -494,6 +500,9 @@ def goals_page():
         username=current_user.username
     )
 
+# ==================================================
+# REPORTS ROUTES
+# ==================================================
 
 @app.route("/reports")
 @login_required
@@ -504,6 +513,9 @@ def reports_page():
         username=current_user.username
     )
 
+# ==================================================
+# ASSISTANT ROUTES
+# ==================================================
 
 @app.route("/assistant")
 @login_required
@@ -514,6 +526,9 @@ def assistant_page():
         username=current_user.username
     )
 
+# ==================================================
+# SETTINGS ROUTES
+# ==================================================
 
 @app.route("/settings")
 @login_required
@@ -521,20 +536,6 @@ def assistant_page():
 def settings_page():
     return render_template(
         "settings.html",
-        username=current_user.username
-    )
-
-
-# ==================================================
-# EXPENSES ROUTES
-# ==================================================
-@app.route("/expenses")
-@login_required
-@confirmed_required
-def expenses_page():
-
-    return render_template(
-        "expenses.html",
         username=current_user.username
     )
 
