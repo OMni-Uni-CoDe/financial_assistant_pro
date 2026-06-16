@@ -88,14 +88,22 @@ def add_security_headers(response):
     response.headers["Expires"] = "0"
 
     response.headers["Content-Security-Policy"] = (
-    "default-src 'self'; "
-    "img-src 'self' data:; "
-    "style-src 'self' 'unsafe-inline'; "
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-    "font-src 'self' data:; "
-    "connect-src 'self'; "
-    "frame-ancestors 'none';"
-)
+        "default-src 'self'; "
+        "img-src 'self' data:; "
+        "style-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "font-src 'self' data:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none';"
+    )
+
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+
+    response.headers["Pragma"] = "no-cache"
+
+    response.headers["Expires"] = "0"
 
     return response
 
