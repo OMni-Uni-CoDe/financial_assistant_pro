@@ -92,8 +92,8 @@ def add_security_headers(response):
         "img-src 'self' data:; "
         "style-src 'self' 'unsafe-inline'; "
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "connect-src 'self' https://cdn.jsdelivr.net; "
         "font-src 'self' data:; "
-        "connect-src 'self'; "
         "frame-ancestors 'none';"
     )
 
