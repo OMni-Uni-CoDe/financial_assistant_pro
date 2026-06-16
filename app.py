@@ -504,14 +504,48 @@ def expenses_page():
         default=0
     )
 
+    average_expense = (
+    total_spending / transaction_count
+    if transaction_count > 0
+    else 0
+    )
+
+    category_totals = {}
+
+    for expense in expenses:
+
+        category_totals[
+            expense.category
+        ] = (
+            category_totals.get(
+                expense.category,
+                0
+            )
+            + expense.amount
+        )
+
+    top_category = (
+        max(
+            category_totals,
+            key=category_totals.get
+        )
+        if category_totals
+        else "None"
+    )
+
     return render_template(
     "expenses.html",
     username=current_user.username,
     expenses=expenses,
     total_spending=total_spending,
     transaction_count=transaction_count,
-    largest_expense=largest_expense
-    )
+    largest_expense=largest_expense,
+    average_expense=round(
+        average_expense,
+        2
+    ),
+    top_category=top_category
+)
 
 # ==================================================
 # GOALS ROUTES
