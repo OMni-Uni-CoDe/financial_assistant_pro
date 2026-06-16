@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    const csrfToken =
+        document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
+
     const categoryMap = {
 
         "Housing": [
@@ -278,6 +283,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         "/set_budget",
                         {
                             method: "POST",
+
+                            headers: {
+                                "X-CSRFToken": csrfToken
+                            },
+
                             body: formData
                         }
                     );
@@ -399,7 +409,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 await fetch(
                     `/delete_expense/${id}`,
                     {
-                        method: "POST"
+                        method: "POST",
+
+                        headers: {
+                            "X-CSRFToken": csrfToken
+                        }
                     }
                 );
 
@@ -1339,6 +1353,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     "/set_goal",
                     {
                         method: "POST",
+
+                        headers: {
+                            "X-CSRFToken": csrfToken
+                        },
+
                         body: formData
                     }
                 );
