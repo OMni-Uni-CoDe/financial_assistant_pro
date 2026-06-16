@@ -6,6 +6,27 @@
 
     <h1>Expense Management</h1>
 
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <h4>Total Spending</h4>
+            <h2>₹{{ total_spending }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <h4>Transactions</h4>
+            <h2>{{ transaction_count }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <h4>Largest Expense</h4>
+            <h2>₹{{ largest_expense }}</h2>
+        </div>
+
+    </div>
+
+    <br>
+
     <div class="card">
 
         <h3>Add Expense</h3>

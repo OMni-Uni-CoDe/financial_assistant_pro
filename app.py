@@ -484,16 +484,33 @@ def dashboard():
 def expenses_page():
 
     expenses = (
-        Expense.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Expense.date.desc())
-        .all()
+    Expense.query
+    .filter_by(user_id=current_user.id)
+    .order_by(Expense.date.desc())
+    .all()
+    )
+
+    total_spending = sum(
+        expense.amount
+        for expense in expenses
+    )
+
+    transaction_count = len(
+        expenses
+    )
+
+    largest_expense = max(
+        [expense.amount for expense in expenses],
+        default=0
     )
 
     return render_template(
-        "expenses.html",
-        username=current_user.username,
-        expenses=expenses
+    "expenses.html",
+    username=current_user.username,
+    expenses=expenses,
+    total_spending=total_spending,
+    transaction_count=transaction_count,
+    largest_expense=largest_expense
     )
 
 # ==================================================
