@@ -482,9 +482,18 @@ def dashboard():
 @login_required
 @confirmed_required
 def expenses_page():
+
+    expenses = (
+        Expense.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Expense.date.desc())
+        .all()
+    )
+
     return render_template(
         "expenses.html",
-        username=current_user.username
+        username=current_user.username,
+        expenses=expenses
     )
 
 # ==================================================
