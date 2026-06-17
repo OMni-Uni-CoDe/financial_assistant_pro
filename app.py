@@ -560,9 +560,31 @@ def expenses_page():
 @confirmed_required
 def expense_analytics():
 
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    current_month = datetime.utcnow().month
+    current_year = datetime.utcnow().year
+
+    monthly_spending = sum(
+
+        expense.amount
+
+        for expense in expenses
+
+        if expense.date.month == current_month
+        and expense.date.year == current_year
+
+    )
+
     return render_template(
         "expense_analytics.html",
-        username=current_user.username
+        username=current_user.username,
+        monthly_spending=round(
+            monthly_spending,
+            2
+        )
     )
 
 
