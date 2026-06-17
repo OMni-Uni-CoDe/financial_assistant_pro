@@ -911,19 +911,24 @@ def get_subcategory_data():
 
     for expense in expenses:
 
-        subcategory = expense.subcategory
+        subcategory = expense.subcategory or "Other"
 
-        if subcategory not in totals:
+        totals[subcategory] = (
+            totals.get(subcategory, 0)
+            + expense.amount
+        )
 
-            totals[subcategory] = 0
-
-        totals[subcategory] += expense.amount
+    sorted_totals = sorted(
+        totals.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
 
     return jsonify({
 
-        "labels": list(totals.keys()),
+        "labels": [x[0] for x in sorted_totals],
 
-        "values": list(totals.values())
+        "values": [x[1] for x in sorted_totals]
 
     })
 
@@ -1604,7 +1609,13 @@ def get_monthly_comparison():
             round(previous_total, 2),
 
         "trend":
-            trend
+            trend,
+
+        "percentage_change":
+            round(
+                percentage_change,
+                1
+            )
 
     })
 

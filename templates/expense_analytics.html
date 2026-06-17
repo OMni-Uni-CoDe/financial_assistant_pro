@@ -28,6 +28,13 @@
             <h2 id="topSubcategory">Loading...</h2>
         </div>
 
+        <div class="stat-card">
+            <h4>Monthly Change</h4>
+            <h2 id="monthlyChange">
+                Loading...
+            </h2>
+        </div>
+
     </div>
 
     <div class="card">
@@ -102,7 +109,69 @@ async function loadTopSubcategory() {
 
 }
 
-loadTopSubcategory();
+    async function loadMonthlyComparison() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_monthly_comparison"
+                );
+
+            const data =
+                await response.json();
+
+            document
+                .getElementById(
+                    "monthlyChange"
+                )
+            const card =
+                document.getElementById(
+                    "monthlyChange"
+                );
+
+            if (
+                data.percentage_change >= 0
+            ) {
+
+                card.innerText =
+                    "↑ " +
+                    data.percentage_change +
+                    "%";
+
+                card.style.color =
+                    "#4CAF50";
+
+            }
+            else {
+
+                card.innerText =
+                    "↓ " +
+                    Math.abs(
+                        data.percentage_change
+                    ) +
+                    "%";
+
+                card.style.color =
+                    "#FF5252";
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Monthly comparison failed:",
+                error
+            );
+
+        }
+
+    }
+
+    loadTopSubcategory();
+    loadMonthlyComparison();
 
 </script>
 
@@ -141,6 +210,16 @@ loadTopSubcategory();
 
                         data: data.totals,
 
+                        backgroundColor: [
+                            "#36A2EB",
+                            "#FF6384",
+                            "#FF9F40",
+                            "#FFCD56",
+                            "#4BC0C0",
+                            "#9966FF",
+                            "#C9CBCF"
+                        ],
+
                         borderWidth: 2
 
                     }]
@@ -161,8 +240,10 @@ loadTopSubcategory();
                         title: {
 
                             display: true,
-
-                            text: "Expense Distribution"
+                            text: "Expense Distribution",
+                            font: {
+                                size: 18
+                            }
                         }
 
                     }
@@ -191,10 +272,9 @@ loadTopSubcategory();
 
                     datasets: [{
                         label: "Spending",
-                        data: data.totals,
+                        data: data.daily_totals,
                         fill: false,
-                        tension: 0.3,
-                        borderWidth: 3,
+                        tension: 0,
                         borderWidth: 3,
                         pointRadius: 5
                     }]
