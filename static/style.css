@@ -108,6 +108,12 @@ select {
         font-weight: bold;
     }
 
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 120px;
+    }
 /* Forms */
 
 input,
@@ -443,3 +449,25 @@ canvas {
     margin-top: 25px;
 }
 
+#insightsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.insight-item {
+    padding: 18px;
+    border-left: 4px solid #4CAF50;
+    background: rgba( 255, 255, 255, 0.04 );
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+    .insight-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .insight-item strong {
+        color: #9ad0ff;
+        font-size: 16px;
+    }

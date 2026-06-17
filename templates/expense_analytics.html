@@ -61,6 +61,20 @@
 
     <div class="card">
 
+        <h3>Financial Insights</h3>
+
+        <div id="insightsContainer">
+
+            Loading insights...
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
         <h3>Subcategory Breakdown</h3>
 
         <div style="height:500px;">
@@ -73,49 +87,13 @@
 
 <script>
 
-async function loadTopSubcategory() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/get_top_subcategory"
-            );
-
-        const data =
-            await response.json();
-
-        document
-            .getElementById(
-                "topCategory"
-            )
-            .innerText =
-            data.category;
-
-        document
-            .getElementById(
-                "topSubcategory"
-            )
-            .innerText =
-            data.subcategory;
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-    }
-
-}
-
-    async function loadMonthlyComparison() {
+    async function loadTopSubcategory() {
 
         try {
 
             const response =
                 await fetch(
-                    "/get_monthly_comparison"
+                    "/get_top_subcategory"
                 );
 
             const data =
@@ -123,55 +101,165 @@ async function loadTopSubcategory() {
 
             document
                 .getElementById(
-                    "monthlyChange"
+                    "topCategory"
                 )
-            const card =
-                document.getElementById(
-                    "monthlyChange"
-                );
+                .innerText =
+                data.category;
 
-            if (
-                data.percentage_change >= 0
-            ) {
-
-                card.innerText =
-                    "↑ " +
-                    data.percentage_change +
-                    "%";
-
-                card.style.color =
-                    "#4CAF50";
-
-            }
-            else {
-
-                card.innerText =
-                    "↓ " +
-                    Math.abs(
-                        data.percentage_change
-                    ) +
-                    "%";
-
-                card.style.color =
-                    "#FF5252";
-
-            }
+            document
+                .getElementById(
+                    "topSubcategory"
+                )
+                .innerText =
+                data.subcategory;
 
         }
 
         catch (error) {
 
-            console.error(
-                "Monthly comparison failed:",
-                error
-            );
+            console.error(error);
 
         }
 
     }
+        async function loadMonthlyComparison() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/get_monthly_comparison"
+                    );
+
+                const data =
+                    await response.json();
+
+                document
+                    .getElementById(
+                        "monthlyChange"
+                    )
+                const card =
+                    document.getElementById(
+                        "monthlyChange"
+                    );
+
+                if (
+                    data.percentage_change >= 0
+                ) {
+
+                    card.innerText =
+                        "↑ " +
+                        data.percentage_change +
+                        "%";
+
+                    card.style.color =
+                        "#4CAF50";
+
+                }
+                else {
+
+                    card.innerText =
+                        "↓ " +
+                        Math.abs(
+                            data.percentage_change
+                        ) +
+                        "%";
+
+                    card.style.color =
+                        "#FF5252";
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Monthly comparison failed:",
+                    error
+                );
+
+            }
+
+        }
+
+        async function loadInsights() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/get_insights"
+                    );
+
+                const data =
+                    await response.json();
+
+                const container =
+                    document.getElementById(
+                        "insightsContainer"
+                    );
+
+                container.innerHTML = "";
+
+                if (
+                    !data.insights ||
+                    data.insights.length === 0
+                ) {
+
+                    container.innerHTML =
+                        "<p>No insights available.</p>";
+
+                    return;
+
+                }
+
+                data.insights.forEach(
+                    insight => {
+
+                        const div =
+                            document.createElement(
+                                "div"
+                            );
+
+                        div.className =
+                            "insight-item";
+
+                        div.innerHTML = `
+
+                        <strong>
+                            ${insight.title}
+                        </strong>
+
+                        <br>
+
+                        ${insight.message}
+
+                    `;
+
+                        container.appendChild(
+                            div
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Insights failed:",
+                    error
+                );
+
+            }
+
+        }
 
     loadTopSubcategory();
     loadMonthlyComparison();
+    loadInsights();
 
 </script>
 

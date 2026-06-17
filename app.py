@@ -1073,12 +1073,42 @@ def get_insights():
 
     insights.append({
 
+    "title":
+        "📊 Spending Concentration",
+
+    "message":
+        f"{top_percent:.1f}% of spending is in "
+        f"{top_entry[0]} -> {top_entry[1]}"
+
+})
+
+    # Overspending Alert
+
+    if top_percent > 40:
+
+        insights.append({
+
+            "title":
+                "⚠ Overspending Alert",
+
+            "message":
+                f"{top_percent:.1f}% of your spending is concentrated in one area."
+
+        })
+
+    # Spending Diversity
+
+    category_count = len(
+        df["category"].unique()
+    )
+
+    insights.append({
+
         "title":
-            "📊 Spending Concentration",
+            "📂 Spending Diversity",
 
         "message":
-            f"{top_percent:.1f}% of spending is in "
-            f"{top_entry[0]} -> {top_entry[1]}"
+            f"Expenses are spread across {category_count} categories."
 
     })
 
@@ -1608,14 +1638,11 @@ def get_monthly_comparison():
         "previous_month":
             round(previous_total, 2),
 
-        "trend":
-            trend,
-
         "percentage_change":
-            round(
-                percentage_change,
-                1
-            )
+            round(percentage_change, 1),
+
+        "trend":
+            trend
 
     })
 
