@@ -550,6 +550,22 @@ def expenses_page():
     today=today
 )
 
+
+# ==================================================
+# EXPENSE ANALYTICS PAGE
+# ==================================================
+
+@app.route("/expense_analytics")
+@login_required
+@confirmed_required
+def expense_analytics():
+
+    return render_template(
+        "expense_analytics.html",
+        username=current_user.username
+    )
+
+
 # ==================================================
 # GOALS ROUTES
 # ==================================================
