@@ -34,7 +34,9 @@
 
         <h3>Category Breakdown Chart</h3>
 
-        <canvas id="categoryChart"></canvas>
+        <div style="max-width:700px;height:450px;margin:auto;">
+            <canvas id="categoryChart"></canvas>
+        </div>
 
     </div>
 
@@ -54,9 +56,7 @@
 
         <h3>Subcategory Breakdown</h3>
 
-        <div>
-            Data Coming Soon
-        </div>
+        <canvas id="subcategoryChart"></canvas>
 
     </div>
 
@@ -147,15 +147,20 @@ loadTopSubcategory();
                 options: {
 
                     responsive: true,
-
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
 
                     plugins: {
 
                         legend: {
 
                             position: "bottom"
+                        },
 
+                        title: {
+
+                            display: true,
+
+                            text: "Expense Distribution"
                         }
 
                     }
@@ -183,13 +188,10 @@ loadTopSubcategory();
                         data.dates,
 
                     datasets: [{
-
-                        label:
-                            "Spending",
-
-                        data:
-                            data.daily_totals
-
+                        label: "Spending",
+                        data: data.totals,
+                        fill: true,
+                        tension: 0.4
                     }]
 
                 }
@@ -209,7 +211,71 @@ loadTopSubcategory();
 
     }
 
+    async function loadSubcategoryChart() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/get_subcategory_data"
+                );
+
+            const data =
+                await response.json();
+
+            const ctx =
+                document
+                    .getElementById(
+                        "subcategoryChart"
+                    )
+                    .getContext(
+                        "2d"
+                    );
+
+            new Chart(ctx, {
+
+                type: "bar",
+
+                data: {
+
+                    labels:
+                        data.labels,
+
+                    datasets: [{
+
+                        label:
+                            "Amount Spent",
+
+                        data:
+                            data.values
+
+                    }]
+
+                },
+
+                options: {
+
+                    indexAxis: "y",
+
+                    responsive: true
+
+                }
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
     loadCharts();
+
+    loadSubcategoryChart();
 
 </script>
 

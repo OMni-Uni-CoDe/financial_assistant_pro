@@ -899,6 +899,34 @@ def get_top_subcategory():
 
     })
 
+@app.route("/get_subcategory_data")
+@login_required
+def get_subcategory_data():
+
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    totals = {}
+
+    for expense in expenses:
+
+        subcategory = expense.subcategory
+
+        if subcategory not in totals:
+
+            totals[subcategory] = 0
+
+        totals[subcategory] += expense.amount
+
+    return jsonify({
+
+        "labels": list(totals.keys()),
+
+        "values": list(totals.values())
+
+    })
+
 @app.route("/get_subcategory_breakdown")
 @login_required
 def get_subcategory_breakdown():
