@@ -607,10 +607,14 @@ def settings_page():
 @limiter.limit("60 per hour")
 def add_expense():
     category = request.form.get("category", "Other")
+
     subcategory = request.form.get(
-    "subcategory",
-    ""
-)
+        "subcategory",
+        ""
+    )
+
+    selected_date = request.form.get("date")
+
     try:
         amount = float(request.form.get("amount", 0))
     except ValueError:
@@ -620,7 +624,14 @@ def add_expense():
             category=category,
             subcategory=subcategory,
             amount=amount,
-            date=datetime.utcnow().date()
+            date=(
+                datetime.strptime(
+                    selected_date,
+                    "%Y-%m-%d"
+                ).date()
+                if selected_date
+                else datetime.utcnow().date()
+            )
     )
     db.session.add(entry)
     db.session.commit()

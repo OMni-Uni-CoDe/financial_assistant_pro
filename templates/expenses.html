@@ -49,14 +49,48 @@
                    placeholder="Amount"
                    required>
 
-            <input type="text"
-                   name="category"
-                   placeholder="Category"
-                   required>
+            <select name="category"
+                    id="expenseCategory"
+                    required>
 
+                <option value="">Select Category</option>
+
+                <option value="Housing">Housing</option>
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Education">Education</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Travel">Travel</option>
+                <option value="Finance">Finance</option>
+                <option value="Savings">Savings</option>
+                <option value="Family">Family</option>
+                <option value="Pets">Pets</option>
+                <option value="Work">Work</option>
+                <option value="Subscriptions">Subscriptions</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+
+            </select>
+
+            <select name="subcategory"
+                    id="expenseSubcategory">
+
+                <option value="">
+                    Select Subcategory
+                </option>
+
+            </select>
+
+            <input type="date"
+                   name="date">
+
+            <!--
             <input type="text"
-                   name="subcategory"
-                   placeholder="Subcategory">
+                name="description"
+                placeholder="Description (optional)">
+            -->
 
             <button type="submit">
                 Add Expense
@@ -155,26 +189,35 @@
 <script>
 
 document
-.getElementById("expenseSearch")
-.addEventListener("input", filterExpenses);
+ .getElementById("expenseSearch")
+ .addEventListener("input", filterExpenses);
 
 document
-.getElementById("categoryFilter")
-.addEventListener("change", filterExpenses);
+ .getElementById("categoryFilter")
+ .addEventListener("change", filterExpenses);
+
+document
+ .getElementById("monthFilter")
+ .addEventListener("change", filterExpenses);
 
 function filterExpenses() {
 
     const search =
         document
-        .getElementById("expenseSearch")
-        .value
-        .toLowerCase();
+            .getElementById("expenseSearch")
+            .value
+            .toLowerCase();
 
     const category =
         document
-        .getElementById("categoryFilter")
-        .value
-        .toLowerCase();
+            .getElementById("categoryFilter")
+            .value
+            .toLowerCase();
+
+    const month =
+        document
+            .getElementById("monthFilter")
+            .value;
 
     const rows =
         document.querySelectorAll(
@@ -191,6 +234,14 @@ function filterExpenses() {
             .innerText
             .toLowerCase();
 
+        const dateText =
+            row.children[0]
+            .innerText;
+
+        const matchesMonth =
+            !month ||
+            dateText.includes(month);
+
         const matchesSearch =
             text.includes(search);
 
@@ -200,11 +251,143 @@ function filterExpenses() {
 
         row.style.display =
             matchesSearch &&
-            matchesCategory
+            matchesCategory &&
+            matchesMonth
             ? ""
             : "none";
     });
 }
+
+    const subcategoryMap = {
+
+        "Housing": [
+            "Rent",
+            "Mortgage",
+            "Maintenance",
+            "Furniture"
+        ],
+
+        "Food & Dining": [
+            "Groceries",
+            "Restaurant",
+            "Snacks",
+            "Food Delivery"
+        ],
+
+        "Transportation": [
+            "Fuel",
+            "Taxi",
+            "Public Transport",
+            "Parking"
+        ],
+
+        "Utilities": [
+            "Electricity",
+            "Water",
+            "Internet",
+            "Mobile Recharge"
+        ],
+
+        "Healthcare": [
+            "Doctor",
+            "Medicine",
+            "Hospital",
+            "Gym"
+        ],
+
+        "Education": [
+            "Books",
+            "Courses",
+            "Exam Fees"
+        ],
+
+        "Shopping": [
+            "Clothing",
+            "Shoes",
+            "Electronics"
+        ],
+
+        "Entertainment": [
+            "Movies",
+            "Games",
+            "Streaming"
+        ],
+
+        "Travel": [
+            "Flights",
+            "Hotels",
+            "Tourism"
+        ],
+
+        "Finance": [
+            "EMI",
+            "Investment",
+            "Taxes"
+        ],
+
+        "Savings": [
+            "Emergency Fund",
+            "Retirement",
+            "Goal Contribution"
+        ],
+
+        "Family": [
+            "Children",
+            "Parents",
+            "Gifts"
+        ],
+
+        "Pets": [
+            "Pet Food",
+            "Veterinary"
+        ],
+
+        "Work": [
+            "Office Supplies",
+            "Software"
+        ],
+
+        "Subscriptions": [
+            "Netflix",
+            "Spotify",
+            "ChatGPT"
+        ],
+
+        "Miscellaneous": [
+            "Other"
+        ]
+    };
+
+    document
+        .getElementById("expenseCategory")
+        .addEventListener("change", function () {
+
+            const category = this.value;
+
+            const subcategory =
+                document.getElementById(
+                    "expenseSubcategory"
+                );
+
+            subcategory.innerHTML =
+                "<option value=''>Select Subcategory</option>";
+
+            if (!subcategoryMap[category]) return;
+
+            subcategoryMap[category]
+                .forEach(item => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = item;
+                    option.textContent = item;
+
+                    subcategory.appendChild(option);
+
+                });
+
+        });
 
 </script>
 
