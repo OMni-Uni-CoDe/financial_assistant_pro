@@ -533,6 +533,8 @@ def expenses_page():
         else "None"
     )
 
+    today = datetime.utcnow().date()
+
     return render_template(
     "expenses.html",
     username=current_user.username,
@@ -544,7 +546,8 @@ def expenses_page():
         average_expense,
         2
     ),
-    top_category=top_category
+    top_category=top_category,
+    today=today
 )
 
 # ==================================================
@@ -639,6 +642,61 @@ def add_expense():
     flash("Expense added successfully.", "success")
 
     return redirect(url_for("expenses_page"))
+
+
+# -------------Edit Expense-------------
+@app.route("/edit_expense/<int:expense_id>",
+           methods=["GET", "POST"])
+@login_required
+def edit_expense(expense_id):
+
+    expense = Expense.query.filter_by(
+        id=expense_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    if request.method == "POST":
+
+        expense.amount = float(
+            request.form.get("amount", 0)
+        )
+
+        expense.category = request.form.get(
+            "category",
+            expense.category
+        )
+
+        expense.subcategory = request.form.get(
+            "subcategory",
+            expense.subcategory
+        )
+
+        selected_date = request.form.get("date")
+
+        if selected_date:
+
+            expense.date = datetime.strptime(
+                selected_date,
+                "%Y-%m-%d"
+            ).date()
+
+        db.session.commit()
+
+        flash(
+            "Expense updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("expenses_page")
+        )
+
+    return render_template(
+        "edit_expense.html",
+        expense=expense,
+        username=current_user.username
+    )
+
 
 # --------- Delete an expense ---------
 @app.route("/delete_expense/<int:expense_id>", methods=["POST"])

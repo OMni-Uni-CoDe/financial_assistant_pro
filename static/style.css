@@ -433,3 +433,13 @@ canvas {
     .expense-filters select {
         flex: 1;
     }
+
+
+.card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
