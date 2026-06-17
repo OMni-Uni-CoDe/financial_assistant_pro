@@ -43,6 +43,10 @@
 
         <form method="POST" action="/add_expense">
 
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
             <input type="number"
                    step="0.01"
                    name="amount"
@@ -87,10 +91,10 @@
                    name="date">
 
             <!--
-            <input type="text"
-                name="description"
-                placeholder="Description (optional)">
-            -->
+    <input type="text"
+        name="description"
+        placeholder="Description (optional)">
+    -->
 
             <button type="submit">
                 Add Expense
@@ -165,6 +169,10 @@
 
                         <form method="POST"
                               action="/delete_expense/{{ expense.id }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
 
                             <button type="submit">
                                 Delete

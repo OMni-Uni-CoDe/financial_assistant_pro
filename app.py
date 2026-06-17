@@ -635,7 +635,10 @@ def add_expense():
     )
     db.session.add(entry)
     db.session.commit()
-    return jsonify({"message": "Expense added successfully."})
+
+    flash("Expense added successfully.", "success")
+
+    return redirect(url_for("expenses_page"))
 
 # --------- Delete an expense ---------
 @app.route("/delete_expense/<int:expense_id>", methods=["POST"])
@@ -656,10 +659,9 @@ def delete_expense(expense_id):
     db.session.delete(expense)
     db.session.commit()
 
-    return jsonify({
-        "success": True,
-        "message": "Expense deleted successfully."
-    })
+    flash("Expense deleted successfully.", "success")
+
+    return redirect(url_for("expenses_page"))
 
 # --------- Catagory for sorting expenses ---------
 @app.route("/get_data")
