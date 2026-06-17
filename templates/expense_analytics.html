@@ -34,7 +34,7 @@
 
         <h3>Category Breakdown Chart</h3>
 
-        <div style="max-width:700px;height:450px;margin:auto;">
+        <div style="max-width:900px;height:500px;margin:auto;">
             <canvas id="categoryChart"></canvas>
         </div>
 
@@ -56,7 +56,9 @@
 
         <h3>Subcategory Breakdown</h3>
 
-        <canvas id="subcategoryChart"></canvas>
+        <div style="height:500px;">
+            <canvas id="subcategoryChart"></canvas>
+        </div>
 
     </div>
 
@@ -190,8 +192,11 @@ loadTopSubcategory();
                     datasets: [{
                         label: "Spending",
                         data: data.totals,
-                        fill: true,
-                        tension: 0.4
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 3,
+                        borderWidth: 3,
+                        pointRadius: 5
                     }]
 
                 }
@@ -257,7 +262,9 @@ loadTopSubcategory();
 
                     indexAxis: "y",
 
-                    responsive: true
+                    responsive: true,
+
+                    maintainAspectRatio: false
 
                 }
 
