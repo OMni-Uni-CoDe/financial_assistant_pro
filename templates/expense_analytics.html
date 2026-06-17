@@ -15,12 +15,12 @@
 
         <div class="stat-card">
             <h4>Top Category</h4>
-            <h2>Loading...</h2>
+            <h2 id="topCategory">Loading...</h2>
         </div>
 
         <div class="stat-card">
             <h4>Top Subcategory</h4>
-            <h2>Loading...</h2>
+            <h2 id="topSubcategory">Loading...</h2>
         </div>
 
     </div>
@@ -60,5 +60,47 @@
     </div>
 
 </div>
+
+<script>
+
+async function loadTopSubcategory() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/get_top_subcategory"
+            );
+
+        const data =
+            await response.json();
+
+        document
+            .getElementById(
+                "topCategory"
+            )
+            .innerText =
+            data.category;
+
+        document
+            .getElementById(
+                "topSubcategory"
+            )
+            .innerText =
+            data.subcategory;
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+loadTopSubcategory();
+
+</script>
 
 {% endblock %}
