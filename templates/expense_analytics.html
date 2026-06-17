@@ -129,19 +129,36 @@ loadTopSubcategory();
 
             new Chart(categoryCtx, {
 
-                type: "pie",
+                type: "doughnut",
 
                 data: {
 
-                    labels:
-                        data.categories,
+                    labels: data.categories,
 
                     datasets: [{
 
-                        data:
-                            data.totals
+                        data: data.totals,
+
+                        borderWidth: 2
 
                     }]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: true,
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom"
+
+                        }
+
+                    }
 
                 }
 
