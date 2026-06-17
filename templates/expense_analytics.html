@@ -106,4 +106,94 @@ loadTopSubcategory();
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+
+    async function loadCharts() {
+
+        try {
+
+            const response =
+                await fetch("/get_data");
+
+            const data =
+                await response.json();
+
+            // =====================
+            // Category Pie Chart
+            // =====================
+
+            const categoryCtx =
+                document
+                    .getElementById("categoryChart")
+                    .getContext("2d");
+
+            new Chart(categoryCtx, {
+
+                type: "pie",
+
+                data: {
+
+                    labels:
+                        data.categories,
+
+                    datasets: [{
+
+                        data:
+                            data.totals
+
+                    }]
+
+                }
+
+            });
+
+            // =====================
+            // Monthly Trend
+            // =====================
+
+            const trendCtx =
+                document
+                    .getElementById("trendChart")
+                    .getContext("2d");
+
+            new Chart(trendCtx, {
+
+                type: "line",
+
+                data: {
+
+                    labels:
+                        data.dates,
+
+                    datasets: [{
+
+                        label:
+                            "Spending",
+
+                        data:
+                            data.daily_totals
+
+                    }]
+
+                }
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Chart loading failed:",
+                error
+            );
+
+        }
+
+    }
+
+    loadCharts();
+
+</script>
+
 {% endblock %}
