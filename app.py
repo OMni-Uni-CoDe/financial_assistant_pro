@@ -4,6 +4,7 @@ import re
 import io
 from markupsafe import Markup
 from datetime import datetime, timedelta
+import calendar
 from functools import wraps
 from flask import (Flask, render_template, request, redirect, url_for,
                    jsonify, send_file, flash, abort, Response, make_response)
@@ -746,7 +747,10 @@ def edit_expense(expense_id):
 
 
 # --------- Delete an expense ---------
-@app.route("/delete_expense/<int:expense_id>", methods=["POST"])
+@app.route(
+    "/delete_expense/<int:expense_id>",
+    methods=["POST"]
+)
 @login_required
 def delete_expense(expense_id):
 
@@ -756,6 +760,7 @@ def delete_expense(expense_id):
     ).first()
 
     if not expense:
+
         return jsonify({
             "success": False,
             "message": "Expense not found."
@@ -764,9 +769,22 @@ def delete_expense(expense_id):
     db.session.delete(expense)
     db.session.commit()
 
-    flash("Expense deleted successfully.", "success")
+    if request.headers.get(
+        "X-Requested-With"
+    ) == "XMLHttpRequest":
 
-    return redirect(url_for("expenses_page"))
+        return jsonify({
+            "success": True
+        })
+
+    flash(
+        "Expense deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("expenses_page")
+    )
 
 # --------- Catagory for sorting expenses ---------
 @app.route("/get_data")
@@ -1660,8 +1678,18 @@ def get_monthly_comparison():
 @login_required
 def get_health_score():
 
-    expenses = Expense.query.filter_by(
-        user_id=current_user.id
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract(
+            "month",
+            Expense.date
+        ) == today.month,
+        db.extract(
+            "year",
+            Expense.date
+        ) == today.year
     ).all()
 
     if not expenses:
@@ -1714,10 +1742,15 @@ def get_health_score():
 
     today = datetime.utcnow().date()
 
+    days_in_month = calendar.monthrange(
+        today.year,
+        today.month
+    )[1]
+
     projected = (
         total_spent /
         max(today.day, 1)
-    ) * 30
+    ) * days_in_month
 
     if budget > 0:
 
