@@ -246,8 +246,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(expenseForm);
 
             const res = await fetch("/add_expense", {
+
                 method: "POST",
+
+                headers: {
+                    "X-Requested-With":
+                        "XMLHttpRequest"
+                },
+
                 body: formData
+
             });
 
             const data = await res.json();

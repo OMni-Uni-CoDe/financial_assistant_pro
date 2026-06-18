@@ -97,14 +97,6 @@ def add_security_headers(response):
         "frame-ancestors 'none';"
     )
 
-    response.headers["Cache-Control"] = (
-        "no-store, no-cache, must-revalidate, max-age=0"
-    )
-
-    response.headers["Pragma"] = "no-cache"
-
-    response.headers["Expires"] = "0"
-
     return response
 
 
@@ -677,9 +669,26 @@ def add_expense():
     db.session.add(entry)
     db.session.commit()
 
-    flash("Expense added successfully.", "success")
+    flash(
+    "Expense added successfully.",
+    "success"
+    )
 
-    return redirect(url_for("expenses_page"))
+    # Dashboard AJAX request
+    if request.headers.get(
+        "X-Requested-With"
+    ) == "XMLHttpRequest":
+
+        return jsonify({
+            "success": True,
+            "message":
+                "Expense added successfully."
+        })
+
+    # Expenses page form submit
+    return redirect(
+        url_for("expenses_page")
+    )
 
 
 # -------------Edit Expense-------------
