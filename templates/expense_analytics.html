@@ -144,6 +144,19 @@
                     );
 
                 if (
+                    data.percentage_change === undefined
+                ) {
+                    card.innerText =
+                        data.comparison || "No data";
+
+                    card.style.color =
+                        "#ffffff";
+
+                    return;
+                }
+
+
+                if (
                     data.percentage_change >= 0
                 ) {
 

@@ -608,6 +608,843 @@ def reports_page():
     )
 
 # ==================================================
+# MONTHLY CSV REPORT ROUTES
+# ==================================================
+
+@app.route("/download_monthly_csv")
+@login_required
+def download_monthly_csv():
+
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
+    ).all()
+
+    output = io.StringIO()
+
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Date",
+        "Category",
+        "Subcategory",
+        "Amount"
+    ])
+
+    for e in expenses:
+
+        writer.writerow([
+            e.date,
+            e.category,
+            e.subcategory,
+            e.amount
+        ])
+
+    response = make_response(
+        output.getvalue()
+    )
+
+    response.headers[
+        "Content-Disposition"
+    ] = (
+        "attachment;"
+        " filename=monthly_report.csv"
+    )
+
+    response.headers[
+        "Content-Type"
+    ] = "text/csv"
+
+    return response
+
+
+# ==================================================
+# MONTHLY PDF REPORT ROUTES
+# ==================================================
+
+@app.route("/download_monthly_pdf")
+@login_required
+def download_monthly_pdf():
+
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
+    ).order_by(
+        Expense.date.desc()
+    ).all()
+
+    if not expenses:
+        return jsonify({
+            "error": "No expenses found."
+        }), 404
+
+    pdf = FinancePDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    # ==========================
+    # PAGE 1
+    # ==========================
+
+    pdf.add_page()
+
+    pdf.set_fill_color(30, 64, 175)
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        20
+    )
+
+    pdf.set_text_color(
+        255,
+        255,
+        255
+    )
+
+    pdf.cell(
+        0,
+        15,
+        "FINANCE PRO",
+        ln=True,
+        align="C",
+        fill=True
+    )
+
+    pdf.set_font(
+        "Arial",
+        "",
+        12
+    )
+
+    pdf.cell(
+        0,
+        8,
+        "Professional Financial Report",
+        ln=True,
+        align="C"
+    )
+
+    pdf.set_text_color(
+        0,
+        0,
+        0
+    )
+
+    pdf.ln(5)
+
+    today = datetime.utcnow().date()
+
+    pdf.cell(
+        0,
+        8,
+        f"Generated: {today.strftime('%d %B %Y')}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"User: {current_user.username}",
+        ln=True
+    )
+
+    pdf.ln(5)
+    
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
+
+    budget = current_user.budget or 0
+
+    remaining_budget = budget - total_spent
+
+    days_in_month = calendar.monthrange(
+        today.year,
+        today.month
+    )[1]
+
+    forecast = round(
+        (total_spent / max(today.day, 1))
+        * days_in_month,
+        2
+    )
+
+    pdf.set_font("Arial", "B", 14)
+    
+    pdf.set_fill_color(
+        230,
+        230,
+        230
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "FINANCIAL SUMMARY",
+        ln=True,
+        fill=True
+    )
+
+    health = 100
+
+    if budget > 0:
+
+        spending_ratio = total_spent / budget
+
+        if spending_ratio > 1:
+            health -= 40
+
+        elif spending_ratio > 0.8:
+            health -= 20
+
+        if forecast > budget:
+            health -= 20
+
+    else:
+
+        health = 80
+
+    health = max(0, min(100, health))
+
+    status = (
+        "Excellent" if health >= 90 else
+        "Good" if health >= 75 else
+        "Average" if health >= 60 else
+        "Needs Improvement"
+    )
+
+    budget_status = (
+        "WITHIN BUDGET"
+        if forecast <= budget
+        else "OVER BUDGET"
+    )
+
+    pdf.ln(3)
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.cell(
+        0,
+        8,
+        f"Health Score: {health}/100",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Rating: {status}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Budget Status: {budget_status}",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.cell(
+        0,
+        8,
+        f"Total Spending: Rs. {total_spent:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Budget: Rs. {budget:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Remaining Budget: Rs. {remaining_budget:.2f}",
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"Forecast: Rs. {forecast:.2f}",
+        ln=True
+    )
+
+    
+
+    # ==========================
+    # SAVINGS GOAL
+    # ==========================
+
+    goal = SavingsGoal.query.filter_by(
+    user_id=current_user.id
+    ).first()
+
+    if goal and goal.target_amount > 0:
+
+        progress = round(
+            (
+                goal.current_amount /
+                goal.target_amount
+            ) * 100,
+            1
+        )
+
+        pdf.set_font("Arial", "B", 14)
+
+        pdf.line(
+            10,
+            pdf.get_y(),
+            200,
+            pdf.get_y()
+        )
+
+        pdf.ln(3)
+
+        pdf.cell(
+            0,
+            10,
+            "SAVINGS GOAL",
+            ln=True
+        )
+
+        pdf.set_font("Arial", "", 12)
+
+        pdf.cell(
+            0,
+            8,
+            f"Goal: {goal.goal_name}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Target Amount: Rs. {goal.target_amount}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Current Savings: Rs. {goal.current_amount}",
+            ln=True
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Progress: {progress}%",
+            ln=True
+        )
+
+        monthly_saving = max(
+            current_user.budget * 0.20,
+            1
+        )
+
+        months_remaining = max(
+            0,
+            (goal.target_amount - goal.current_amount)
+            / monthly_saving
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Estimated Completion: {months_remaining:.1f} month(s)",
+            ln=True
+        )
+
+        pdf.ln(5)
+
+    if pdf.get_y() > 220:
+        pdf.add_page()
+
+    pdf.set_font("Arial", "B", 16)
+
+    pdf.line(
+        10,
+        pdf.get_y(),
+        200,
+        pdf.get_y()
+    )
+
+    pdf.ln(3)
+
+    pdf.cell(
+        0,
+        10,
+        "SPENDING ANALYTICS",
+        ln=True
+    )
+
+    pdf.ln(3)
+
+    # ==========================
+    # TOP CATEGORIES
+    # ==========================
+
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    # ==========================
+    # PIE CHART IMAGE
+    # ==========================
+
+    pie_file = tempfile.NamedTemporaryFile(
+        suffix=".png",
+        delete=False
+    )
+
+    plt.figure(figsize=(5, 5))
+
+    category_totals.head(5).plot(
+        kind="pie",
+        autopct="%1.1f%%"
+    )
+
+    plt.ylabel("")
+    plt.title("Top Spending Categories")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        pie_file.name,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+    # ==========================
+    # TREND CHART IMAGE
+    # ==========================
+
+    daily_spending = (
+        df.groupby("date")["amount"]
+        .sum()
+    )
+
+    trend_file = tempfile.NamedTemporaryFile(
+        suffix=".png",
+        delete=False
+    )
+
+    plt.figure(figsize=(6, 3))
+
+    plt.plot(
+        daily_spending.index.astype(str),
+        daily_spending.values,
+        marker="o"
+    )
+
+    plt.xticks(rotation=45)
+
+    plt.title("Daily Spending Trend")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        trend_file.name,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "TOP CATEGORIES", ln=True)
+
+    pdf.set_font("Arial", "B", 11)
+
+    pdf.set_fill_color(
+    220,
+    220,
+    220
+    )
+
+    pdf.cell(
+        70,
+        8,
+        "Category",
+        1,
+        0,
+        fill=True
+    )
+
+    pdf.cell(
+        50,
+        8,
+        "Amount",
+        1,
+        0,
+        fill=True
+    )
+
+    pdf.cell(
+        30,
+        8,
+        "%",
+        1,
+        1,
+        fill=True
+    )
+
+    pdf.set_font("Arial", "", 11)
+
+    for category, amount in category_totals.head(5).items():
+
+        percent = (
+            amount / total_spent * 100
+            if total_spent > 0
+            else 0
+        )
+
+        pdf.cell(
+            70,
+            8,
+            str(category),
+            1
+        )
+
+        pdf.cell(
+            50,
+            8,
+            f"Rs. {amount:.0f}",
+            1
+        )
+
+        pdf.cell(
+            30,
+            8,
+            f"{percent:.1f}",
+            1,
+            ln=True
+        )
+
+    pdf.ln(5)
+
+    # ==========================
+    # CATEGORY DISTRIBUTION
+    # ==========================
+
+    if pdf.get_y() > 140:
+        pdf.add_page()
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "CATEGORY DISTRIBUTION",
+        ln=True
+    )
+
+    pdf.image(
+        pie_file.name,
+        x=35,
+        w=90
+    )
+
+    pdf.ln(5)
+
+    # ==========================
+    # SPENDING TREND
+    # ==========================
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "SPENDING TREND",
+        ln=True
+    )
+
+    pdf.image(
+    trend_file.name,
+    x=20,
+    w=150
+    )
+
+    pdf.set_x(pdf.l_margin)
+
+    pdf.ln(5)
+
+    # ==========================
+    # TOP SUBCATEGORIES
+    # ==========================
+
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    if pdf.get_y() > 220:
+       pdf.add_page()
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.cell(
+        0,
+        10,
+        "TOP SUBCATEGORIES",
+        ln=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    pdf.set_x(pdf.l_margin)
+
+    for (
+        category,
+        subcategory
+    ), amount in subcategory_totals.head(5).items():
+
+        percentage = (
+            amount /
+            total_spent
+        ) * 100
+
+        pdf.cell(
+            0,
+            8,
+            f"{category} -> {subcategory}: "
+            f"Rs. {amount:.2f} "
+            f"({percentage:.1f}%)",
+            ln=True
+        )
+
+    pdf.ln(5)
+
+    pdf.set_fill_color(
+    245,
+    245,
+    245
+    )
+
+    pdf.set_font(
+        "Arial",
+        "B",
+        14
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "KEY INSIGHTS",
+        border=1,
+        ln=True,
+        fill=True
+    )
+
+    pdf.set_font(
+        "Arial",
+        "",
+        11
+    )
+
+    highest_category = (
+        category_totals.index[0]
+        if not category_totals.empty
+        else "N/A"
+    )
+
+    pdf.cell(
+        0,
+        8,
+        f"- Highest spending category: {highest_category}",
+        border=1,
+        ln=True
+    )
+
+    pdf.cell(
+        0,
+        8,
+        (
+            f"- Budget utilization: {(total_spent/budget*100):.1f}%"
+            if budget > 0
+            else "- No budget set"
+        ),
+        border=1,
+        ln=True
+    )
+
+    pdf.ln(5)
+
+    pdf.set_x(pdf.l_margin)
+
+    # ==========================
+    # RECOMMENDATIONS
+    # ==========================
+
+    pdf.set_font("Arial", "B", 14)
+
+    pdf.line(
+        10,
+        pdf.get_y(),
+        200,
+        pdf.get_y()
+    )
+
+    pdf.ln(3)
+
+    pdf.set_fill_color(
+        245,
+        245,
+        245
+    )
+
+    pdf.cell(
+        0,
+        10,
+        "RECOMMENDATIONS",
+        border=1,
+        ln=True,
+        fill=True
+    )
+
+    pdf.set_font("Arial", "", 12)
+
+    if budget > 0:
+
+        if forecast > budget:
+
+            pdf.cell(
+                0,
+                8,
+                f"[WARNING] Budget Risk: "
+                f"Projected overspend of "
+                f"Rs. {forecast-budget:.0f}",
+                ln=True
+            )
+
+        else:
+
+            pdf.cell(
+                0,
+                8,
+                f"[OK] Budget Surplus: "
+                f"Projected Rs. {budget-forecast:.0f} "
+                f"under budget.",
+                ln=True
+            )
+    if budget > total_spent:
+
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+        
+        remaining_days = max(
+            days_in_month - today.day,
+            1
+        )
+
+        daily_limit = (
+            budget - total_spent
+        ) / remaining_days
+
+        pdf.cell(
+            0,
+            8,
+            f"Daily Spending Limit: "
+            f"Rs. {daily_limit:.0f}/day",
+            ln=True
+        )
+
+        if goal and goal.target_amount > 0:
+
+            pdf.cell(
+                0,
+                8,
+                "Saving an extra Rs. 1000/month "
+                "could accelerate goal completion.",
+                ln=True
+            )
+
+            pdf.ln(5)
+
+    # ==========================
+    # OUTPUT PDF
+    # ==========================
+
+    try:
+        pdf_output = pdf.output(dest="S")
+
+        if isinstance(pdf_output, str):
+            pdf_output = pdf_output.encode("latin-1")
+
+        pdf_output = bytes(pdf_output)
+
+    except Exception as e:
+        return jsonify({
+            "error": f"PDF generation failed: {str(e)}"
+        }), 500
+
+    
+    try:
+        os.remove(pie_file.name)
+    except:
+        pass
+
+    try:
+        os.remove(trend_file.name)
+    except:
+        pass
+
+
+    response = make_response(pdf_output)
+
+    response.headers[
+        "Content-Disposition"
+    ] = "attachment; filename=finance_pro_report.pdf"
+
+    response.headers[
+        "Content-Type"
+    ] = "application/pdf"
+
+    return response
+
+
+# ==================================================
 # ASSISTANT ROUTES
 # ==================================================
 
@@ -1020,10 +1857,14 @@ def get_subcategory_breakdown():
 @login_required
 def get_budget():
 
+    today = datetime.utcnow().date()
+
     total_spent = db.session.query(
         db.func.sum(Expense.amount)
-    ).filter_by(
-        user_id=current_user.id
+    ).filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
     ).scalar() or 0
 
     budget = current_user.budget or 0
@@ -1033,15 +1874,19 @@ def get_budget():
     percentage = 0
 
     if budget > 0:
+
         percentage = min(
-            round((total_spent / budget) * 100, 2),
+            round(
+                (total_spent / budget) * 100,
+                2
+            ),
             100
         )
 
     return jsonify({
         "budget": budget,
-        "spent": total_spent,
-        "remaining": remaining,
+        "spent": round(total_spent, 2),
+        "remaining": round(remaining, 2),
         "percentage": percentage
     })
 
@@ -1052,8 +1897,12 @@ def get_budget():
 @login_required
 def get_insights():
 
-    expenses = Expense.query.filter_by(
-        user_id=current_user.id
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
     ).all()
 
     if not expenses:
@@ -1248,8 +2097,12 @@ def get_insights():
 @login_required
 def get_forecast():
 
-    expenses = Expense.query.filter_by(
-        user_id=current_user.id
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
     ).all()
 
     if not expenses:
@@ -1266,9 +2119,15 @@ def get_forecast():
 
     days_passed = max(today.day, 1)
 
+    days_in_month = calendar.monthrange(
+        today.year,
+        today.month
+    )[1]
+
     projected = (
-        total_spent / days_passed
-    ) * 30
+        total_spent /
+        days_passed
+    ) * days_in_month
 
     message = (
         f"Projected month-end spending: "
@@ -1304,8 +2163,12 @@ def get_forecast():
 @login_required
 def get_recommendations():
 
-    expenses = Expense.query.filter_by(
-        user_id=current_user.id
+    today = datetime.utcnow().date()
+
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
     ).all()
 
     if not expenses:
@@ -1340,10 +2203,15 @@ def get_recommendations():
         1
     )
 
+    days_in_month = calendar.monthrange(
+        today.year,
+        today.month
+    )[1]
+
     projected_spending = (
         total_spent /
         days_passed
-    ) * 30
+    ) * days_in_month
 
     budget = current_user.budget or 0
 
@@ -1402,8 +2270,13 @@ def get_recommendations():
             total_spent
         )
 
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
         days_remaining = max(
-            30 - today.day,
+            days_in_month - today.day,
             1
         )
 
@@ -1458,8 +2331,13 @@ def get_recommendations():
 
         })
 
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
         days_remaining = max(
-            30 - today.day,
+            days_in_month - today.day,
             1
         )
 
@@ -2291,8 +3169,13 @@ def download_csv():
 
     if budget > 0:
 
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
         remaining_days = max(
-            30 - today.day,
+            days_in_month - today.day,
             1
         )
 
@@ -2447,8 +3330,14 @@ def download_pdf():
 
     remaining_budget = budget - total_spent
 
+    days_in_month = calendar.monthrange(
+        today.year,
+        today.month
+    )[1]
+
     forecast = round(
-        (total_spent / max(today.day, 1)) * 30,
+        (total_spent / max(today.day, 1))
+        * days_in_month,
         2
     )
 
@@ -3037,8 +3926,13 @@ def download_pdf():
             )
     if budget > total_spent:
 
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
         remaining_days = max(
-            30 - today.day,
+            days_in_month - today.day,
             1
         )
 

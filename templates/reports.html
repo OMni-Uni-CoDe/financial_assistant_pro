@@ -4,9 +4,45 @@
 
 <div class="container">
 
-    <h1>Reports</h1>
+    <h1>Reports Center</h1>
 
-    <p>Reports and exports page.</p>
+    <div class="card">
+
+        <h2>Monthly Reports</h2>
+
+        <p>
+            Current month only.
+        </p>
+
+        <button onclick="window.location='/download_monthly_csv'">
+            Download Monthly CSV
+        </button>
+
+        <button onclick="window.location='/download_monthly_pdf'">
+            Download Monthly PDF
+        </button>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h2>Lifetime Reports</h2>
+
+        <p>
+            All expense records.
+        </p>
+
+        <button onclick="window.location='/download_csv'">
+            Download Lifetime CSV
+        </button>
+
+        <button onclick="window.location='/download_pdf'">
+            Download Lifetime PDF
+        </button>
+
+    </div>
 
 </div>
 
