@@ -1,471 +1,442 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="layout">
+<h1>Welcome, {{ username }}</h1>
 
-    <button class="menu-toggle" id="menuToggle">☰</button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+<section id="dashboard-section">
 
-    <aside class="sidebar">
+    <div class="stats-grid">
 
-        <div class="sidebar-header">
-            <h2>Finance Pro</h2>
+        <div class="stat-card">
+            <h4>Total Spending</h4>
+            <p id="totalSpent">₹0</p>
         </div>
 
-        <nav class="sidebar-nav">
-            <a href="/dashboard">📊 Dashboard</a>
-            <a href="/expenses">💳 Expenses</a>
-            <a href="/goals">🎯 Goals</a>
-            <a href="/reports">📁 Reports</a>
-            <a href="/assistant">🤖 AI Assistant</a>
-            <a href="/settings">⚙ Settings</a>
-            <a href="/logout">🚪 Logout</a>
-        </nav>
+        <div class="stat-card">
+            <h4>Categories</h4>
+            <p id="totalCategories">0</p>
+        </div>
 
-    </aside>
+        <div class="stat-card">
+            <h4>Top Category</h4>
+            <p id="topCategory">-</p>
+        </div>
 
-    <main class="main-content">
+        <div class="stat-card">
+            <h4>Average Spend</h4>
+            <p id="averageSpend">₹0</p>
+        </div>
 
-        <h1>Welcome, {{ username }}</h1>
+        <div class="stat-card">
 
-        <section id="dashboard-section">
+            <h4>Health Score</h4>
 
-            <div class="stats-grid">
+            <p id="healthScore">--</p>
 
-                <div class="stat-card">
-                    <h4>Total Spending</h4>
-                    <p id="totalSpent">₹0</p>
-                </div>
+            <small id="healthRating">
+                Loading...
+            </small>
 
-                <div class="stat-card">
-                    <h4>Categories</h4>
-                    <p id="totalCategories">0</p>
-                </div>
+        </div>
 
-                <div class="stat-card">
-                    <h4>Top Category</h4>
-                    <p id="topCategory">-</p>
-                </div>
+        <div class="stat-card">
 
-                <div class="stat-card">
-                    <h4>Average Spend</h4>
-                    <p id="averageSpend">₹0</p>
-                </div>
+            <h4>
+                🏆 Largest Expense
+            </h4>
 
-                <div class="stat-card">
+            <p id="topSubcategory">
+                -
+            </p>
 
-                    <h4>Health Score</h4>
+            <small id="topSubcategoryInfo">
+                Loading...
+            </small>
 
-                    <p id="healthScore">--</p>
+        </div>
 
-                    <small id="healthRating">
-                        Loading...
-                    </small>
+        <div class="stat-card">
 
-                </div>
+            <h4>Monthly Comparison</h4>
 
-                <div class="stat-card">
+            <p id="comparisonValue">
+                --
+            </p>
 
-                    <h4>
-                        🏆 Largest Expense
-                    </h4>
+            <small id="comparisonTrend">
+                Loading...
+            </small>
 
-                    <p id="topSubcategory">
-                        -
-                    </p>
+        </div>
 
-                    <small id="topSubcategoryInfo">
-                        Loading...
-                    </small>
+    </div>
 
-                </div>
+    <div class="section-card">
+        <div class="section-card">
 
-                <div class="stat-card">
+            <h3>Monthly Budget</h3>
 
-                    <h4>Monthly Comparison</h4>
+            <form id="budgetForm">
 
-                    <p id="comparisonValue">
-                        --
-                    </p>
+                <input type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
 
-                    <small id="comparisonTrend">
-                        Loading...
-                    </small>
+                <input type="number"
+                        id="budgetInput"
+                        name="budget"
+                        placeholder="Enter Monthly Budget"
+                        min="0"
+                        step="0.01">
 
-                </div>
+                <button type="submit">
+                    Save Budget
+                </button>
 
-            </div>
-
-            <div class="section-card">
-                <div class="section-card">
-
-                    <h3>Monthly Budget</h3>
-
-                    <form id="budgetForm">
-
-                        <input type="hidden"
-                               name="csrf_token"
-                               value="{{ csrf_token() }}">
-
-                        <input type="number"
-                               id="budgetInput"
-                               name="budget"
-                               placeholder="Enter Monthly Budget"
-                               min="0"
-                               step="0.01">
-
-                        <button type="submit">
-                            Save Budget
-                        </button>
-
-                    </form>
-
-                    <div style="margin-top:20px;">
-
-                        <p>
-                            Budget:
-                            <strong id="budgetAmount">₹0</strong>
-                        </p>
-
-                        <p>
-                            Remaining:
-                            <strong id="remainingBudget">₹0</strong>
-                        </p>
-
-                        <p>
-                            Usage:
-                            <strong id="budgetPercentage">0%</strong>
-                        </p>
-
-                        <div class="budget-bar">
-                            <div class="budget-fill"
-                                 id="budgetFill">
-                            </div>
-                        </div>
-
-                        <p id="budgetAlert"></p>
-
-                    </div>
-
-                </div>
-
-                <!-- Savings Goal -->
-
-                <div class="section-card">
-
-                    <h3>Savings Goal</h3>
-
-                    <form id="goalForm">
-
-                        <input type="hidden"
-                               name="csrf_token"
-                               value="{{ csrf_token() }}">
-
-                        <input type="text"
-                               id="goalName"
-                               placeholder="Goal Name">
-
-                        <input type="number"
-                               id="goalTarget"
-                               placeholder="Target Amount">
-
-                        <input type="number"
-                               id="goalCurrent"
-                               placeholder="Current Savings">
-
-                        <button type="button"
-                                onclick="saveGoal()">
-                            Save Goal
-                        </button>
-
-                    </form>
-
-                    <div id="goalInfo">
-
-                        <p>
-                            Goal:
-                            <strong id="goalDisplayName">
-                                -
-                            </strong>
-                        </p>
-
-                        <p>
-                            Saved:
-                            ₹<span id="goalCurrentDisplay">0</span>
-                            /
-                            ₹<span id="goalTargetDisplay">0</span>
-                        </p>
-
-                        <p>
-                            Progress:
-                            <span id="goalPercentage">
-                                0%
-                            </span>
-                        </p>
-
-                        <p id="goalMilestone"
-                           class="goal-milestone">
-                        </p>
-
-                        <p id="goalEta"
-                           class="goal-eta">
-                        </p>
-
-                        <div class="budget-bar">
-
-                            <div id="goalProgressBar"
-                                 class="budget-fill"
-                                 style="width:0%"></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <h3>Add Expense</h3>
-
-                <form id="expenseForm">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                    <label>Category</label>
-
-                    <select id="category"
-                            name="category"
-                            required>
-                        <option value="Housing">🏠 Housing</option>
-                        <option value="Food & Dining">🍔 Food & Dining</option>
-                        <option value="Transportation">🚗 Transportation</option>
-                        <option value="Utilities">💡 Utilities</option>
-                        <option value="Healthcare">🏥 Healthcare</option>
-                        <option value="Education">📚 Education</option>
-                        <option value="Shopping">🛍 Shopping</option>
-                        <option value="Entertainment">🎬 Entertainment</option>
-                        <option value="Travel">✈ Travel</option>
-                        <option value="Finance">💰 Finance</option>
-                        <option value="Savings">🎯 Savings</option>
-                        <option value="Family">👨‍👩‍👧 Family</option>
-                        <option value="Pets">🐶 Pets</option>
-                        <option value="Work">💼 Work</option>
-                        <option value="Subscriptions">📦 Subscriptions</option>
-                        <option value="Miscellaneous">📌 Miscellaneous</option>
-                    </select>
-
-                    <label>Subcategory</label>
-
-                    <select id="subcategory"
-                            name="subcategory"
-                            required>
-                    </select>
-
-                    <input type="number"
-                           step="0.01"
-                           name="amount"
-                           placeholder="Amount"
-                           required>
-
-                    <button type="submit">Add Expense</button>
-                </form>
-
-                <p id="expenseMsg"></p>
-
-            </div>
-
-            <div class="section-card">
-
-                <h3>Filters</h3>
-
-                <div class="actions">
-
-                    <select id="categoryFilter">
-
-                        <option value="all">
-                            All Categories
-                        </option>
-
-                        <option value="Housing">
-                            Housing
-                        </option>
-
-                        <option value="Food & Dining">
-                            Food & Dining
-                        </option>
-
-                        <option value="Transportation">
-                            Transportation
-                        </option>
-
-                        <option value="Utilities">
-                            Utilities
-                        </option>
-
-                        <option value="Healthcare">
-                            Healthcare
-                        </option>
-
-                        <option value="Education">
-                            Education
-                        </option>
-
-                        <option value="Shopping">
-                            Shopping
-                        </option>
-
-                        <option value="Entertainment">
-                            Entertainment
-                        </option>
-
-                        <option value="Travel">
-                            Travel
-                        </option>
-
-                        <option value="Finance">
-                            Finance
-                        </option>
-
-                        <option value="Savings">
-                            Savings
-                        </option>
-
-                        <option value="Family">
-                            Family
-                        </option>
-
-                        <option value="Pets">
-                            Pets
-                        </option>
-
-                        <option value="Work">
-                            Work
-                        </option>
-
-                        <option value="Subscriptions">
-                            Subscriptions
-                        </option>
-
-                        <option value="Miscellaneous">
-                            Miscellaneous
-                        </option>
-
-                    </select>
-
-                    <select id="periodFilter">
-
-                        <option value="all">All Time</option>
-                        <option value="7days">Last 7 Days</option>
-                        <option value="30days">Last 30 Days</option>
-                        <option value="month">This Month</option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <div class="section-card">
-
-                <h3>Spending Analytics</h3>
-
-                <div class="charts">
-                    <canvas id="categoryChart"></canvas>
-                    <canvas id="trendChart"></canvas>
-                </div>
-
-            </div>
-
-        </section>
-
-        <section id="reports-section" class="section-card">
-
-            <h3>Reports & Forecast</h3>
-
-            <div class="actions">
-                <button id="csvBtn">CSV Report</button>
-                <button id="pdfBtn">PDF Report</button>
-                <button id="predictBtn">Predict Future</button>
-            </div>
-
-            <p id="prediction"></p>
-
-        </section>
-
-        <section id="ai-section" class="section-card">
-
-            <h3>AI Assistant</h3>
-
-            <form id="askForm">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="text"
-                       name="question"
-                       placeholder="Ask about your spending..."
-                       required>
-
-                <button type="submit">Ask AI</button>
             </form>
 
-            <div id="response"></div>
+            <div style="margin-top:20px;">
 
-        </section>
+                <p>
+                    Budget:
+                    <strong id="budgetAmount">₹0</strong>
+                </p>
 
-        <div class="section-card">
+                <p>
+                    Remaining:
+                    <strong id="remainingBudget">₹0</strong>
+                </p>
 
-            <h3>Smart Financial Insights</h3>
+                <p>
+                    Usage:
+                    <strong id="budgetPercentage">0%</strong>
+                </p>
 
-            <div id="insightsContainer">
+                <div class="budget-bar">
+                    <div class="budget-fill"
+                            id="budgetFill">
+                    </div>
+                </div>
 
-                Loading insights...
-
-            </div>
-
-        </div>
-
-        <div class="section-card">
-
-            <h3>Monthly Forecast</h3>
-
-            <div id="forecastContainer">
-
-                Loading forecast...
-
-            </div>
-
-        </div>
-
-        <div class="section-card">
-
-            <h3>Top Subcategory Breakdown</h3>
-
-            <div id="subcategoryBreakdownContainer">
-
-                Loading breakdown...
+                <p id="budgetAlert"></p>
 
             </div>
 
         </div>
 
+        <!-- Savings Goal -->
+
         <div class="section-card">
 
-            <h3>AI Recommendations</h3>
+            <h3>Savings Goal</h3>
 
-            <div id="recommendationsContainer">
+            <form id="goalForm">
 
-                Loading recommendations...
+                <input type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
+
+                <input type="text"
+                        id="goalName"
+                        placeholder="Goal Name">
+
+                <input type="number"
+                        id="goalTarget"
+                        placeholder="Target Amount">
+
+                <input type="number"
+                        id="goalCurrent"
+                        placeholder="Current Savings">
+
+                <button type="button"
+                        onclick="saveGoal()">
+                    Save Goal
+                </button>
+
+            </form>
+
+            <div id="goalInfo">
+
+                <p>
+                    Goal:
+                    <strong id="goalDisplayName">
+                        -
+                    </strong>
+                </p>
+
+                <p>
+                    Saved:
+                    ₹<span id="goalCurrentDisplay">0</span>
+                    /
+                    ₹<span id="goalTargetDisplay">0</span>
+                </p>
+
+                <p>
+                    Progress:
+                    <span id="goalPercentage">
+                        0%
+                    </span>
+                </p>
+
+                <p id="goalMilestone"
+                    class="goal-milestone">
+                </p>
+
+                <p id="goalEta"
+                    class="goal-eta">
+                </p>
+
+                <div class="budget-bar">
+
+                    <div id="goalProgressBar"
+                            class="budget-fill"
+                            style="width:0%"></div>
+
+                </div>
 
             </div>
 
         </div>
 
-        <section id="activity-section" class="section-card">
+        <h3>Add Expense</h3>
 
-            <h3>Recent Activity</h3>
+        <form id="expenseForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div id="history"></div>
+            <label>Category</label>
 
-        </section>
+            <select id="category"
+                    name="category"
+                    required>
+                <option value="Housing">🏠 Housing</option>
+                <option value="Food & Dining">🍔 Food & Dining</option>
+                <option value="Transportation">🚗 Transportation</option>
+                <option value="Utilities">💡 Utilities</option>
+                <option value="Healthcare">🏥 Healthcare</option>
+                <option value="Education">📚 Education</option>
+                <option value="Shopping">🛍 Shopping</option>
+                <option value="Entertainment">🎬 Entertainment</option>
+                <option value="Travel">✈ Travel</option>
+                <option value="Finance">💰 Finance</option>
+                <option value="Savings">🎯 Savings</option>
+                <option value="Family">👨‍👩‍👧 Family</option>
+                <option value="Pets">🐶 Pets</option>
+                <option value="Work">💼 Work</option>
+                <option value="Subscriptions">📦 Subscriptions</option>
+                <option value="Miscellaneous">📌 Miscellaneous</option>
+            </select>
 
-    </main>
+            <label>Subcategory</label>
+
+            <select id="subcategory"
+                    name="subcategory"
+                    required>
+            </select>
+
+            <input type="number"
+                    step="0.01"
+                    name="amount"
+                    placeholder="Amount"
+                    required>
+
+            <button type="submit">Add Expense</button>
+        </form>
+
+        <p id="expenseMsg"></p>
+
+    </div>
+
+    <div class="section-card">
+
+        <h3>Filters</h3>
+
+        <div class="actions">
+
+            <select id="categoryFilter">
+
+                <option value="all">
+                    All Categories
+                </option>
+
+                <option value="Housing">
+                    Housing
+                </option>
+
+                <option value="Food & Dining">
+                    Food & Dining
+                </option>
+
+                <option value="Transportation">
+                    Transportation
+                </option>
+
+                <option value="Utilities">
+                    Utilities
+                </option>
+
+                <option value="Healthcare">
+                    Healthcare
+                </option>
+
+                <option value="Education">
+                    Education
+                </option>
+
+                <option value="Shopping">
+                    Shopping
+                </option>
+
+                <option value="Entertainment">
+                    Entertainment
+                </option>
+
+                <option value="Travel">
+                    Travel
+                </option>
+
+                <option value="Finance">
+                    Finance
+                </option>
+
+                <option value="Savings">
+                    Savings
+                </option>
+
+                <option value="Family">
+                    Family
+                </option>
+
+                <option value="Pets">
+                    Pets
+                </option>
+
+                <option value="Work">
+                    Work
+                </option>
+
+                <option value="Subscriptions">
+                    Subscriptions
+                </option>
+
+                <option value="Miscellaneous">
+                    Miscellaneous
+                </option>
+
+            </select>
+
+            <select id="periodFilter">
+
+                <option value="all">All Time</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="month">This Month</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="section-card">
+
+        <h3>Spending Analytics</h3>
+
+        <div class="charts">
+            <canvas id="categoryChart"></canvas>
+            <canvas id="trendChart"></canvas>
+        </div>
+
+    </div>
+
+</section>
+
+<section id="reports-section" class="section-card">
+
+    <h3>Reports & Forecast</h3>
+
+    <div class="actions">
+        <button id="csvBtn">CSV Report</button>
+        <button id="pdfBtn">PDF Report</button>
+        <button id="predictBtn">Predict Future</button>
+    </div>
+
+    <p id="prediction"></p>
+
+</section>
+
+<section id="ai-section" class="section-card">
+
+    <h3>AI Assistant</h3>
+
+    <form id="askForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text"
+                name="question"
+                placeholder="Ask about your spending..."
+                required>
+
+        <button type="submit">Ask AI</button>
+    </form>
+
+    <div id="response"></div>
+
+</section>
+
+<div class="section-card">
+
+    <h3>Smart Financial Insights</h3>
+
+    <div id="insightsContainer">
+
+        Loading insights...
+
+    </div>
 
 </div>
+
+<div class="section-card">
+
+    <h3>Monthly Forecast</h3>
+
+    <div id="forecastContainer">
+
+        Loading forecast...
+
+    </div>
+
+</div>
+
+<div class="section-card">
+
+    <h3>Top Subcategory Breakdown</h3>
+
+    <div id="subcategoryBreakdownContainer">
+
+        Loading breakdown...
+
+    </div>
+
+</div>
+
+<div class="section-card">
+
+    <h3>AI Recommendations</h3>
+
+    <div id="recommendationsContainer">
+
+        Loading recommendations...
+
+    </div>
+
+</div>
+
+<section id="activity-section" class="section-card">
+
+    <h3>Recent Activity</h3>
+
+    <div id="history"></div>
+               
+</section>
 
 {% endblock %}
 
