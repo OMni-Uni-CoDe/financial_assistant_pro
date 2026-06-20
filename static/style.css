@@ -114,6 +114,13 @@ select {
     padding: 35px;
 }
 
+.sidebar-link.active {
+    background: linear-gradient( 90deg, #1ea7ff, #5b5ff5 );
+    color: white;
+    font-weight: 600;
+    border-left: 4px solid #00d4ff;
+}
+
 /* Cards */
 
 .section-card,
@@ -515,3 +522,13 @@ canvas {
         color: #9ad0ff;
         font-size: 16px;
     }
+
+
+.breadcrumb {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background: rgba(255,255,255,.03);
+    border-radius: 8px;
+    color: #9ad0ff;
+    font-size: 14px;
+}

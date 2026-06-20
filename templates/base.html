@@ -29,6 +29,8 @@
 
     <div class="layout">
 
+        {% if current_user.is_authenticated %}
+
         <button class="menu-toggle"
                 id="menuToggle">
             ☰
@@ -50,11 +52,16 @@
 
             <nav class="sidebar-nav">
 
-                <a href="/dashboard">
+                <a href="/dashboard"
+                   class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                     📊 Dashboard
                 </a>
 
                 <div class="sidebar-group">
+
+                    {% if request.endpoint in [
+                    'expenses_page'
+                    ] %}
 
                     <div class="sidebar-parent">
                         💳 Expenses
@@ -76,6 +83,10 @@
                 </div>
 
                 <div class="sidebar-group">
+
+                    {% if request.endpoint in [
+                    'expense_analytics'
+                    ] %}
 
                     <div class="sidebar-parent">
                         📈 Analytics
@@ -100,7 +111,12 @@
 
                 </div>
 
-                <div class="sidebar-group">
+                <div class="sidebar-group
+                    {% if request.endpoint in [
+                    'budget_page',
+                    'goals_page',
+                    'forecast_page'
+                    ] %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         🎯 Planning
@@ -113,11 +129,11 @@
                             Savings Goals
                         </a>
 
-                        <a href="/dashboard#budget">
+                        <a href="/budget">
                             Budget
                         </a>
 
-                        <a href="/dashboard#forecast">
+                        <a href="/forecast">
                             Forecast
                         </a>
 
@@ -126,6 +142,10 @@
                 </div>
 
                 <div class="sidebar-group">
+
+                    {% if request.endpoint in [
+                    'reports_page'
+                    ] %}
 
                     <div class="sidebar-parent">
                         📁 Reports
@@ -143,6 +163,10 @@
                 </div>
 
                 <div class="sidebar-group">
+
+                    {% if request.endpoint in [
+                    'assistant_page'
+                    ] %}
 
                     <div class="sidebar-parent">
                         🤖 AI
@@ -163,10 +187,16 @@
 
                 </div>
 
-                <a href="/settings">
-                    ⚙ Settings
-                </a>
+                <div class="sidebar-group">
 
+                    {% if request.endpoint in [
+                    'settings_page'
+                    ] %}
+
+                    <a href="/settings">
+                        ⚙ Settings
+                    </a>
+                </div>
                 <a href="/logout">
                     🚪 Logout
                 </a>
@@ -177,10 +207,38 @@
 
         <main class="main-content">
 
+            <div class="breadcrumb">
+
+                Home
+
+                {% if request.endpoint == 'dashboard' %}
+                / Dashboard
+                {% elif request.endpoint == 'expenses_page' %}
+                / Expenses
+                {% elif request.endpoint == 'expense_analytics' %}
+                / Analytics
+                {% elif request.endpoint == 'goals_page' %}
+                / Planning / Goals
+                {% elif request.endpoint == 'budget_page' %}
+                / Planning / Budget
+                {% elif request.endpoint == 'forecast_page' %}
+                / Planning / Forecast
+                {% elif request.endpoint == 'reports_page' %}
+                / Reports
+                {% elif request.endpoint == 'assistant_page' %}
+                / AI Assistant
+                {% elif request.endpoint == 'settings_page' %}
+                / Settings
+                {% endif %}
+
+            </div>
+
             {% block content %}
             {% endblock %}
 
         </main>
+
+        {% endif %}
 
     </div>
 

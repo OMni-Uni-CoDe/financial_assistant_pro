@@ -397,7 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "averageSpend"
             ).innerText =
                 `₹${averageSpend.toFixed(2)}`;
-            loadBudget();
 
             const pieCanvas =
                 document.getElementById(
@@ -508,6 +507,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data =
                 await res.json();
+
+            if (
+                !document.getElementById("budgetAmount")
+            ) {
+                return;
+            }
 
             document.getElementById(
                 "budgetAmount"
@@ -1183,6 +1188,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.loadGoal = async function () {
 
+        if (
+            !document.getElementById("goalDisplayName")
+        ) {
+            return;
+        }
+
         const response =
             await fetch(
                 "/get_goal"
@@ -1284,15 +1295,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    
-    loadCharts();
-    loadBudget();
-    loadInsights();
-    loadForecast();
-    loadRecommendations();
-    loadHealthScore();
-    loadTopSubcategory();
-    loadSubcategoryBreakdown();
-    loadGoal();
-    loadMonthlyComparison();
+
+    // Dashboard
+
+    if (
+        document.getElementById("totalSpent")
+    ) {
+
+        loadCharts();
+        loadInsights();
+        loadRecommendations();
+        loadHealthScore();
+        loadTopSubcategory();
+        loadSubcategoryBreakdown();
+        loadMonthlyComparison();
+
+    }
+
+    // Budget Page
+
+    if (
+        document.getElementById("budgetAmount")
+    ) {
+
+        loadBudget();
+
+    }
+
+    // Forecast Page
+
+    if (
+        document.getElementById("forecastContainer")
+    ) {
+
+        loadForecast();
+
+    }
+
+    // Goals Page
+
+    if (
+        document.getElementById("goalDisplayName")
+    ) {
+
+        loadGoal();
+
+    }
 });

@@ -608,6 +608,34 @@ def reports_page():
     )
 
 # ==================================================
+# BUDGET ROUTES
+# ==================================================
+
+@app.route("/budget")
+@login_required
+@confirmed_required
+def budget_page():
+
+    return render_template(
+        "budget.html",
+        username=current_user.username
+    )
+
+# ==================================================
+# FORECAST ROUTES
+# ==================================================
+
+@app.route("/forecast")
+@login_required
+@confirmed_required
+def forecast_page():
+
+    return render_template(
+        "forecast.html",
+        username=current_user.username
+    )
+
+# ==================================================
 # MONTHLY CSV REPORT ROUTES
 # ==================================================
 
