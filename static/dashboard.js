@@ -1284,24 +1284,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    document
-        .querySelectorAll(".sidebar-parent")
-        .forEach(parent => {
-
-            parent.addEventListener(
-                "click",
-                () => {
-
-                    parent
-                        .parentElement
-                        .classList
-                        .toggle("active");
-
-                }
-            );
-
-        });
-
+    
     loadCharts();
     loadBudget();
     loadInsights();
