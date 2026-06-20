@@ -2,11 +2,77 @@
 
 {% block content %}
 
-<div class="container">
+<!-- Savings Goal -->
 
-    <h1>Savings Goals</h1>
+<div class="section-card">
 
-    <p>Goal management page.</p>
+    <h3>Savings Goal</h3>
+
+    <form id="goalForm">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <input type="text"
+               id="goalName"
+               placeholder="Goal Name">
+
+        <input type="number"
+               id="goalTarget"
+               placeholder="Target Amount">
+
+        <input type="number"
+               id="goalCurrent"
+               placeholder="Current Savings">
+
+        <button type="button"
+                onclick="saveGoal()">
+            Save Goal
+        </button>
+
+    </form>
+
+    <div id="goalInfo">
+
+        <p>
+            Goal:
+            <strong id="goalDisplayName">
+                -
+            </strong>
+        </p>
+
+        <p>
+            Saved:
+            ₹<span id="goalCurrentDisplay">0</span>
+            /
+            ₹<span id="goalTargetDisplay">0</span>
+        </p>
+
+        <p>
+            Progress:
+            <span id="goalPercentage">
+                0%
+            </span>
+        </p>
+
+        <p id="goalMilestone"
+           class="goal-milestone">
+        </p>
+
+        <p id="goalEta"
+           class="goal-eta">
+        </p>
+
+        <div class="budget-bar">
+
+            <div id="goalProgressBar"
+                 class="budget-fill"
+                 style="width:0%"></div>
+
+        </div>
+
+    </div>
 
 </div>
 

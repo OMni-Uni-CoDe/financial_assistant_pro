@@ -162,50 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     };
 
-    function updateSubcategories() {
-
-        const category =
-            document.getElementById(
-                "category"
-            )?.value;
-
-        const subcategorySelect =
-            document.getElementById(
-                "subcategory"
-            );
-
-        if (
-            !category ||
-            !subcategorySelect
-        ) {
-            return;
-        }
-
-        subcategorySelect.innerHTML = "";
-
-        categoryMap[category]
-            .forEach(item => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-                option.value = item;
-                option.textContent = item;
-
-                subcategorySelect.appendChild(
-                    option
-                );
-
-            });
-
-    }
-
-    const expenseForm = document.getElementById("expenseForm");
     const askForm = document.getElementById("askForm");
-
-    const expenseMsg = document.getElementById("expenseMsg");
     const prediction = document.getElementById("prediction");
     const responseBox = document.getElementById("response");
     const budgetForm =
@@ -234,46 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // Add Expense
+    // Add Budget
     // =========================
-
-    if (expenseForm) {
-
-        expenseForm.addEventListener("submit", async (e) => {
-
-            e.preventDefault();
-
-            const formData = new FormData(expenseForm);
-
-            const res = await fetch("/add_expense", {
-
-                method: "POST",
-
-                headers: {
-                    "X-Requested-With":
-                        "XMLHttpRequest"
-                },
-
-                body: formData
-
-            });
-
-            const data = await res.json();
-
-            expenseMsg.innerText =
-                data.message || "Expense added successfully.";
-
-            expenseForm.reset();
-
-            loadHistory();
-            loadCharts();
-            loadTopSubcategory();
-            loadSubcategoryBreakdown();
-
-
-        });
-
-    }
 
     if (budgetForm) {
 
@@ -398,140 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "/download_pdf";
 
         });
-
-    }
-
-    // =========================
-    // Delete Expense
-    // =========================
-
-    async function deleteExpense(id) {
-
-        if (!confirm("Delete this expense?")) {
-            return;
-        }
-
-        try {
-
-            const res =
-                await fetch(
-                    `/delete_expense/${id}`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "X-CSRFToken": csrfToken
-                        }
-                    }
-                );
-
-            const data =
-                await res.json();
-
-            if (data.success) {
-
-                loadHistory();
-                loadCharts();
-
-            } else {
-
-                alert(data.message);
-
-            }
-
-        } catch (err) {
-
-            console.error(err);
-
-        }
-
-    }
-
-    // =========================
-    // History
-    // =========================
-
-    async function loadHistory() {
-
-        try {
-
-            const filters =
-                getFilters();
-
-            const res =
-                await fetch(
-                    `/history?category=${filters.category}&period=${filters.period}`
-                );
-
-            const data =
-                await res.json();
-
-            const history =
-                document.getElementById("history");
-
-            if (!history) return;
-
-            history.innerHTML = "";
-
-            data.history.forEach(item => {
-
-                const row =
-                    document.createElement("div");
-
-                row.style.display = "flex";
-                row.style.justifyContent = "space-between";
-                row.style.alignItems = "center";
-
-                row.innerHTML = `
-                    <span>
-
-                        <strong>
-                            ${item.category}
-                        </strong>
-
-                        ${item.subcategory
-                        ? `→ ${item.subcategory}`
-                        : ""}
-
-                        <br>
-
-                        ${item.date}
-
-                        <br>
-
-                        ₹${item.amount}
-
-                    </span>
-
-                    <button
-                        class="delete-btn"
-                        data-id="${item.id}">
-                        🗑
-                    </button>
-                `;
-
-                history.appendChild(row);
-
-            });
-
-            document
-                .querySelectorAll(".delete-btn")
-                .forEach(btn => {
-
-                    btn.addEventListener(
-                        "click",
-                        () => deleteExpense(
-                            btn.dataset.id
-                        )
-                    );
-
-                });
-
-        } catch (err) {
-
-            console.error(err);
-
-        }
 
     }
 
@@ -691,7 +476,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "change",
             () => {
 
-                loadHistory();
                 loadCharts();
 
             }
@@ -705,7 +489,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "change",
             () => {
 
-                loadHistory();
                 loadCharts();
 
             }
@@ -1501,16 +1284,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    updateSubcategories();
-
     document
-        .getElementById("category")
-        ?.addEventListener(
-            "change",
-            updateSubcategories
-        );
+        .querySelectorAll(".sidebar-parent")
+        .forEach(parent => {
 
-    loadHistory();
+            parent.addEventListener(
+                "click",
+                () => {
+
+                    parent
+                        .parentElement
+                        .classList
+                        .toggle("active");
+
+                }
+            );
+
+        });
+
     loadCharts();
     loadBudget();
     loadInsights();

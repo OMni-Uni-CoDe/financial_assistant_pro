@@ -4,9 +4,23 @@
 
 <div class="container">
 
-    <h1>AI Assistant</h1>
+    <section id="ai-section" class="section-card">
 
-    <p>Financial AI tools.</p>
+        <h3>AI Assistant</h3>
+
+        <form id="askForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text"
+                   name="question"
+                   placeholder="Ask about your spending..."
+                   required>
+
+            <button type="submit">Ask AI</button>
+        </form>
+
+        <div id="response"></div>
+
+    </section>
 
 </div>
 
