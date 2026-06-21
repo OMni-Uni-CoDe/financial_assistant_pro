@@ -26,7 +26,7 @@
 </head>
 
 <body>
-
+        
     <div class="layout">
 
         {% if current_user.is_authenticated %}
@@ -56,7 +56,7 @@
                    class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                     📊 Dashboard
                 </a>
-                
+
                 <div class="sidebar-group {% if request.endpoint == 'expenses_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
@@ -66,7 +66,8 @@
 
                     <div class="sidebar-submenu">
 
-                        <a href="/expenses">
+                        <a href="/expenses"
+                           class="{% if request.endpoint == 'expenses_page' %}active{% endif %}">
                             Add Expense
                         </a>
 
@@ -75,10 +76,10 @@
                         </a>
 
                     </div>
-                
+
                 </div>
 
-                <div class="sidebar-group {% if request.endpoint == 'expenses_analytics' %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint == 'expense_analytics' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         📈 Analytics
@@ -87,7 +88,8 @@
 
                     <div class="sidebar-submenu">
 
-                        <a href="/expense_analytics">
+                        <a href="/expense_analytics"
+                           class="{% if request.endpoint == 'expense_analytics' %}active{% endif %}">
                             Overview
                         </a>
 
@@ -100,10 +102,10 @@
                         </a>
 
                     </div>
-                    
+
                 </div>
 
-                <div class="sidebar-group {% if request.endpoint == 'budget_page','goals_page','forecast_page' %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint in ['budget_page','goals_page','forecast_page'] %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         🎯 Planning
@@ -112,15 +114,18 @@
 
                     <div class="sidebar-submenu">
 
-                        <a href="/goals">
+                        <a href="/goals"
+                           class="{% if request.endpoint == 'goals_page' %}active{% endif %}">
                             Savings Goals
                         </a>
 
-                        <a href="/budget">
+                        <a href="/budget"
+                           class="{% if request.endpoint == 'budget_page' %}active{% endif %}">
                             Budget
                         </a>
 
-                        <a href="/forecast">
+                        <a href="/forecast"
+                           class="{% if request.endpoint == 'forecast_page' %}active{% endif %}">
                             Forecast
                         </a>
 
@@ -137,15 +142,16 @@
 
                     <div class="sidebar-submenu">
 
-                        <a href="/reports">
+                        <a href="/reports"
+                           class="{% if request.endpoint == 'reports_page' %}active{% endif %}">
                             Reports Center
                         </a>
 
                     </div>
-                    
+
                 </div>
 
-               <div class="sidebar-group {% if request.endpoint == 'assistant_page' %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint == 'assistant_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         🤖 AI
@@ -154,7 +160,8 @@
 
                     <div class="sidebar-submenu">
 
-                        <a href="/assistant">
+                        <a href="/assistant"
+                           class="{% if request.endpoint == 'assistant_page' %}active{% endif %}">
                             AI Assistant
                         </a>
 
@@ -163,18 +170,20 @@
                         </a>
 
                     </div>
-                    
+
                 </div>
 
-               <div class="sidebar-group {% if request.endpoint == 'settings_page' %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint == 'settings_page' %}active{% endif %}">
 
-                   <a href="/settings">
-                       ⚙ Settings
-                   </a>
-                   
-               </div>
-                
-                <a href="/logout">
+                    <a href="/settings"
+                       class="sidebar-link {% if request.endpoint == 'settings_page' %}active{% endif %}">
+                        ⚙ Settings
+                    </a>
+
+                </div>
+
+                <a href="/logout"
+                   class="sidebar-link">
                     🚪 Logout
                 </a>
 
@@ -182,7 +191,11 @@
 
         </aside>
 
+        {% endif %}
+
         <main class="main-content">
+
+            {% if current_user.is_authenticated %}
 
             <div class="breadcrumb">
 
@@ -210,18 +223,14 @@
 
             </div>
 
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+
         </main>
 
-        {% endif %}
-
     </div>
-
-    <main class="main-content">
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
 
     {% block scripts %}
     {% endblock %}
