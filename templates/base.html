@@ -200,7 +200,7 @@
 
         <main class="main-content">
 
-          {% if current_user.is_authenticated %}
+            {% if current_user.is_authenticated %}
 
             <div class="breadcrumb">
 
@@ -229,6 +229,8 @@
                 {% endif %}
 
             </div>
+            
+            {% endif %}
 
             {% if current_user.is_authenticated %}
 
@@ -258,7 +260,7 @@
 
             {% endif %}
 
-          {% endif %}
+
 
             {% block content %}
             {% endblock %}
