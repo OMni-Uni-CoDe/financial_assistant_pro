@@ -123,6 +123,34 @@ select {
     padding: 35px;
 }
 
+/* Quick Actions */
+
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.quick-btn {
+    text-decoration: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    transition: .25s;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+    .quick-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient( 90deg, rgba(30,167,255,.25), rgba(91,95,245,.25) );
+        border-color: #1ea7ff;
+        color: #9ad0ff;
+    }
+
 .sidebar-link.active {
     background: linear-gradient( 90deg, #1ea7ff, #5b5ff5 );
     color: white;
@@ -147,6 +175,11 @@ select {
 
 .logout-link {
     margin-top: auto;
+}
+
+.logo-link {
+    font-size: 32px;
+    font-weight: 700;
 }
 
 .sidebar-group.active .sidebar-parent {
@@ -238,6 +271,15 @@ button {
         flex: 1;
     }
 
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+    .action-buttons form {
+        margin: 0;
+    }
+
 /* Charts */
 
 .charts {
@@ -262,6 +304,26 @@ canvas {
 
     #history div {
         padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+.card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .card table th,
+    .card table td {
+        padding: 14px;
+        text-align: left;
+    }
+
+    .card table th {
+        color: #9ad0ff;
+        border-bottom: 1px solid rgba(255,255,255,.15);
+    }
+
+    .card table tr {
         border-bottom: 1px solid rgba(255,255,255,.08);
     }
 
@@ -348,6 +410,16 @@ canvas {
     .actions {
         flex-direction: column;
     }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-btn {
+        text-align: center;
+    }
+
+
 }
 
 /* ===== Budget Tracker ===== */

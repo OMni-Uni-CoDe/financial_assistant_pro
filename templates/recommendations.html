@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>AI Recommendations</h1>
+
+<div class="section-card">
+
+    <h3>Personalized Financial Recommendations</h3>
+
+    <div id="recommendationsContainer">
+        Loading recommendations...
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

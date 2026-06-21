@@ -26,7 +26,7 @@
 </head>
 
 <body>
-        
+
     <div class="layout">
 
         {% if current_user.is_authenticated %}
@@ -46,7 +46,8 @@
 
                 <h2>
                     <a href="/dashboard"
-                       class="logo-link">
+                       class="logo-link"
+                       title="Go to Dashboard">
                         Finance Pro
                     </a>
                 </h2>
@@ -168,7 +169,8 @@
                             AI Assistant
                         </a>
 
-                        <a href="/dashboard#recommendations">
+                        <a href="/recommendations"
+                           class="{% if request.endpoint == 'recommendations_page' %}active{% endif %}">
                             Recommendations
                         </a>
 
@@ -198,7 +200,7 @@
 
         <main class="main-content">
 
-            {% if current_user.is_authenticated %}
+          {% if current_user.is_authenticated %}
 
             <div class="breadcrumb">
 
@@ -228,7 +230,35 @@
 
             </div>
 
+            {% if current_user.is_authenticated %}
+
+            <div class="quick-actions">
+
+                <a href="/expenses" class="quick-btn">
+                    ➕ Add Expense
+                </a>
+
+                <a href="/assistant" class="quick-btn">
+                    🤖 AI Assistant
+                </a>
+
+                <a href="/budget" class="quick-btn">
+                    💰 Budget
+                </a>
+
+                <a href="/reports" class="quick-btn">
+                    📄 Reports
+                </a>
+
+                <a href="/recommendations" class="quick-btn">
+                    💡 Recommendations
+                </a>
+
+            </div>
+
             {% endif %}
+
+          {% endif %}
 
             {% block content %}
             {% endblock %}
@@ -266,6 +296,40 @@
                 });
 
             });
+
+    </script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const groups =
+                document.querySelectorAll(".sidebar-group");
+
+            groups.forEach(group => {
+
+                const parent =
+                    group.querySelector(".sidebar-parent");
+
+                if (!parent) return;
+
+                parent.addEventListener("click", () => {
+
+                    groups.forEach(g => {
+
+                        if (g !== group) {
+                            g.classList.remove("active");
+                        }
+
+                    });
+
+                    group.classList.toggle("active");
+
+                });
+
+            });
+
+        });
 
     </script>
 

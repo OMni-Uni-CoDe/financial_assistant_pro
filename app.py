@@ -1485,6 +1485,22 @@ def assistant_page():
         username=current_user.username
     )
 
+
+# ==================================================
+# RECOMMENDATIONS ROUTES
+# ==================================================
+
+
+@app.route("/recommendations")
+@login_required
+@confirmed_required
+def recommendations_page():
+    return render_template(
+        "recommendations.html",
+        username=current_user.username
+    )
+
+
 # ==================================================
 # SETTINGS ROUTES
 # ==================================================
