@@ -274,35 +274,6 @@
 
     <script>
 
-        document
-            .querySelectorAll(".sidebar-parent")
-            .forEach(parent => {
-
-                parent.addEventListener("click", () => {
-
-                    const currentGroup =
-                        parent.parentElement;
-
-                    document
-                        .querySelectorAll(".sidebar-group")
-                        .forEach(group => {
-
-                            if (group !== currentGroup) {
-                                group.classList.remove("active");
-                            }
-
-                        });
-
-                    currentGroup.classList.toggle("active");
-
-                });
-
-            });
-
-    </script>
-
-    <script>
-
         document.addEventListener("DOMContentLoaded", () => {
 
             const groups =
