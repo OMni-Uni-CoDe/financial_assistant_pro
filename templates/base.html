@@ -56,12 +56,8 @@
                    class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                     📊 Dashboard
                 </a>
-
-                <div class="sidebar-group">
-
-                    {% if request.endpoint in [
-                    'expenses_page'
-                    ] %}
+                
+                <div class="sidebar-group {% if request.endpoint == 'expenses_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         💳 Expenses
@@ -79,14 +75,10 @@
                         </a>
 
                     </div>
-                    {% endif %}
+                
                 </div>
 
-                <div class="sidebar-group">
-
-                    {% if request.endpoint in [
-                    'expense_analytics'
-                    ] %}
+                <div class="sidebar-group {% if request.endpoint == 'expenses_analytics' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         📈 Analytics
@@ -108,15 +100,10 @@
                         </a>
 
                     </div>
-                    {% endif %}
+                    
                 </div>
 
-                <div class="sidebar-group
-                    {% if request.endpoint in [
-                    'budget_page',
-                    'goals_page',
-                    'forecast_page'
-                    ] %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint == 'budget_page','goals_page','forecast_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         🎯 Planning
@@ -141,11 +128,7 @@
 
                 </div>
 
-                <div class="sidebar-group">
-
-                    {% if request.endpoint in [
-                    'reports_page'
-                    ] %}
+                <div class="sidebar-group {% if request.endpoint == 'reports_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         📁 Reports
@@ -159,14 +142,10 @@
                         </a>
 
                     </div>
-                    {% endif %}
+                    
                 </div>
 
-                <div class="sidebar-group">
-
-                    {% if request.endpoint in [
-                    'assistant_page'
-                    ] %}
+               <div class="sidebar-group {% if request.endpoint == 'assistant_page' %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         🤖 AI
@@ -184,20 +163,17 @@
                         </a>
 
                     </div>
-                    {% endif %}
+                    
                 </div>
 
-                <div class="sidebar-group">
+               <div class="sidebar-group {% if request.endpoint == 'settings_page' %}active{% endif %}">
 
-                    {% if request.endpoint in [
-                    'settings_page'
-                    ] %}
-
-                    <a href="/settings">
-                        ⚙ Settings
-                    </a>
-                    {% endif %}
-                </div>
+                   <a href="/settings">
+                       ⚙ Settings
+                   </a>
+                   
+               </div>
+                
                 <a href="/logout">
                     🚪 Logout
                 </a>
@@ -234,14 +210,18 @@
 
             </div>
 
-            {% block content %}
-            {% endblock %}
-
         </main>
 
         {% endif %}
 
     </div>
+
+    <main class="main-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
 
     {% block scripts %}
     {% endblock %}
