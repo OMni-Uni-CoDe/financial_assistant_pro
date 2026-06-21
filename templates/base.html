@@ -45,7 +45,10 @@
             <div class="sidebar-header">
 
                 <h2>
-                    Finance Pro
+                    <a href="/dashboard"
+                       class="logo-link">
+                        Finance Pro
+                    </a>
                 </h2>
 
             </div>
@@ -182,12 +185,12 @@
 
                 </div>
 
-                <a href="/logout"
-                   class="sidebar-link">
-                    🚪 Logout
-                </a>
-
             </nav>
+
+            <a href="/logout"
+               class="sidebar-link">
+                🚪 Logout
+            </a>
 
         </aside>
 
@@ -199,7 +202,9 @@
 
             <div class="breadcrumb">
 
-                Home
+                <a href="/dashboard">
+                    Home
+                </a>
 
                 {% if request.endpoint == 'dashboard' %}
                 / Dashboard
@@ -241,17 +246,24 @@
             .querySelectorAll(".sidebar-parent")
             .forEach(parent => {
 
-                parent.addEventListener(
-                    "click",
-                    () => {
+                parent.addEventListener("click", () => {
 
-                        parent
-                            .parentElement
-                            .classList
-                            .toggle("active");
+                    const currentGroup =
+                        parent.parentElement;
 
-                    }
-                );
+                    document
+                        .querySelectorAll(".sidebar-group")
+                        .forEach(group => {
+
+                            if (group !== currentGroup) {
+                                group.classList.remove("active");
+                            }
+
+                        });
+
+                    currentGroup.classList.toggle("active");
+
+                });
 
             });
 

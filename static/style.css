@@ -42,9 +42,18 @@ select {
 }
 
 .sidebar-header h2 {
-    color: #9ad0ff;
     margin-top: 0;
 }
+
+.logo-link {
+    color: #9ad0ff;
+    text-decoration: none;
+    transition: .2s;
+}
+
+    .logo-link:hover {
+        color: #ffffff;
+    }
 
 .sidebar-nav {
     display: flex;
@@ -125,6 +134,24 @@ select {
     background: rgba(30,167,255,.25);
     color: #9ad0ff;
     font-weight: 600;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-nav {
+    flex: 1;
+}
+
+.logout-link {
+    margin-top: auto;
+}
+
+.sidebar-group.active .sidebar-parent {
+    background: linear-gradient( 90deg, rgba(30,167,255,.25), rgba(91,95,245,.25) );
+    color: #9ad0ff;
 }
 
 /* Cards */
@@ -230,8 +257,7 @@ canvas {
 /* History */
 
 #history {
-    max-height: 300px;
-    overflow-y: auto;
+    min-height: 600px;
 }
 
     #history div {
@@ -539,6 +565,15 @@ canvas {
     font-size: 14px;
 }
 
+    .breadcrumb a {
+        color: #9ad0ff;
+        text-decoration: none;
+    }
+
+        .breadcrumb a:hover {
+            color: white;
+        }
+
 /* LOGIN / SIGNUP */
 
 .login-container {
@@ -562,4 +597,6 @@ canvas {
     .login-container a {
         color: #4ea7ff;
     }
+
+
 
