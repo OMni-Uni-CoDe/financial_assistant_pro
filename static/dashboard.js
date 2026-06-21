@@ -320,6 +320,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    // =========================
+    // Charts + Stats
+    // =========================
+
+    async function loadCharts() {
+
+        try {
+
+            const filters =
+                getFilters();
+
+            const res =
+                await fetch(
+                    `/get_data?category=${filters.category}&period=${filters.period}`
+                );
+
+            const data =
+                await res.json();
+
+            const totalSpent =
+                data.totals.reduce(
+                    (a, b) => a + b,
+                    0
+                );
+
+            const totalCategories =
+                data.categories.length;
+
+            let topCategory = "-";
+
+            if (data.categories.length > 0) {
+
+                let maxIndex = 0;
+
+                data.totals.forEach(
+                    (value, index) => {
+
+                        if (
+                            value >
+                            data.totals[maxIndex]
+                        ) {
+                            maxIndex = index;
+                        }
+
+                    }
+                );
+
+                topCategory =
+                    data.categories[maxIndex];
+
+            }
+
+            const averageSpend =
+                totalCategories > 0
+                    ? totalSpent /
+                    totalCategories
+                    : 0;
+
+            document.getElementById(
+                "totalSpent"
+            ).innerText =
+                `₹${totalSpent.toFixed(2)}`;
+
+            document.getElementById(
+                "totalCategories"
+            ).innerText =
+                totalCategories;
+
+            document.getElementById(
+                "topCategory"
+            ).innerText =
+                topCategory;
+
+            document.getElementById(
+                "averageSpend"
+            ).innerText =
+                `₹${averageSpend.toFixed(2)}`;
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
 
     // =========================
     // Filter Events
