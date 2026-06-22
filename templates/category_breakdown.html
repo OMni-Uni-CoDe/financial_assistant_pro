@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>Category Breakdown</h1>
+
+    <div class="card">
+
+        <h3>Subcategory Breakdown</h3>
+
+        <canvas id="subcategoryChart"></canvas>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Category Details</h3>
+
+        <div id="analyticsBreakdown">
+
+            Loading...
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

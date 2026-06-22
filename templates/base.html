@@ -83,7 +83,7 @@
 
                 </div>
 
-                <div class="sidebar-group {% if request.endpoint == 'expense_analytics' %}active{% endif %}">
+                <div class="sidebar-group {% if request.endpoint in ['expense_analytics','monthly_trend','category_breakdown'] %}active{% endif %}">
 
                     <div class="sidebar-parent">
                         📈 Analytics
@@ -97,11 +97,11 @@
                             Overview
                         </a>
 
-                        <a href="/expense_analytics#trend">
+                        <a href="{{ url_for('monthly_trend') }}">
                             Monthly Trend
                         </a>
 
-                        <a href="/expense_analytics#breakdown">
+                        <a href="{{ url_for('category_breakdown') }}">
                             Category Breakdown
                         </a>
 
@@ -214,6 +214,12 @@
                 / Expenses
                 {% elif request.endpoint == 'expense_analytics' %}
                 / Analytics
+                {% elif request.endpoint == 'monthly_trend' %}
+                / Analytics / Monthly Trend
+                {% elif request.endpoint == 'category_breakdown' %}
+                / Analytics / Category Breakdown
+                {% elif request.endpoint == 'recommendations_page' %}
+                / AI / Recommendations
                 {% elif request.endpoint == 'goals_page' %}
                 / Planning / Goals
                 {% elif request.endpoint == 'budget_page' %}

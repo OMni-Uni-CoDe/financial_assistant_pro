@@ -582,6 +582,26 @@ def expense_analytics():
 
 
 # ==================================================
+# MONTHLY TREND ROUTES
+# ==================================================
+
+@app.route("/monthly_trend")
+@login_required
+def monthly_trend():
+    return render_template("monthly_trend.html")
+
+
+# ==================================================
+# CATEGORY BREAKDOWN ROUTES
+# ==================================================
+
+@app.route("/category_breakdown")
+@login_required
+def category_breakdown():
+    return render_template("category_breakdown.html")
+
+
+# ==================================================
 # GOALS ROUTES
 # ==================================================
 

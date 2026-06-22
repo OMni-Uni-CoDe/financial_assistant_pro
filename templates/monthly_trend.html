@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>Monthly Trend</h1>
+
+    <div class="card">
+
+        <h3>Spending Trend</h3>
+
+        <canvas id="trendChart"></canvas>
+
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <h4>Highest Month</h4>
+            <p id="highestMonth">--</p>
+        </div>
+
+        <div class="stat-card">
+            <h4>Lowest Month</h4>
+            <p id="lowestMonth">--</p>
+        </div>
+
+        <div class="stat-card">
+            <h4>Average</h4>
+            <p id="averageMonth">--</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

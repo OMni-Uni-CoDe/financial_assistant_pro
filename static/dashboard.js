@@ -784,6 +784,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     "healthRating"
                 );
 
+            if (
+                !scoreElement ||
+                !ratingElement
+            ) {
+                return;
+            }
+
             scoreElement.innerText =
                 `${data.score}/100`;
 
@@ -1468,4 +1475,41 @@ document.addEventListener("DOMContentLoaded", () => {
         loadGoal();
 
     }
+
+    // Recommendations Page
+
+    if (
+        document.getElementById(
+            "recommendationsContainer"
+        )
+    ) {
+
+        loadRecommendations();
+
+    }
+
+    // Monthly Trend Page
+
+    if (
+        document.getElementById(
+            "trendChart"
+        )
+    ) {
+
+        loadTrendChart();
+
+    }
+
+    // Category Breakdown Page
+
+    if (
+        document.getElementById(
+            "subcategoryBreakdownContainer"
+        )
+    ) {
+
+        loadSubcategoryBreakdown();
+
+    }
+
 });
