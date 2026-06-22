@@ -470,6 +470,16 @@ document.addEventListener("DOMContentLoaded", () => {
             ).innerText =
                 `${data.percentage}%`;
 
+            const dashboardBudget =
+                document.getElementById(
+                    "budgetRemaining"
+                );
+
+            if (dashboardBudget) {
+                dashboardBudget.innerText =
+                    `₹${data.remaining}`;
+            }
+
             const fill =
                 document.getElementById(
                     "budgetFill"
@@ -573,6 +583,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    // =============
+    // LOAD GOALS
+    // =============
+
+    async function loadGoalProgress() {
+        try {
+
+            const response =
+                await fetch(
+                    "/get_goal_progress"
+                );
+
+            const data =
+                await response.json();
+
+            const card =
+                document.getElementById(
+                    "goalProgress"
+                );
+
+            if (card) {
+                card.innerText =
+                    data.progress + "%";
+            }
+
+        }
+
+        catch (error) {
+            console.error(
+                "Goal progress error:",
+                error
+            );
+        }
+    }
+
+
     // ================
     // Load Forecast
     // ================
@@ -639,18 +685,30 @@ document.addEventListener("DOMContentLoaded", () => {
                             "div"
                         );
 
-                    card.className =
-                        "recommendation-item";
+                    card.className = "recommendation-card";
+
+                    let badge = "INFO";
+
+                    if (rec.title.includes("⚠"))
+                        badge = "HIGH PRIORITY";
+
+                    else if (rec.title.includes("✅"))
+                        badge = "GOOD";
+
+                    else if (rec.title.includes("🎯"))
+                        badge = "GOAL";
 
                     card.innerHTML = `
-                    <strong>
-                        ${rec.title}
-                    </strong>
 
-                    <br><br>
+                    <div class="recommendation-badge">
+                        ${badge}
+                    </div>
 
-                    ${rec.message}
-                `;
+                    <h3>${rec.title}</h3>
+
+                    <p>${rec.message}</p>
+
+                    `;
 
                     container.appendChild(
                         card
@@ -658,6 +716,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 }
             );
+
+            const total =
+                data.recommendations.length;
+
+            const highPriority =
+                data.recommendations.filter(
+                    r => r.title.includes("⚠")
+                ).length;
+
+            if (
+                document.getElementById(
+                    "recommendationCount"
+                )
+            ) {
+                document.getElementById(
+                    "recommendationCount"
+                ).innerText = total;
+            }
+
+            if (
+                document.getElementById(
+                    "highPriorityCount"
+                )
+            ) {
+                document.getElementById(
+                    "highPriorityCount"
+                ).innerText = highPriority;
+            }
 
         }
 
@@ -800,6 +886,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     }
+
+
+    async function loadTrendChart() {
+        const response =
+            await fetch("/get_data");
+
+        const data =
+            await response.json();
+
+        const ctx =
+            document
+                .getElementById("trendChart");
+
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: data.dates,
+                datasets: [{
+                    label: "Daily Spending",
+                    data: data.daily_totals
+                }]
+            }
+        });
+    }
+
 
 
     async function loadSubcategoryBreakdown() {
@@ -996,6 +1109,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+
+    async function loadAnalyticsBreakdown() {
+        const response =
+            await fetch(
+                "/get_subcategory_breakdown"
+            );
+
+        const data =
+            await response.json();
+
+        const container =
+            document.getElementById(
+                "analyticsBreakdown"
+            );
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        Object.keys(data).forEach(
+            category => {
+
+                container.innerHTML += `
+            <div class="breakdown-card">
+
+                <h4>${category}</h4>
+
+            </div>
+            `;
+            }
+        );
+    }
+
+
+    async function loadHistory() {
+        const response =
+            await fetch("/history");
+
+        const data =
+            await response.json();
+
+        const container =
+            document.getElementById(
+                "expenseHistory"
+            );
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        data.history.forEach(
+            item => {
+
+                container.innerHTML += `
+            <div class="history-item">
+
+                ${item.date}
+
+                -
+                ${item.category}
+
+                -
+
+                ₹${item.amount}
+
+            </div>
+            `;
+            }
+        );
+    }
 
 
     // =========================
@@ -1245,12 +1428,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         loadCharts();
         loadInsights();
+        loadGoalProgress();
         loadRecommendations();
         loadHealthScore();
         loadTopSubcategory();
         loadSubcategoryBreakdown();
         loadMonthlyComparison();
-
+        loadTrendChart();
+        loadAnalyticsBreakdown();
+        loadHistory();
     }
 
     // Budget Page

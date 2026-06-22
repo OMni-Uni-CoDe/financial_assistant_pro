@@ -1473,6 +1473,38 @@ def download_monthly_pdf():
 
 
 # ==================================================
+# GET GOAL PROGRESS ROUTES
+# ==================================================
+
+@app.route("/get_goal_progress")
+@login_required
+def get_goal_progress():
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not goal:
+        return jsonify({
+            "progress": 0
+        })
+
+    if goal.target_amount <= 0:
+        return jsonify({
+            "progress": 0
+        })
+
+    progress = (
+        goal.current_amount /
+        goal.target_amount
+    ) * 100
+
+    return jsonify({
+        "progress": round(progress, 1)
+    })
+
+
+# ==================================================
 # ASSISTANT ROUTES
 # ==================================================
 
@@ -1495,10 +1527,39 @@ def assistant_page():
 @login_required
 @confirmed_required
 def recommendations_page():
+
     return render_template(
         "recommendations.html",
         username=current_user.username
     )
+
+
+# ==================================================
+# GET GOAL PROGRESS ROUTE
+# ==================================================
+
+@app.route("/get_goal_progress")
+@login_required
+def get_goal_progress():
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not goal:
+        return jsonify({
+            "progress":0
+        })
+
+    progress = (
+        goal.current_amount /
+        goal.target_amount
+    ) * 100
+
+    return jsonify({
+        "progress":round(progress,1)
+    })
+
 
 
 # ==================================================

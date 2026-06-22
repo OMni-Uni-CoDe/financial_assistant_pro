@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Welcome, {{ username }}</h1>
+<div class="dashboard-header">
+
+    <h1>
+        Welcome back,
+        {{ username }}
+    </h1>
+
+    <p>
+        Here's your financial overview for this month.
+    </p>
+
+</div>
 
 <section id="dashboard-section">
 
@@ -69,6 +80,34 @@
 
         </div>
 
+
+        <div class="stat-card">
+
+            <h4>
+                Budget Remaining
+            </h4>
+
+            <p id="budgetRemaining">
+                --
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h4>
+                Goal Progress
+            </h4>
+
+            <p id="goalProgress">
+                --
+            </p>
+
+        </div>
+
+
+
     </div>
  
 </section>
@@ -96,26 +135,6 @@
     </div>
 
 </div>
-
-<div class="section-card" id="recommendations">
-
-    <h3>AI Recommendations</h3>
-
-    <div id="recommendationsContainer">
-
-        Loading recommendations...
-
-    </div>
-
-</div>
-
-<section id="activity-section" class="section-card">
-
-    <h3>Recent Activity</h3>
-
-    <div id="history"></div>
-               
-</section>
 
 {% endblock %}
 
