@@ -1535,34 +1535,6 @@ def recommendations_page():
 
 
 # ==================================================
-# GET GOAL PROGRESS ROUTE
-# ==================================================
-
-@app.route("/get_goal_progress")
-@login_required
-def get_goal_progress():
-
-    goal = SavingsGoal.query.filter_by(
-        user_id=current_user.id
-    ).first()
-
-    if not goal:
-        return jsonify({
-            "progress":0
-        })
-
-    progress = (
-        goal.current_amount /
-        goal.target_amount
-    ) * 100
-
-    return jsonify({
-        "progress":round(progress,1)
-    })
-
-
-
-# ==================================================
 # SETTINGS ROUTES
 # ==================================================
 
