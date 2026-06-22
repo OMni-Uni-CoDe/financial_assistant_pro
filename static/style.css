@@ -718,3 +718,27 @@ canvas {
     color: white;
 }
 
+
+.breakdown-card {
+    background: #111827;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 15px;
+}
+
+    .breakdown-card h4 {
+        margin-bottom: 10px;
+    }
+
+    .breakdown-card ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    .breakdown-card li {
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+

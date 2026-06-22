@@ -97,11 +97,13 @@
                             Overview
                         </a>
 
-                        <a href="{{ url_for('monthly_trend') }}">
+                        <a href="{{ url_for('monthly_trend') }}"
+                           class="{% if request.endpoint == 'monthly_trend' %}active{% endif %}">
                             Monthly Trend
                         </a>
 
-                        <a href="{{ url_for('category_breakdown') }}">
+                        <a href="{{ url_for('category_breakdown') }}"
+                           class="{% if request.endpoint == 'category_breakdown' %}active{% endif %}">
                             Category Breakdown
                         </a>
 

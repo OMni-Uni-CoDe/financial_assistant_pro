@@ -675,6 +675,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     "recommendationsContainer"
                 );
 
+            if (!container) return;
+
             container.innerHTML = "";
 
             data.recommendations.forEach(
@@ -902,6 +904,56 @@ document.addEventListener("DOMContentLoaded", () => {
         const data =
             await response.json();
 
+        if (data.daily_totals.length > 0) {
+
+            const maxValue = Math.max(...data.daily_totals);
+            const minValue = Math.min(...data.daily_totals);
+
+            const avgValue =
+                data.daily_totals.reduce(
+                    (a, b) => a + b,
+                    0
+                ) / data.daily_totals.length;
+
+            const maxIndex =
+                data.daily_totals.indexOf(maxValue);
+
+            const minIndex =
+                data.daily_totals.indexOf(minValue);
+
+            const highestMonth =
+                document.getElementById(
+                    "highestMonth"
+                );
+
+            const lowestMonth =
+                document.getElementById(
+                    "lowestMonth"
+                );
+
+            const averageMonth =
+                document.getElementById(
+                    "averageMonth"
+                );
+
+            if (highestMonth) {
+                highestMonth.innerText =
+                    `${data.dates[maxIndex]}
+             (₹${maxValue.toFixed(0)})`;
+            }
+
+            if (lowestMonth) {
+                lowestMonth.innerText =
+                    `${data.dates[minIndex]}
+             (₹${minValue.toFixed(0)})`;
+            }
+
+            if (averageMonth) {
+                averageMonth.innerText =
+                    `₹${avgValue.toFixed(0)}`;
+            }
+        }
+
         const ctx =
             document
                 .getElementById("trendChart");
@@ -1118,6 +1170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     async function loadAnalyticsBreakdown() {
+
         const response =
             await fetch(
                 "/get_subcategory_breakdown"
@@ -1135,18 +1188,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         container.innerHTML = "";
 
-        Object.keys(data).forEach(
-            category => {
+        Object.keys(data).forEach(category => {
 
-                container.innerHTML += `
+            let total = 0;
+
+            data[category].forEach(item => {
+                total += item.amount;
+            });
+
+            let html = `
             <div class="breakdown-card">
 
                 <h4>${category}</h4>
 
-            </div>
+                <p>
+                    Total Spending:
+                    ₹${total.toFixed(2)}
+                </p>
+
+                <ul>
+        `;
+
+            data[category].forEach(item => {
+
+                html += `
+                <li>
+                    ${item.subcategory}
+                    :
+                    ₹${item.amount}
+                </li>
             `;
-            }
-        );
+
+            });
+
+            html += `
+                </ul>
+
+            </div>
+        `;
+
+            container.innerHTML += html;
+
+        });
+
     }
 
 
