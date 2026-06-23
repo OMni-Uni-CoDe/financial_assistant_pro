@@ -41,9 +41,20 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-fallback-secret")
 db_url = os.environ.get("DATABASE_URL")
 
 if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    db_url = db_url.replace(
+        "postgres://",
+        "postgresql://",
+        1
+    )
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///local.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    db_url or "sqlite:///local.db"
+)
+
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300
+}
 
 
 # Mail settings for email confirmation
@@ -58,7 +69,12 @@ app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER", app.co
 CONFIRM_TOKEN_EXP_MIN = int(os.environ.get("CONFIRM_TOKEN_EXP_MIN", 60))    
 
 # ---------- Extensions ----------
-db = SQLAlchemy(app)
+db = SQLAlchemy(
+    app,
+    session_options={
+        "expire_on_commit": False
+    }
+)
 csrf = CSRFProtect(app)
 app.config["WTF_CSRF_ENABLED"] = True
 mail = Mail(app)
@@ -251,7 +267,22 @@ class DummyForm(FlaskForm):
 # ---------- Login ----------
 @login_manager.user_loader
 def load_user(uid):
-    return User.query.get(int(uid))
+
+    try:
+        return db.session.get(
+            User,
+            int(uid)
+        )
+
+    except Exception as e:
+
+        print(
+            f"load_user error: {e}"
+        )
+
+        db.session.rollback()
+
+        return None
 
 # ==================================================
 # AUTHENTICATION ROUTES

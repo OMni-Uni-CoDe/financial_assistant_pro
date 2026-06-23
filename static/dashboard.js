@@ -1596,4 +1596,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    if (document.getElementById("analyticsBreakdown")) {
+        loadAnalyticsBreakdown();
+    }
+
 });
