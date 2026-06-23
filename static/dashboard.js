@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const res =
                     await fetch(
-                        "/set_budget",
+                        "/budget",
                         {
                             method: "POST",
 
@@ -219,12 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     );
 
-                const data =
-                    await res.json();
-
-                alert(data.message);
-
-                loadBudget();
+                window.location.reload();
 
             }
         );
@@ -296,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
         csvBtn.addEventListener("click", () => {
 
             window.location.href =
-                "/download_csv";
+                "/download_monthly_csv";
 
         });
 
@@ -314,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
         pdfBtn.addEventListener("click", () => {
 
             window.location.href =
-                "/download_pdf";
+                "/download_monthly_pdf";
 
         });
 
@@ -619,6 +614,102 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    async function loadGoalDetails() {
+
+        try {
+
+            const response =
+                await fetch("/get_goal_details");
+
+            const data =
+                await response.json();
+
+            const name =
+                document.getElementById(
+                    "goalDisplayName"
+                );
+
+            if (!name) return;
+
+            name.innerText =
+                data.goal_name || "-";
+
+            document.getElementById(
+                "goalCurrentDisplay"
+            ).innerText =
+                data.current_amount;
+
+            document.getElementById(
+                "goalTargetDisplay"
+            ).innerText =
+                data.target_amount;
+
+            document.getElementById(
+                "goalPercentage"
+            ).innerText =
+                data.progress + "%";
+
+            document.getElementById(
+                "goalProgressBar"
+            ).style.width =
+                Math.min(
+                    data.progress,
+                    100
+                ) + "%";
+
+            const eta =
+                document.getElementById(
+                    "goalEta"
+                );
+
+            if (eta) {
+
+                eta.innerText =
+                    `₹${data.remaining.toFixed(2)}
+                    remaining to reach goal`;
+
+            }
+
+            const milestone =
+                document.getElementById(
+                    "goalMilestone"
+                );
+
+            if (data.progress >= 100)
+                milestone.innerText =
+                    "🏆 Goal Completed!";
+
+            else if (data.progress >= 75)
+                milestone.innerText =
+                    "🔥 Almost there!";
+
+            else if (data.progress >= 50)
+                milestone.innerText =
+                    "🚀 Halfway achieved!";
+
+            else if (data.progress >= 25)
+                milestone.innerText =
+                    "✅ Great start!";
+
+            else
+                milestone.innerText =
+                    "🎯 Keep saving!";
+
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Goal details error:",
+                error
+            );
+
+        }
+
+    }
+
+
     // ================
     // Load Forecast
     // ================
@@ -872,16 +963,30 @@ document.addEventListener("DOMContentLoaded", () => {
             const data =
                 await response.json();
 
-            document.getElementById(
-                "topSubcategory"
-            ).innerText =
-                data.subcategory;
+            const topSubcategory =
+                document.getElementById(
+                    "topSubcategory"
+                );
 
-            document.getElementById(
-                "topSubcategoryInfo"
-            ).innerText =
-                `${data.category} • ₹${data.amount}
-                (${data.percentage}% of spending)`;
+            if (topSubcategory) {
+
+                topSubcategory.innerText =
+                    data.subcategory;
+
+            }
+
+            const topSubcategoryInfo =
+                document.getElementById(
+                    "topSubcategoryInfo"
+                );
+
+            if (topSubcategoryInfo) {
+
+                topSubcategoryInfo.innerText =
+                    `${data.category} • ₹${data.amount}
+                    (${data.percentage}% of spending)`;
+
+            }
 
         }
 
@@ -1328,189 +1433,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         };
 
-    // =========================
-    // Savings Goal
-    // =========================
-
-    window.saveGoal = async function () {
-
-        try {
-
-            const formData = new FormData();
-
-            formData.append(
-                "goal_name",
-                document.getElementById(
-                    "goalName"
-                ).value
-            );
-
-            formData.append(
-                "target_amount",
-                document.getElementById(
-                    "goalTarget"
-                ).value
-            );
-
-            formData.append(
-                "current_amount",
-                document.getElementById(
-                    "goalCurrent"
-                ).value
-            );
-
-            const response =
-                await fetch(
-                    "/set_goal",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "X-CSRFToken": csrfToken
-                        },
-
-                        body: formData
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            alert(
-                data.message ||
-                "Goal saved."
-            );
-
-            loadGoal();
-
-        }
-
-        catch (err) {
-
-            console.error(
-                "Goal save error:",
-                err
-            );
-
-            alert(
-                "Unable to save goal."
-            );
-
-        }
-
-    };
-
-
-    window.loadGoal = async function () {
-
-        if (
-            !document.getElementById("goalDisplayName")
-        ) {
-            return;
-        }
-
-        const response =
-            await fetch(
-                "/get_goal"
-            );
-
-        const data =
-            await response.json();
-
-        document.getElementById(
-            "goalDisplayName"
-        ).innerText =
-            data.goal_name || "-";
-
-        document.getElementById(
-            "goalCurrentDisplay"
-        ).innerText =
-            data.current_amount;
-
-        document.getElementById(
-            "goalTargetDisplay"
-        ).innerText =
-            data.target_amount;
-
-        document.getElementById(
-            "goalPercentage"
-        ).innerText =
-            `${data.percentage}%`;
-
-        document.getElementById(
-            "goalProgressBar"
-        ).style.width =
-            `${Math.min(data.percentage, 100)}%`;
-
-        document.getElementById(
-            "goalMilestone"
-        ).innerText =
-            data.milestone || "";
-
-        document.getElementById(
-            "goalEta"
-        ).innerText =
-            data.eta || "";
-    };
-
-    // =========================
-    // Mobile Sidebar
-    // =========================
-
-    const menuToggle =
-        document.getElementById(
-            "menuToggle"
-        );
-
-    const sidebar =
-        document.querySelector(
-            ".sidebar"
-        );
-
-    const sidebarOverlay =
-        document.getElementById(
-            "sidebarOverlay"
-        );
-
-    if (
-        menuToggle &&
-        sidebar &&
-        sidebarOverlay
-    ) {
-
-        menuToggle.addEventListener(
-            "click",
-            () => {
-
-                sidebar.classList.toggle(
-                    "open"
-                );
-
-                sidebarOverlay.classList.toggle(
-                    "show"
-                );
-
-            }
-        );
-
-        sidebarOverlay.addEventListener(
-            "click",
-            () => {
-
-                sidebar.classList.remove(
-                    "open"
-                );
-
-                sidebarOverlay.classList.remove(
-                    "show"
-                );
-
-            }
-        );
-
-    }
-
-
     // Dashboard
 
     if (
@@ -1520,6 +1442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadCharts();
         loadInsights();
         loadGoalProgress();
+        loadGoalDetails();
         loadRecommendations();
         loadHealthScore();
         loadTopSubcategory();
@@ -1556,7 +1479,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("goalDisplayName")
     ) {
 
-        loadGoal();
+        loadGoalDetails();
 
     }
 

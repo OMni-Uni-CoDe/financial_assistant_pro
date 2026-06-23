@@ -12,7 +12,7 @@
 
         <form id="budgetForm"
               method="POST"
-              action="/budget">
+              action="/set_budget">
 
             <input type="hidden"
                    name="csrf_token"
@@ -64,4 +64,11 @@
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for(
+    'static',
+    filename='dashboard.js'
+) }}"></script>
 {% endblock %}

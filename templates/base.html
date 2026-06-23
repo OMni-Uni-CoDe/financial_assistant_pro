@@ -237,7 +237,7 @@
                 {% endif %}
 
             </div>
-            
+
             {% endif %}
 
             {% if current_user.is_authenticated %}
@@ -268,7 +268,28 @@
 
             {% endif %}
 
+            {% with messages =
+            get_flashed_messages(
+            with_categories=true
+            ) %}
 
+            {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                <div class="flash {{ category }}">
+                    {{ message }}
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+            {% endwith %}
 
             {% block content %}
             {% endblock %}
@@ -309,6 +330,47 @@
                 });
 
             });
+
+
+
+            const menuToggle =
+                document.getElementById("menuToggle");
+
+            const sidebar =
+                document.querySelector(".sidebar");
+
+            const overlay =
+                document.getElementById("sidebarOverlay");
+
+
+
+            if (menuToggle && sidebar) {
+
+                menuToggle.addEventListener("click", () => {
+
+                    sidebar.classList.toggle("show");
+
+                    if (overlay) {
+                        overlay.classList.toggle("show");
+                    }
+
+                });
+
+            }
+
+
+
+            if (overlay) {
+
+                overlay.addEventListener("click", () => {
+
+                    sidebar.classList.remove("show");
+
+                    overlay.classList.remove("show");
+
+                });
+
+            }
 
         });
 

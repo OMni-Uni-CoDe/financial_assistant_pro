@@ -22,40 +22,47 @@
 
 <script>
 
-async function loadForecast() {
+    async function loadForecast() {
 
-    try {
+        try {
 
-        const response =
-            await fetch(
-                "/get_forecast"
+            const response =
+                await fetch(
+                    "/get_forecast"
+                );
+
+            const data =
+                await response.json();
+
+            document
+                .getElementById(
+                    "forecastContainer"
+                )
+                .innerHTML =
+                `<pre>${data.forecast}</pre>`;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Forecast failed:",
+                error
             );
 
-        const data =
-            await response.json();
-
-        document
-            .getElementById(
-                "forecastContainer"
-            )
-            .innerHTML =
-            `<pre>${data.forecast}</pre>`;
+        }
 
     }
 
-    catch(error) {
-
-        console.error(
-            "Forecast failed:",
-            error
-        );
-
-    }
-
-}
-
-loadForecast();
+    loadForecast();
 
 </script>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for(
+    'static',
+    filename='dashboard.js'
+) }}"></script>
 {% endblock %}

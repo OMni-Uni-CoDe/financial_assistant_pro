@@ -454,10 +454,21 @@ def splash():
     bg_folder = os.path.join(app.static_folder, "backgrounds")
 
     # read all JPG/JPEG/PNG files
-    files = [
-        f for f in os.listdir(bg_folder)
-        if f.lower().endswith((".jpg", ".jpeg", ".png"))
-    ]
+    if not os.path.exists(bg_folder):
+
+        bg_url = url_for(
+            "static",
+            filename="backgrounds/default.jpg"
+        )
+
+    else:
+
+        files = [
+            f for f in os.listdir(bg_folder)
+            if f.lower().endswith(
+                (".jpg", ".jpeg", ".png")
+            )
+        ]
 
     if not files:
         # fallback color or image
@@ -662,15 +673,146 @@ def reports_page():
 # BUDGET ROUTES
 # ==================================================
 
-@app.route("/budget")
+@app.route("/budget", methods=["GET", "POST"])
 @login_required
-@confirmed_required
 def budget_page():
 
+    if request.method == "POST":
+
+        try:
+
+            current_user.budget = float(
+                request.form.get("budget", 0)
+            )
+
+            db.session.commit()
+
+            flash(
+                "Budget saved successfully!",
+                "success"
+            )
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            print(e)
+
+            flash(
+                "Failed to save budget.",
+                "danger"
+            )
+
+        return redirect(
+            url_for("budget_page")
+        )
+
     return render_template(
-        "budget.html",
-        username=current_user.username
+        "budget.html"
     )
+
+# ==================================================
+# SAVE GOALS ROUTES
+# ==================================================
+
+@app.route("/save_goal", methods=["POST"])
+@login_required
+def save_goal():
+
+    goal_name = request.form.get("goal_name")
+
+    try:
+
+        target_amount = float(
+            request.form.get(
+                "target_amount",
+                0
+            )
+        )
+
+        current_amount = float(
+            request.form.get(
+                "current_amount",
+                0
+            )
+        )
+
+    except ValueError:
+
+        flash(
+            "Invalid amount entered.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("goals_page")
+        )
+
+
+    if not goal_name:
+        flash(
+            "Goal name is required.",
+            "danger"
+        )
+        return redirect(
+            url_for("goals_page")
+        )
+
+    if target_amount <= 0:
+
+        flash(
+            "Target amount must be greater than zero.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("goals_page")
+        )
+
+    if current_amount < 0:
+
+        flash(
+            "Current savings cannot be negative.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("goals_page")
+        )
+
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if goal:
+
+        goal.goal_name = goal_name
+        goal.target_amount = target_amount
+        goal.current_amount = current_amount
+
+    else:
+
+        goal = SavingsGoal(
+            user_id=current_user.id,
+            goal_name=goal_name,
+            target_amount=target_amount,
+            current_amount=current_amount
+        )
+
+        db.session.add(goal)
+            
+    db.session.commit()
+
+    flash(
+        "Goal saved successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("goals_page")
+    )
+
 
 # ==================================================
 # FORECAST ROUTES
@@ -979,12 +1121,15 @@ def download_monthly_pdf():
 
     if goal and goal.target_amount > 0:
 
-        progress = round(
-            (
-                goal.current_amount /
-                goal.target_amount
-            ) * 100,
-            1
+        progress = min(
+            100,
+            round(
+                (
+                    goal.current_amount /
+                    goal.target_amount
+                ) * 100,
+                1
+            )
         )
 
         pdf.set_font("Arial", "B", 14)
@@ -1552,6 +1697,52 @@ def get_goal_progress():
 
     return jsonify({
         "progress": round(progress, 1)
+    })
+
+
+@app.route("/get_goal_details")
+@login_required
+def get_goal_details():
+
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not goal:
+        return jsonify({
+            "goal_name": "",
+            "target_amount": 0,
+            "current_amount": 0,
+            "progress": 0,
+            "remaining": 0
+        })
+
+    progress = 0
+
+    if goal.target_amount > 0:
+        progress = min(
+            100,
+            round(
+                (
+                    goal.current_amount /
+                    goal.target_amount
+                ) * 100,
+                1
+            )
+        )
+
+    remaining = max(
+        0,
+        goal.target_amount -
+        goal.current_amount
+    )
+
+    return jsonify({
+        "goal_name": goal.goal_name,
+        "target_amount": goal.target_amount,
+        "current_amount": goal.current_amount,
+        "progress": progress,
+        "remaining": remaining
     })
 
 
@@ -2999,15 +3190,15 @@ def set_budget():
 
         return jsonify({
             "success": True,
-            "message": "Budget updated."
+            "message": "Budget saved successfully"
         })
 
     except Exception as e:
 
         return jsonify({
             "success": False,
-            "message": str(e)
-        }), 400
+            "message": "Failed to save budget"
+        }), 500
 
 # ==================================================
 # REPORT EXPORTS
@@ -3586,12 +3777,15 @@ def download_pdf():
 
     if goal and goal.target_amount > 0:
 
-        progress = round(
-            (
-                goal.current_amount /
-                goal.target_amount
-            ) * 100,
-            1
+        progress = min(
+            100,
+            round(
+                (
+                    goal.current_amount /
+                    goal.target_amount
+                ) * 100,
+                1
+            )
         )
 
         pdf.set_font("Arial", "B", 14)
