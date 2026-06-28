@@ -147,28 +147,6 @@ class User(db.Model, UserMixin):
 
 
 class Expense(db.Model):
-    __table_args__ = (
-
-        db.Index(
-            "idx_user_date",
-            "user_id",
-            "date"
-        ),
-
-        db.Index(
-            "idx_user_category",
-            "user_id",
-            "category"
-        ),
-
-        db.Index(
-            "idx_user_subcategory",
-            "user_id",
-            "subcategory"
-        ),
-
-    )
-
     id = db.Column(
         db.Integer,
         primary_key=True
@@ -177,25 +155,21 @@ class Expense(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id"),
-        nullable=False,
-        index=True
+        nullable=False
     )
 
     date = db.Column(
         db.Date,
-        default=datetime.utcnow,
-        index=True
+        default=datetime.utcnow
     )
 
     category = db.Column(
-        db.String(120),
-        index=True
+        db.String(120)
     )
 
     subcategory = db.Column(
         db.String(120),
-        default="",
-        index=True
+        default=""
     )
 
     amount = db.Column(
@@ -2028,189 +2002,109 @@ def get_data():
             Expense.category == category
         )
 
+    expenses = query.order_by(
+        Expense.date.asc()
+    ).all()
+
+    if not expenses:
+        return jsonify({
+            "categories": [],
+            "totals": [],
+            "dates": [],
+            "daily_totals": []
+        })
+
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
     category_totals = (
-
-        query.with_entities(
-
-            Expense.category,
-
-            db.func.sum(
-                Expense.amount
-            )
-
-        )
-
-        .group_by(
-            Expense.category
-        )
-
-        .all()
-
+        df.groupby("category")["amount"]
+        .sum()
+        .to_dict()
     )
 
     daily_totals = (
-
-        query.with_entities(
-
-            Expense.date,
-
-            db.func.sum(
-                Expense.amount
-            )
-
-        )
-
-        .group_by(
-            Expense.date
-        )
-
-        .order_by(
-            Expense.date.asc()
-        )
-
-        .all()
-
+        df.groupby("date")["amount"]
+        .sum()
+        .to_dict()
     )
 
     return jsonify({
-
-        "categories": [
-
-            category
-
-            for category, _ in category_totals
-
-        ],
-
-        "totals": [
-
-            float(total)
-
-            for _, total in category_totals
-
-        ],
-
-        "dates": [
-
-            str(date)
-
-            for date, _ in daily_totals
-
-        ],
-
-        "daily_totals": [
-
-            float(total)
-
-            for _, total in daily_totals
-
-        ]
-
+        "categories": list(category_totals.keys()),
+        "totals": list(category_totals.values()),
+        "dates": [str(d) for d in daily_totals.keys()],
+        "daily_totals": list(daily_totals.values())
     })
 
 @app.route("/get_top_subcategory")
 @login_required
 def get_top_subcategory():
 
-    total_spent = (
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
 
-        db.session.query(
-
-            db.func.sum(
-                Expense.amount
-            )
-
-        )
-
-        .filter_by(
-
-            user_id=current_user.id
-
-        )
-
-        .scalar()
-
-        or 0
-
-    )
-
-    top = (
-
-        db.session.query(
-
-            Expense.category,
-
-            Expense.subcategory,
-
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
-        )
-
-        .filter_by(
-
-            user_id=current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.category,
-            Expense.subcategory
-
-        )
-
-        .order_by(
-
-            db.desc("total")
-
-        )
-
-        .first()
-
-    )
-
-    if not top:
+    if not expenses:
 
         return jsonify({
-
             "category": "-",
-
             "subcategory": "-",
-
             "amount": 0,
-
             "percentage": 0
-
         })
 
-    percentage = (
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
 
-        round(
+    total_spent = df["amount"].sum()
 
-            (top.total / total_spent) * 100,
-
-            2
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
         )
-
-        if total_spent
-
-        else 0
     )
+
+    top_entry = subcategory_totals.index[0]
+
+    top_amount = (
+        subcategory_totals.iloc[0]
+    )
+
+    percentage = (
+        top_amount /
+        total_spent
+    ) * 100
 
     return jsonify({
 
-        "category": top.category,
+        "category":
+            top_entry[0],
 
-        "subcategory": top.subcategory,
+        "subcategory":
+            top_entry[1],
 
-        "amount": round(
-            float(top.total),
-            2
-        ),
+        "amount":
+            round(top_amount, 2),
 
-        "percentage": percentage
+        "percentage":
+            round(percentage, 1)
 
     })
 
@@ -2218,71 +2112,32 @@ def get_top_subcategory():
 @login_required
 def get_subcategory_data():
 
-    results = (
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
 
-        db.session.query(
+    totals = {}
 
-            Expense.category,
+    for expense in expenses:
 
-            Expense.subcategory,
+        subcategory = expense.subcategory or "Other"
 
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
+        totals[subcategory] = (
+            totals.get(subcategory, 0)
+            + expense.amount
         )
 
-        .filter_by(
-
-            user_id=current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.category,
-
-            Expense.subcategory
-
-        )
-
-        .order_by(
-
-            db.desc("total")
-
-        )
-
-        .all()
-
+    sorted_totals = sorted(
+        totals.items(),
+        key=lambda x: x[1],
+        reverse=True
     )
-
-    if not results:
-
-        return jsonify({
-
-            "labels": [],
-
-            "values": []
-
-        })
 
     return jsonify({
 
-        "labels": [
+        "labels": [x[0] for x in sorted_totals],
 
-            f"{row.category} - {row.subcategory}"
-
-            for row in results
-
-        ],
-
-        "values": [
-
-            round(float(row.total), 2)
-
-            for row in results
-
-        ]
+        "values": [x[1] for x in sorted_totals]
 
     })
 
@@ -2290,34 +2145,27 @@ def get_subcategory_data():
 @login_required
 def get_subcategory_breakdown():
 
-    rows = (
-        db.session.query(
-            Expense.category,
-            Expense.subcategory,
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-        )
-        .filter(
-            Expense.user_id == current_user.id
-        )
-        .group_by(
-            Expense.category,
-            Expense.subcategory
-        )
-        .all()
-    )
+    rows = db.session.query(
+        Expense.category,
+        Expense.subcategory,
+        db.func.sum(Expense.amount)
+    ).filter(
+        Expense.user_id == current_user.id
+    ).group_by(
+        Expense.category,
+        Expense.subcategory
+    ).all()
 
     result = {}
 
-    for category, subcategory, total in rows:
+    for category, subcategory, amount in rows:
 
         if category not in result:
             result[category] = []
 
         result[category].append({
             "subcategory": subcategory,
-            "amount": round(float(total), 2)
+            "amount": round(float(amount), 2)
         })
 
     return jsonify(result)
@@ -2402,57 +2250,19 @@ def get_insights():
     # Spending Concentration
     # ==========================
 
-    top_entry = (
-
-        db.session.query(
-
-            Expense.category,
-
-            Expense.subcategory,
-
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
         )
-
-        .filter(
-
-            Expense.user_id == current_user.id,
-
-            db.extract(
-                "month",
-                Expense.date
-            ) == today.month,
-
-            db.extract(
-                "year",
-                Expense.date
-            ) == today.year
-
-        )
-
-        .group_by(
-
-            Expense.category,
-
-            Expense.subcategory
-
-        )
-
-        .order_by(
-
-            db.desc("total")
-
-        )
-
-        .first()
-
     )
 
-    top_amount = float(
-        top_entry.total
-    )
+    top_entry = subcategory_totals.index[0]
+
+    top_amount = subcategory_totals.iloc[0]
 
     top_percent = (
         top_amount /
@@ -2486,37 +2296,8 @@ def get_insights():
 
     # Spending Diversity
 
-    category_count = (
-
-        db.session.query(
-
-            db.func.count(
-
-                db.distinct(
-                    Expense.category
-                )
-
-            )
-
-        )
-
-        .filter(
-
-            Expense.user_id == current_user.id,
-
-            db.extract(
-                "month",
-                Expense.date
-            ) == today.month,
-
-            db.extract(
-                "year",
-                Expense.date
-            ) == today.year
-
-        )
-        .scalar()
-        or 0
+    category_count = len(
+        df["category"].unique()
     )
 
     insights.append({
@@ -2640,6 +2421,18 @@ def get_forecast():
 
     today = datetime.utcnow().date()
 
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
+    ).all()
+
+    if not expenses:
+
+        return jsonify({
+            "forecast": "No spending data available."
+        })
+
     total_spent = db.session.query(
         db.func.sum(Expense.amount)
     ).filter(
@@ -2647,13 +2440,6 @@ def get_forecast():
         db.extract("month", Expense.date) == today.month,
         db.extract("year", Expense.date) == today.year
     ).scalar() or 0
-
-    if total_spent == 0:
-
-        return jsonify({
-            "forecast":
-            "No spending data available."
-        })
 
     today = datetime.utcnow().date()
 
@@ -2705,20 +2491,13 @@ def get_recommendations():
 
     today = datetime.utcnow().date()
 
-    total_spent = (
-        db.session.query(
-            db.func.sum(Expense.amount)
-        )
-        .filter(
-            Expense.user_id == current_user.id,
-            db.extract("month", Expense.date) == today.month,
-            db.extract("year", Expense.date) == today.year
-        )
-        .scalar()
-        or 0
-    )
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract("month", Expense.date) == today.month,
+        db.extract("year", Expense.date) == today.year
+    ).all()
 
-    if total_spent == 0:
+    if not expenses:
 
         return jsonify({
             "recommendations": [
@@ -2729,6 +2508,17 @@ def get_recommendations():
                 }
             ]
         })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "subcategory": e.subcategory,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
 
     recommendations = []
 
@@ -2744,11 +2534,6 @@ def get_recommendations():
         today.month
     )[1]
 
-    days_remaining = max(
-        days_in_month - today.day,
-        1
-    )
-
     projected_spending = (
         total_spent /
         days_passed
@@ -2756,57 +2541,24 @@ def get_recommendations():
 
     budget = current_user.budget or 0
 
-    remaining_budget = (
-        budget -
-        total_spent
-    )
-
-    daily_limit = (
-        remaining_budget /
-        days_remaining
-        if budget > 0
-        else 0
-    )
     # ==========================
     # Top Expense
     # ==========================
 
-    top_row = (
-        db.session.query(
-            Expense.category,
-            Expense.subcategory,
-            db.func.sum(
-                Expense.amount
-            ).label("total")
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
         )
-        .filter(
-            Expense.user_id == current_user.id,
-            db.extract(
-                "month",
-                Expense.date
-            ) == today.month,
-            db.extract(
-                "year",
-                Expense.date
-            ) == today.year
-        )
-        .group_by(
-            Expense.category,
-            Expense.subcategory
-        )
-        .order_by(
-            db.desc("total")
-        )
-        .first()
     )
 
-    top_entry = (
-        top_row.category,
-        top_row.subcategory
-    )
+    top_entry = subcategory_totals.index[0]
 
-    top_amount = float(
-        top_row.total
+    top_amount = (
+        subcategory_totals.iloc[0]
     )
 
     top_percent = (
@@ -2838,6 +2590,26 @@ def get_recommendations():
                 f"Rs. {excess:.0f}"
 
         })
+
+        remaining_budget = (
+            budget -
+            total_spent
+        )
+
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
+        days_remaining = max(
+            days_in_month - today.day,
+            1
+        )
+
+        daily_limit = (
+            remaining_budget /
+            days_remaining
+        )
 
         recommendations.append({
 
@@ -2884,6 +2656,26 @@ def get_recommendations():
                 f"under budget"
 
         })
+
+        days_in_month = calendar.monthrange(
+            today.year,
+            today.month
+        )[1]
+
+        days_remaining = max(
+            days_in_month - today.day,
+            1
+        )
+
+        remaining_budget = (
+            budget -
+            total_spent
+        )
+
+        daily_limit = (
+            remaining_budget /
+            days_remaining
+        )
 
         recommendations.append({
 
@@ -2992,12 +2784,9 @@ def get_monthly_comparison():
     current_year = today.year
 
     if current_month == 1:
-
         previous_month = 12
         previous_year = current_year - 1
-
     else:
-
         previous_month = current_month - 1
         previous_year = current_year
 
@@ -3017,15 +2806,7 @@ def get_monthly_comparison():
         db.extract("year", Expense.date) == previous_year
     ).scalar() or 0
 
-    if current_total == 0 and previous_total == 0:
-
-        return jsonify({
-            "comparison":
-                "Not enough data available."
-        })
-
     if previous_total == 0:
-
         return jsonify({
             "comparison":
             "No previous month data available."
@@ -3037,21 +2818,16 @@ def get_monthly_comparison():
     ) * 100
 
     if percentage_change > 0:
-
         trend = (
             f"↑ {percentage_change:.1f}% "
             f"higher than last month"
         )
-
     elif percentage_change < 0:
-
         trend = (
             f"↓ {abs(percentage_change):.1f}% "
             f"lower than last month"
         )
-
     else:
-
         trend = (
             "No change from last month"
         )
@@ -3067,35 +2843,35 @@ def get_health_score():
 
     today = datetime.utcnow().date()
 
-    total_spent = (
-        db.session.query(
-            db.func.sum(
-                Expense.amount
-            )
-        )
-        .filter(
-            Expense.user_id == current_user.id,
-            db.extract(
-                "month",
-                Expense.date
-            ) == today.month,
-            db.extract(
-                "year",
-                Expense.date
-            ) == today.year
-        )
-        .scalar()
-        or 0
-    )
+    expenses = Expense.query.filter(
+        Expense.user_id == current_user.id,
+        db.extract(
+            "month",
+            Expense.date
+        ) == today.month,
+        db.extract(
+            "year",
+            Expense.date
+        ) == today.year
+    ).all()
 
-    if total_spent == 0:
+    if not expenses:
 
         return jsonify({
             "score": 100,
             "rating": "Excellent",
-            "message":
-                "No spending recorded yet."
+            "message": "No spending recorded yet."
         })
+
+    df = pd.DataFrame([
+        {
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
+
+    total_spent = df["amount"].sum()
 
     score = 0
 
@@ -3127,16 +2903,16 @@ def get_health_score():
     # Forecast Risk (30 pts)
     # ==========================
 
+    today = datetime.utcnow().date()
+
     days_in_month = calendar.monthrange(
         today.year,
         today.month
     )[1]
 
-    days_passed = max(today.day, 1)
-
     projected = (
         total_spent /
-        days_passed
+        max(today.day, 1)
     ) * days_in_month
 
     if budget > 0:
@@ -3154,35 +2930,14 @@ def get_health_score():
     # Spending Concentration
     # ==========================
 
-    top_category = (
-        db.session.query(
-            Expense.category,
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-        )
-        .filter(
-            Expense.user_id == current_user.id,
-            db.extract(
-                "month",
-                Expense.date
-            ) == today.month,
-            db.extract(
-                "year",
-                Expense.date
-            ) == today.year
-        )
-        .group_by(
-            Expense.category
-        )
-        .order_by(
-            db.desc("total")
-        )
-        .first()
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(ascending=False)
     )
 
     top_share = (
-        float(top_category.total)
+        category_totals.iloc[0]
         / total_spent
     ) * 100
 
@@ -4141,49 +3896,13 @@ def download_pdf():
     # TOP CATEGORIES
     # ==========================
 
-    category_rows = (
-
-        db.session.query(
-
-            Expense.category,
-
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
+    category_totals = (
+        df.groupby("category")["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
         )
-
-        .filter(
-
-            Expense.user_id == current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.category
-
-        )
-
-        .order_by(
-
-            db.desc("total")
-
-        )
-
-        .all()
-
     )
-
-    category_totals = {
-
-        row.category: float(
-            row.total
-        )
-
-        for row in category_rows
-
-    }
 
     # ==========================
     # PIE CHART IMAGE
@@ -4218,38 +3937,9 @@ def download_pdf():
     # TREND CHART IMAGE
     # ==========================
 
-    daily_rows = (
-
-        db.session.query(
-
-            Expense.date,
-
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
-        )
-
-        .filter(
-
-            Expense.user_id == current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.date
-
-        )
-
-        .order_by(
-
-            Expense.date.asc()
-
-        )
-
-        .all()
-
+    daily_spending = (
+        df.groupby("date")["amount"]
+        .sum()
     )
 
     trend_file = tempfile.NamedTemporaryFile(
@@ -4260,13 +3950,9 @@ def download_pdf():
     plt.figure(figsize=(6, 3))
 
     plt.plot(
-
-        [str(row.date) for row in daily_rows],
-
-        [float(row.total) for row in daily_rows],
-
+        daily_spending.index.astype(str),
+        daily_spending.values,
         marker="o"
-
     )
 
     plt.xticks(rotation=45)
@@ -4323,9 +4009,7 @@ def download_pdf():
 
     pdf.set_font("Arial", "", 11)
 
-    for category, amount in list(
-        category_totals.items()
-    )[:5]:
+    for category, amount in category_totals.head(5).items():
 
         percent = (
             amount / total_spent * 100
@@ -4416,42 +4100,14 @@ def download_pdf():
     # TOP SUBCATEGORIES
     # ==========================
 
-    subcategory_rows = (
-
-        db.session.query(
-
-            Expense.category,
-
-            Expense.subcategory,
-
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-
+    subcategory_totals = (
+        df.groupby(
+            ["category", "subcategory"]
+        )["amount"]
+        .sum()
+        .sort_values(
+            ascending=False
         )
-
-        .filter(
-
-            Expense.user_id == current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.category,
-
-            Expense.subcategory
-
-        )
-
-        .order_by(
-
-            db.desc("total")
-
-        )
-
-        .all()
-
     )
 
     if pdf.get_y() > 220:
@@ -4470,34 +4126,10 @@ def download_pdf():
 
     pdf.set_x(pdf.l_margin)
 
-    for row in subcategory_rows[:5]:
-
-        category = row.category
-
-        subcategory = row.subcategory
-
-        amount = float(
-            row.total
-        )
-
-        percentage = (
-            amount /
-            total_spent
-        ) * 100
-
-        pdf.cell(
-
-            0,
-
-            8,
-
-            f"{category} -> {subcategory}: "
-            f"Rs. {amount:.2f} "
-            f"({percentage:.1f}%)",
-
-            ln=True
-
-        )
+    for (
+        category,
+        subcategory
+    ), amount in subcategory_totals.head(5).items():
 
         percentage = (
             amount /
@@ -4543,15 +4175,9 @@ def download_pdf():
     )
 
     highest_category = (
-
-        next(
-            iter(category_totals)
-        )
-
-        if category_totals
-
+        category_totals.index[0]
+        if not category_totals.empty
         else "N/A"
-
     )
 
     pdf.cell(
@@ -4720,58 +4346,45 @@ def ask():
     if not question:
         return jsonify({"answer": "Ask a valid question."})
 
-    rows = (
-        db.session.query(
-            Expense.category,
-            db.func.sum(
-                Expense.amount
-            ).label("total")
-        )
-        .filter(
-            Expense.user_id == current_user.id
-        )
-        .group_by(
-            Expense.category
-        )
-        .all()
-    )
+    expenses = Expense.query.filter_by(
+        user_id=current_user.id
+    ).all()
 
-    if not rows:
-
+    if not expenses:
         return jsonify({
-            "answer":
-            "No expenses found to analyze."
+            "answer": "No expenses found to analyze."
         })
 
-    summary = {
+    df = pd.DataFrame([
+        {
+            "date": e.date,
+            "category": e.category,
+            "amount": e.amount
+        }
+        for e in expenses
+    ])
 
-        row.category: round(
-            float(row.total),
-            2
-        )
-
-        for row in rows
-
-    }
-
-    total_spent = sum(
-        summary.values()
+    summary = (
+        df.groupby("category")["amount"]
+        .sum()
+        .to_dict()
     )
 
+    total_spent = df["amount"].sum()
+
     prompt = f"""
+User spending summary:
 
-        User spending summary:
+Total spent: Rs. {total_spent:.2f}
 
-        Total spent: Rs. {total_spent:.2f}
+Category totals:
+{summary}
 
-        Category totals:
-        {summary}
+User question:
+{question}
 
-        User question:
-        {question}
-
-        Give a short practical financial answer.
-        """
+Give a short practical financial answer.
+"""
 
     try:
         response = client.chat.completions.create(
@@ -4795,82 +4408,23 @@ def ask():
             "answer": answer
         })
 
-    except Exception as e:
-
-        print(
-            f"OpenAI error: {e}"
-        )
-
-        highest = max(
-            summary,
-            key=summary.get
-        )
+    except Exception:
+        highest = max(summary, key=summary.get)
 
         return jsonify({
-
             "answer":
-                f"Total spending: Rs. {total_spent:.2f}. "
-                f"Highest category: {highest} "
-                f"(Rs. {summary[highest]:.2f})."
-
+            f"Total spending: Rs. {total_spent:.2f}. "
+            f"Highest category: {highest} "
+            f"(Rs. {summary[highest]:.2f})."
         })
 # ---------- Prediction ----------
 @app.route("/predict_future")
 @login_required
 def predict_future():
-    
-    daily_totals = (
-
-        db.session.query(
-
-            Expense.date,
-
-            db.func.sum(
-                Expense.amount
-            ).label("amount")
-
-        )
-
-        .filter(
-
-            Expense.user_id == current_user.id
-
-        )
-
-        .group_by(
-
-            Expense.date
-
-        )
-
-        .order_by(
-
-            Expense.date.asc()
-
-        )
-
-        .all()
-
-    )
-
-    if len(daily_totals) < 2:
-
-        return jsonify({
-
-            "prediction":
-            "Not enough data for prediction."
-
-        })
-
-    df = pd.DataFrame(
-
-        daily_totals,
-        columns=[
-            "date",
-            "amount"
-        ]
-    )
-
+    expenses = Expense.query.filter_by(user_id=current_user.id).all()
+    if len(expenses) < 2:
+        return jsonify({"prediction": "Not enough data for prediction."})
+    df = pd.DataFrame([{"date": e.date, "amount": e.amount} for e in expenses])
     df["date"] = pd.to_datetime(df["date"])
     df["day_index"] = (df["date"] - df["date"].min()).dt.days
     model = LinearRegression()

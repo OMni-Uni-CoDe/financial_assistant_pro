@@ -1441,15 +1441,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         loadCharts();
         loadInsights();
+        loadBudget();
         loadGoalProgress();
         loadGoalDetails();
         loadRecommendations();
         loadHealthScore();
         loadTopSubcategory();
-        loadSubcategoryBreakdown();
         loadMonthlyComparison();
-        loadTrendChart();
-        loadAnalyticsBreakdown();
         loadHistory();
     }
 
@@ -1512,12 +1510,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (
         document.getElementById(
             "subcategoryBreakdownContainer"
+        ) &&
+
+        !document.getElementById(
+            "totalSpent"
         )
     ) {
 
         loadSubcategoryBreakdown();
 
     }
+
+    // Analytics Breakdown Page
 
     if (document.getElementById("analyticsBreakdown")) {
         loadAnalyticsBreakdown();
