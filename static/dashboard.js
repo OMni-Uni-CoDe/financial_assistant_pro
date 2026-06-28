@@ -444,26 +444,41 @@ document.addEventListener("DOMContentLoaded", () => {
             const data =
                 await res.json();
 
-            if (
-                !document.getElementById("budgetAmount")
-            ) {
-                return;
+            const budgetAmount =
+                document.getElementById(
+                    "budgetAmount"
+                );
+
+            if (budgetAmount) {
+
+                budgetAmount.innerText =
+                    `₹${data.budget.toFixed(2)}`;
+
             }
 
-            document.getElementById(
-                "budgetAmount"
-            ).innerText =
-                `₹${data.budget.toFixed(2)}`;
+            const remainingBudget =
+                document.getElementById(
+                    "remainingBudget"
+                );
 
-            document.getElementById(
-                "remainingBudget"
-            ).innerText =
-                `₹${data.remaining.toFixed(2)}`;
+            if (remainingBudget) {
 
-            document.getElementById(
-                "budgetPercentage"
-            ).innerText =
-                `${data.percentage}%`;
+                remainingBudget.innerText =
+                    `₹${data.remaining.toFixed(2)}`;
+
+            }
+
+            const budgetPercentage =
+                document.getElementById(
+                    "budgetPercentage"
+                );
+
+            if (budgetPercentage) {
+
+                budgetPercentage.innerText =
+                    `${data.percentage}%`;
+
+            }
 
             const dashboardBudget =
                 document.getElementById(
@@ -480,29 +495,37 @@ document.addEventListener("DOMContentLoaded", () => {
                     "budgetFill"
                 );
 
-            fill.style.width =
-                `${Math.min(data.percentage, 100)}%`;
+            if (fill) {
+
+                fill.style.width =
+                    `${Math.min(data.percentage, 100)}%`;
+
+            }
 
             const alertBox =
                 document.getElementById(
                     "budgetAlert"
                 );
 
-            if (data.percentage >= 100) {
+            if (alertBox) {
 
-                alertBox.innerText =
-                    "🚨 Budget exceeded!";
+                if (data.percentage >= 100) {
 
-            } else if (
-                data.percentage >= 80
-            ) {
+                    alertBox.innerText =
+                        "🚨 Budget exceeded!";
 
-                alertBox.innerText =
-                    "⚠ Approaching budget limit";
+                } else if (
+                    data.percentage >= 80
+                ) {
 
-            } else {
+                    alertBox.innerText =
+                        "⚠ Approaching budget limit";
 
-                alertBox.innerText = "";
+                } else {
+
+                    alertBox.innerText = "";
+
+                }
 
             }
 

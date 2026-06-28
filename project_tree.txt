@@ -1,0 +1,107 @@
+Folder PATH listing
+Volume serial number is BE2F-7CD4
+C:.
+³   .gitignore
+³   app.py
+³   app_backup_before_optimization.py
+³   config.py
+³   findstr
+³   project_tree.txt
+³   python
+³   render.yaml
+³   requirements.txt
+³   runtime.txt
+³   
+ÃÄÄÄ.vs
+³   ³   ProjectSettings.json
+³   ³   slnx.sqlite
+³   ³   VSWorkspaceState.json
+³   ³   
+³   ÃÄÄÄfinancial_assistant_pro
+³   ³   ÀÄÄÄCopilotIndices
+³   ³       ÃÄÄÄ18.6.39603.9996
+³   ³       ³       CodeChunks.db
+³   ³       ³       SemanticSymbols.db
+³   ³       ³       
+³   ³       ÃÄÄÄ18.6.39611.21775
+³   ³       ³       CodeChunks.db
+³   ³       ³       SemanticSymbols.db
+³   ³       ³       
+³   ³       ÀÄÄÄ18.7.1238.64283
+³   ³               CodeChunks.db
+³   ³               SemanticSymbols.db
+³   ³               
+³   ÀÄÄÄfinancial_assistant_pro.slnx
+³       ÃÄÄÄconfig
+³       ³       applicationhost.config
+³       ³       
+³       ÃÄÄÄcopilot-chat
+³       ³   ÀÄÄÄbc04b45d
+³       ³       ÀÄÄÄsessions
+³       ÃÄÄÄFileContentIndex
+³       ³       4d0d2c0e-bc5f-451d-83f1-b129f6e6c4bd.vsidx
+³       ³       7860e0e6-0589-455e-99ce-6bc42fd483c7.vsidx
+³       ³       8b447270-d8b0-49aa-9fbd-4f798624c5f6.vsidx
+³       ³       c4fe3479-a757-46f3-8fef-3d63ea9afe0a.vsidx
+³       ³       d6956595-c338-4a16-a437-cbc428db025e.vsidx
+³       ³       
+³       ÀÄÄÄv18
+³               DocumentLayout.backup.json
+³               DocumentLayout.json
+³               
+ÃÄÄÄinstance
+³       local.db
+³       
+ÃÄÄÄstatic
+³   ³   ai.css
+³   ³   dashboard.js
+³   ³   style.css
+³   ³   
+³   ÀÄÄÄbackgrounds
+³           bg1.jpg
+³           bg2.jpg
+³           bg3.jpg
+³           bg4.jpg
+³           bg5.jpg
+³           forest_fog_trees_140541_1920x1080.jpg
+³           hills_mountains_slope_1058037_1920x1080.jpg
+³           leaves_line_neon_139772_1920x1080.jpg
+³           magician_dragon_art_131303_1920x1080.jpg
+³           mountains_night_building_119895_1920x1080.jpg
+³           nebula_heart_glow_139563_1920x1080.jpg
+³           night_city_thunderstorm_top_view_117094_1920x1080.jpg
+³           ocean_horizon_sunset_135214_1920x1080.jpg
+³           railway_train_station_134586_1920x1080.jpg
+³           road_bridge_arch_143284_1920x1080.jpg
+³           ruins_man_loneliness_124279_1920x1080.jpg
+³           sea_sunset_art_131736_1920x1080.jpg
+³           street_city_autumn_131015_1920x1080.jpg
+³           street_neon_night_city_139596_1920x1080.jpg
+³           street_puddle_reflection_139688_1920x1080.jpg
+³           street_sunset_palm_trees_122106_1920x1080.jpg
+³           train_subway_underground_120794_1920x1080.jpg
+³           trolley_stop_city_119292_1920x1080.jpg
+³           valley_grass_hills_1029746_1920x1080.jpg
+³           
+ÃÄÄÄtemplates
+³       assistant.html
+³       base.html
+³       budget.html
+³       category_breakdown.html
+³       dashboard.html
+³       edit_expense.html
+³       expenses.html
+³       expense_analytics.html
+³       forecast.html
+³       goals.html
+³       login.html
+³       monthly_trend.html
+³       recommendations.html
+³       reports.html
+³       settings.html
+³       signup.html
+³       splash.html
+³       
+ÀÄÄÄ__pycache__
+        app.cpython-311.pyc
+        
