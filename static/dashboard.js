@@ -1417,31 +1417,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data =
                     await response.json();
 
-                if (data.comparison) {
-
+                const comparisonValue =
                     document.getElementById(
                         "comparisonValue"
-                    ).innerText =
-                        "--";
+                    );
 
+                const comparisonTrend =
                     document.getElementById(
                         "comparisonTrend"
-                    ).innerText =
-                        data.comparison;
+                    );
+
+                if (
+                    comparisonValue &&
+                    data.current_month !== undefined
+                ) {
+
+                    comparisonValue.innerText =
+                        `₹${data.current_month.toFixed(2)}`;
+
+                }
+
+                if (
+                    comparisonTrend &&
+                    data.trend
+                ) {
+
+                    comparisonTrend.innerText =
+                        data.trend;
 
                     return;
 
                 }
-
-                document.getElementById(
-                    "comparisonValue"
-                ).innerText =
-                    `₹${data.current_month}`;
-
-                document.getElementById(
-                    "comparisonTrend"
-                ).innerText =
-                    data.trend;
 
             }
 
