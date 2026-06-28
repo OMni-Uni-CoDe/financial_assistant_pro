@@ -3057,7 +3057,27 @@ def get_monthly_comparison():
         )
 
     return jsonify({
+
+        "current_month": round(
+            current_total,
+            2
+        ),
+
+        "previous_month": round(
+            previous_total,
+            2
+        ),
+
+        "percentage_change": round(
+            percentage_change,
+            1
+        ),
+
+        "trend": trend,
+
+        # Backward compatibility
         "comparison": trend
+
     })
 
 # --------- Financial Health Score ---------
